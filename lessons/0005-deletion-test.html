@@ -83,7 +83,7 @@ Glossário: <a href="../reference/0001-glossary.html#deletion-test">the deletion
     <line x1="40" y1="60" x2="700" y2="60" stroke="currentColor" stroke-width="1" stroke-dasharray="3 5" opacity="0.25"/>
 
     <!-- A: -1 -->
-    <rect x="90" y="200" width="130" height="14" fill="#8a5a12"/>
+    <rect x="90" y="200" width="130" height="9" fill="#8a5a12"/>
     <text x="155" y="236" text-anchor="middle" font-weight="700" fill="#8a5a12">−1</text>
     <text x="155" y="258" text-anchor="middle" font-size="11.5" fill="currentColor" opacity="0.8">A · TransferFacade</text>
     <text x="155" y="274" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.55">3 de 3 são repasse</text>
@@ -109,7 +109,7 @@ Glossário: <a href="../reference/0001-glossary.html#deletion-test">the deletion
 
 <h2>3 · Em Java</h2>
 
-<p>Três modules, três deleções — e nenhuma delas imaginada. Para cada caso existem <strong>dois conjuntos de callers reais</strong>, um atravessando o module e outro com o module apagado. Os dois compilam, os dois rodam, e o programa confere que produzem o mesmo dinheiro antes de contar qualquer linha.</p>
+<p>Três modules, três deleções — e nenhuma delas imaginada. Para cada caso existem <strong>dois conjuntos de callers reais</strong>, um atravessando o module e outro com o module apagado. Os dois compilam, os dois rodam, e o programa confere que produzem o mesmo dinheiro — <strong>lançamento por lançamento</strong>, não só no total — antes de contar qualquer linha.</p>
 
 <h3>A — a fachada</h3>
 
@@ -131,22 +131,22 @@ Glossário: <a href="../reference/0001-glossary.html#deletion-test">the deletion
 
 <p><strong>Menos um.</strong> Não é que apagar a fachada tenha saído de graça — saiu com lucro: o caller que a usava precisava construí-la primeiro (<code>new TransferFacade(ledger)</code>), e essa linha some junto. O module cobrava três métodos de interface, um construtor e uma decisão (<em>chamo a fachada ou o ledger?</em>) para entregar <strong>nada</strong>.</p>
 
-<p class="sidenote">A contagem "3 of 3" também não é olhômetro. O programa lê o próprio arquivo-fonte, isola cada método público casando chaves, achata o corpo e testa se ele é exatamente um repasse para um método de mesmo nome. É a Red Flag do Ousterhout — seção 4 — virada em contador.</p>
+<p class="sidenote">A contagem "3 of 3" também não é olhômetro. O programa lê o próprio arquivo-fonte, isola cada método público casando chaves, achata o corpo e testa se ele é exatamente um repasse para um método de mesmo nome. É a Red Flag do Ousterhout — a seção 4 <em>desta lição</em> — virada em contador.</p>
 
 <h3>B — o module que trabalha</h3>
 
-<p>Agora o <code>post(Transfer)</code> da <a href="0002-deep-module.html">lição 0002</a>: cinco statements atrás de uma chamada, com três call sites neste programa.</p>
+<p>Agora o <code>post(Transfer)</code> da <a href="0002-deep-module.html">lição 0002</a>: uma chamada no lugar dos cinco statements que cada call site teria de carregar sozinho — e são três call sites neste programa.</p>
 
 <pre><code>B. Ledger.post — delete it and see what comes back
-   statements inside post ........... 5
    call sites in this program ....... 3
+   statements per call site ......... 5
    caller lines with the module ..... 4
    caller lines without it .......... 19
    lines that reappeared ............ +15
    behaviour identical .............. true
    verdict .......................... earning its keep</code></pre>
 
-<p>Quinze linhas reaparecem — e o número não é o ponto. O ponto é <em>onde</em> elas reaparecem: em <strong>três lugares diferentes</strong>, cada um agora responsável por lembrar da ordem, do sinal do débito e da conta de tarifas. É a <a href="../reference/0001-glossary.html#locality">locality</a> da lição 0002 sendo destruída em tempo real, e é por isso que a segunda formulação do repositório — <em>"concentrate or just move it?"</em> — é a mais precisa das duas.</p>
+<p>Quinze linhas reaparecem — e o número não é o ponto. O ponto é <em>onde</em> elas reaparecem: em <strong>três lugares diferentes</strong>, cada um agora responsável por lembrar da ordem, do sinal do débito e da conta de tarifas. É a <a href="../reference/0001-glossary.html#locality">locality</a> do repositório — <em>"change, bugs, knowledge, and verification concentrate in one place rather than spreading across callers"</em> <span class="caption" style="border:0;padding:0;display:inline">— <code>codebase-design/SKILL.md:28</code></span> — sendo destruída em tempo real: o <code>post(Transfer)</code> da lição 0002 existia exatamente para manter essas cinco linhas num lugar só. E é por isso que a segunda formulação do repositório — <em>"concentrate complexity, or just move it?"</em> — é a mais precisa das duas.</p>
 
 <h3>C — onde o teste responde mal</h3>
 
@@ -169,7 +169,7 @@ Glossário: <a href="../reference/0001-glossary.html#deletion-test">the deletion
   <span class="callout-title">O contra-dado, e ele é contra a própria técnica</span>
   <p>Aplicado ao pé da letra, o <span class="en">deletion test</span> aprova a <code>AuditFacade</code>: complexidade reapareceu, logo ela estava <em>earning its keep</em>. <strong>E a resposta está errada.</strong></p>
   <p>Três dos quatro métodos não ganharam nada; <em>um</em> ganhou. O teste é <strong>binário</strong> e o defeito é <strong>proporcional</strong>. Um module pode ser 75% ruído e ainda passar, porque basta uma parte trabalhar para alguma coisa reaparecer.</p>
-  <p>A correção é simples e vale mais que a técnica original: <strong>aplique por método, não por classe</strong> — e quando a resposta sai misturada, o movimento certo não é nem apagar nem manter. É redistribuir. A seção 4 mostra que essa é a receita do Ousterhout, com três desenhos.</p>
+  <p>A correção é simples e vale mais que a técnica original: <strong>aplique por método, não por classe</strong> — e quando a resposta sai misturada, o movimento certo não é nem apagar nem manter. É redistribuir. A seção 4 desta lição mostra que essa é a receita do Ousterhout, com três desenhos.</p>
 </div>
 
 <pre><code>D. The measured totals, so nothing here is rhetorical
@@ -180,6 +180,8 @@ Glossário: <a href="../reference/0001-glossary.html#deletion-test">the deletion
    every posting sums to zero ....... true</code></pre>
 
 <p>O bloco D existe por um motivo específico: uma medição de linhas só vale se o comportamento não mudou. Se apagar o module quebrasse a contabilidade, a contagem seria sobre dois programas diferentes e não diria nada. As duas versões de cada caso fecham em R$&nbsp;0,00 — a invariante de partidas dobradas que segura o curso desde a lição 0002.</p>
+
+<p><strong>E repare no que o bloco D <em>não</em> prova sozinho.</strong> Um total zerado é fraco de propósito: pela própria invariante, <em>qualquer</em> conjunto equilibrado soma zero — inclusive o conjunto vazio. Um caller que não lançasse nada também imprimiria <code>0.00</code>. Por isso o <code>behaviour identical</code> das seções A, B e C não compara totais: compara os lançamentos <strong>um a um</strong>, na ordem, com o relógio fixo. D mostra que a invariante se manteve; é a comparação lançamento a lançamento que autoriza contar linhas.</p>
 
 <h2>4 · A fonte primária</h2>
 
@@ -246,7 +248,7 @@ Glossário: <a href="../reference/0001-glossary.html#deletion-test">the deletion
   <cite>Anthropic Engineering, <a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">"Equipping agents for the real world with Agent Skills"</a>, 16 out 2025 <span class="flag cited">verbatim</span></cite>
 </blockquote>
 
-<p>E pelo lado negativo, no catálogo de anti-patterns deles, o alvo é literalmente o mesmo: <em>"bloated tool sets that cover too much functionality or lead to ambiguous decision points"</em>. <span class="flag cited">verbatim</span> <strong>Um pass-through é um <em>ambiguous decision point</em> materializado</strong> — dois caminhos, um deles inútil, e nada no nome dizendo qual.</p>
+<p>E pelo lado negativo — em outro post, <em>"Effective context engineering for AI agents"</em> (29 set 2025) — o alvo do catálogo de anti-patterns é literalmente o mesmo: <em>"bloated tool sets that cover too much functionality or lead to ambiguous decision points"</em>. <span class="flag cited">verbatim</span> <strong>Um pass-through é um <em>ambiguous decision point</em> materializado</strong> — dois caminhos, um deles inútil, e nada no nome dizendo qual.</p>
 
 <div class="callout evidence">
   <span class="callout-title">O número externo mais próximo</span>
@@ -312,7 +314,7 @@ Glossário: <a href="../reference/0001-glossary.html#deletion-test">the deletion
 
 <details class="recall">
   <summary>Recall livre — feche a Trilha I: como as cinco lições se encaixam numa frase só?</summary>
-  <p><strong>0001 — onde cortar.</strong> Um <span class="en">seam</span> é onde você troca comportamento sem editar naquele lugar, e ele só é real se tiver <span class="en">enabling point</span> e dois adapters.</p>
+  <p><strong>0001 — onde cortar.</strong> Um <span class="en">seam</span> é onde você troca comportamento sem editar naquele lugar, e ele só existe se tiver <span class="en">enabling point</span> — Feathers: <em>"Every seam has an enabling point"</em>. Dois adapters são a outra régua, a do repositório: <em>"One adapter means a hypothetical seam. Two adapters means a real one."</em> Uma <strong>define</strong>, a outra <strong>justifica</strong>.</p>
   <p><strong>0002 — quanto deixar de cada lado.</strong> <span class="en">Depth</span> é comportamento por unidade de interface aprendida, e é propriedade da interface, não da implementação.</p>
   <p><strong>0003 — o que conta como interface.</strong> Tudo que o caller precisa saber: assinatura, ordem, modos de erro, configuração, invariantes, performance. Seis categorias; o compilador vê duas.</p>
   <p><strong>0004 — onde a interface começa.</strong> Um seam justificado ainda tem que escolher entre morar na superfície pública ou dentro da implementação, e quem decide é <em>quem varia</em>.</p>
@@ -342,7 +344,7 @@ Glossário: <a href="../reference/0001-glossary.html#deletion-test">the deletion
   <h4>Fontes desta lição</h4>
   <ol>
     <li><strong>Leia esta.</strong> John Ousterhout, <em>A Philosophy of Software Design</em>, <strong>1ª ed., abril de 2018</strong>, Yaknyam Press, ISBN 978-1-7321022-0-0 — <strong>§7.1 "Pass-through methods"</strong> (ebook pp. 57–59), §7.2 (p. 58) e §4.6 "Classitis" (pp. 37–38). <span class="flag cited">texto conferido</span> São quatro páginas e elas contêm a técnica inteira mais o que fazer depois dela. <span class="caption" style="border:0;padding:0;display:inline">Páginas de ebook não são páginas de impressão, e nunca se transferem entre edições.</span></li>
-    <li>Matt Pocock, <a href="https://github.com/mattpocock/skills">mattpocock/skills</a> — <code>codebase-design/SKILL.md:63</code>; <code>improve-codebase-architecture/SKILL.md:9,35</code>. <span class="flag cited">verbatim</span></li>
+    <li>Matt Pocock, <a href="https://github.com/mattpocock/skills">mattpocock/skills</a> — <code>codebase-design/SKILL.md:28,63</code>; <code>improve-codebase-architecture/SKILL.md:9,35</code>. <span class="flag cited">verbatim</span></li>
     <li>Martin Fowler, capítulo "Bad Smells in Code" — <strong>rascunho pré-publicação</strong>, em <a href="http://www.laputan.org/pub/patterns/fowler/smells.pdf">laputan.org</a>, p. 92. <span class="flag cited">PDF conferido</span> <strong>Não é a 1ª edição publicada</strong>; a comparação está na seção 4. Para citar o livro, use uma edição impressa e diga qual — a 2ª (2018/2019) está em JavaScript, o que costuma surpreender quem espera o Java de 1999.</li>
     <li>Anthropic Engineering, <a href="https://www.anthropic.com/engineering/equipping-agents-for-the-real-world-with-agent-skills">"Equipping agents for the real world with Agent Skills"</a> (16 out 2025) e <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">"Effective context engineering for AI agents"</a> (29 set 2025). <span class="flag cited">verbatim</span></li>
     <li>Drew Breunig, <a href="https://www.dbreunig.com/2025/06/22/how-contexts-fail-and-how-to-fix-them.html">"How Long Contexts Fail"</a> (22 jun 2025) — a agregação de onde vêm os números de GeoEngine e Berkeley FCL. <span class="flag unverified">segunda mão</span></li>

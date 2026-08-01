@@ -21,8 +21,10 @@ import java.util.regex.Pattern;
  * The test is applied three times, and it is actually RUN rather than
  * imagined: for each module there are two real caller sets — one going
  * through the module, one with the module deleted — both compiled, both
- * executed, both asserted to produce the same money. The program then reads
- * its own source file and counts what reappeared.
+ * executed, and asserted equal posting by posting, not merely on the total
+ * (the ledger invariant makes every total zero, so a total alone would prove
+ * nothing). The program then reads its own source file and counts what
+ * reappeared.
  *
  *   A. TransferFacade   — every method delegates. Nothing reappears.
  *   B. Ledger.post      — deleting it scatters five statements across
@@ -53,7 +55,8 @@ public class DeletionTestDemo {
 
         public Ledger(Clock clock) { this.clock = clock; }
 
-        /** The deep operation from lesson 0002: five statements, one call. */
+        /** The deep operation from lesson 0002: the body every call site
+         *  would otherwise have to carry itself. */
         public void post(Transfer t) {
             Instant at = clock.instant();
             staged.clear();
@@ -74,6 +77,15 @@ public class DeletionTestDemo {
         Instant now() { return clock.instant(); }
 
         public BigDecimal total() { return sum(committed); }
+
+        /**
+         * Every committed posting, in order. This — not the total — is the
+         * behavioural fingerprint: the invariant forces total() to zero for
+         * any balanced set, including the empty one, so comparing totals
+         * would also "pass" for a caller that posted nothing at all.
+         * Package-private on purpose: it is test scaffolding, not interface.
+         */
+        List<Entry> entries() { return List.copyOf(committed); }
     }
 
     // ==================================================================
@@ -299,15 +311,21 @@ public class DeletionTestDemo {
         int[] a = passThroughs("facade");
         line("public methods", String.valueOf(a[1]));
         line("pure pass-throughs", a[0] + " of " + a[1]);
+        Ledger aKept = new Ledger(clock), aGone = new Ledger(clock);
         verdict("TransferFacade", "caller-a-with", "caller-a-without",
-                facadeKept(new Ledger(clock), batch).compareTo(facadeDeleted(new Ledger(clock), batch)) == 0);
+                facadeKept(aKept, batch).compareTo(facadeDeleted(aGone, batch)) == 0
+                        && aKept.entries().equals(aGone.entries()));
         line("verdict", "delete it");
 
         head("B. Ledger.post — delete it and see what comes back");
-        line("statements inside post", "5");
-        line("call sites in this program", "3");
+        int sites = 3;
+        line("call sites in this program", String.valueOf(sites));
+        line("statements per call site",
+                String.valueOf((lines("caller-b-without") - lines("caller-b-with")) / sites));
+        Ledger bKept = new Ledger(clock), bGone = new Ledger(clock);
         verdict("Ledger.post", "caller-b-with", "caller-b-without",
-                ledgerKept(new Ledger(clock), batch).compareTo(ledgerDeleted(new Ledger(clock), batch)) == 0);
+                ledgerKept(bKept, batch).compareTo(ledgerDeleted(bGone, batch)) == 0
+                        && bKept.entries().equals(bGone.entries()));
         line("verdict", "earning its keep");
 
         head("C. AuditFacade — where the test answers badly");
@@ -315,8 +333,10 @@ public class DeletionTestDemo {
         line("public methods", String.valueOf(c[1]));
         line("pure pass-throughs", c[0] + " of " + c[1]);
         var t = batch.get(0);
+        Ledger cKept = new Ledger(clock), cGone = new Ledger(clock);
         verdict("AuditFacade", "caller-c-with", "caller-c-without",
-                auditKept(new Ledger(clock), t).equals(auditDeleted(new Ledger(clock), t)));
+                auditKept(cKept, t).equals(auditDeleted(cGone, t))
+                        && cKept.entries().equals(cGone.entries()));
         line("naive verdict", "something reappeared: keep");
         line("what actually reappeared", "only receipt()");
         line("methods that earned nothing", c[0] + " of " + c[1]);
