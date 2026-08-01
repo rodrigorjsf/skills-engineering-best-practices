@@ -88,13 +88,28 @@ This is the single most important section for the "teach and evangelise" goal, b
 
 ## Wisdom (communities)
 
-Not yet vetted. See `## Gaps` — this section is deliberately empty rather than filled with plausible-looking suggestions.
+Four verified, split cleanly by half. Bar: a dated artifact on or after 2026-02-01, a public URL or documented join path, a named on-topic thread, and stated cost. Full verification evidence — including everything rejected and why — is in `docs/research/07-communities.md`.
+
+- [**Lobsters**](https://lobste.rs) — free; **invitation required** to post, granted by an existing user. Public moderation log: *"All moderator actions on this site are visible to everyone."* Active `2026-07-31`. Example: ["Design Patterns Suck"](https://lobste.rs/s/7qssyu/design_patterns_suck), `2026-06-26`, 34 comments.
+  Use for: design and testing argument with real comment counts — `/t/practices`, `/t/testing`. **Not** for the agent half; `/t/ai` is ML internals.
+- [**Virtual DDD**](https://virtualddd.com/sessions/) — free open [Discord](https://discord.gg/tRJkcsFDKN), public session archive; per-session RSVP cost `[unverified]`. Sessions dated through `5 Aug 2026`. Example: ["Critically Engaging with Models" with Rebecca Wirfs-Brock](https://virtualddd.com/sessions/critically-engaging-with-models-a-conversation-with-rebecca-and-mathias/), `28 Jan 2026`.
+  Use for: modelling, ubiquitous language, bounded contexts — named practitioners arguing, not linking.
+- [**`anthropics/skills` — Issues**](https://github.com/anthropics/skills/issues) — free, GitHub account, no application. Active `2026-08-01`. Examples: [#492](https://github.com/anthropics/skills/issues/492) (`2026-03-02`, 43 comments, skill-namespace trust boundary), [#1487](https://github.com/anthropics/skills/issues/1487) (`2026-07-27`, a skill injecting ~156k tokens).
+  Use for: skill authoring and progressive disclosure argued with numbers. **Issues, not Discussions** — the Discussions tab is showcases with zero comments.
+- [**Hacker News**](https://news.ycombinator.com) — free, no application. Example: ["The new rules of context engineering for Claude 5 generation models"](https://news.ycombinator.com/item?id=49051361), `2026-07-25`, 462 points / 404 comments.
+  Use for: volume of argument on context rot and harness design. Untopic-moderated — signal-to-noise is far worse than Lobsters; go for the big threads, not the front page.
+
+**Events, not communities** (verified dates, listed for planning): SoCraTes Germany `August 27–30, 2026` (lottery application); Explore DDD `September 21-25, 2026`, Denver; KanDDDinsky `October 14-16, 2026`, Berlin (€950 conference / €250 open space); DDD Europe, Amsterdam, `June 1-4` 2027.
+
+**Negative result worth keeping:** Matt Pocock runs no public community on this subject. `aihero.dev` has no forum, and `mattpocock.com/discord` is "Matt's TS Wizards" — TypeScript. Contact with his thinking is one-way: repo, docs pages, videos.
+
+**Discord is a systematic blind spot.** Anthropic's and HumanLayer's Discords have verified, free, documented join paths — but activity and signal cannot be evidenced from outside, so neither is recommended here. Joining and reporting from inside is a different kind of evidence and should be labelled as such.
 
 ## Gaps
 
 Things the mission needs and the research has not yet supplied. These drive the next research pass.
 
-- **Communities.** No high-reputation community has been verified for either half of this topic. Needed: one for classical software design (where seams and module depth are argued seriously) and one for agent/context engineering. The `teach` skill treats community contact as the source of *wisdom* — the part that cannot come from reading — so this is a real gap, not a formality. **This is now the largest open gap.**
+- ~~**Communities.** No high-reputation community has been verified for either half of this topic.~~ **RESOLVED** — four verified, see `## Wisdom (communities)` above and `docs/research/07-communities.md`. **Two residual gaps remain, both narrower.** (a) **Discord interiors are unverifiable from outside.** Anthropic's and HumanLayer's servers have free, documented join paths, but no dated artifact is visible without joining — so neither is recommended. Joining and reporting from inside is a *different kind of evidence* and must be labelled as such if it ever lands here. (b) **`wiki.c2.com` serves a JavaScript shell to automated fetch** and needs a manual browser check before it can be judged live or dead.
 - ~~**Blocked on a licensed copy of Feathers.**~~ **RESOLVED.** Ch. 4 (pp. 29–44) has been read against the book text. Both boxed definitions (`Seam` p. 31, `Enabling Point` p. 36) and the full seam taxonomy (preprocessing / link / object, pp. 33–44) are now quoted verbatim with printed page numbers in `lessons/0001-seam.html` and `reference/0001-glossary.html`. Fowler's rendering of the seam definition was confirmed **exact**.
 - ~~**Does Ousterhout actually define depth as a ratio?**~~ **RESOLVED** — `docs/research/05-ousterhout-depth.md`. No line-count ratio; his text falsifies one. A `functionality/(interface complexity)` ratio does exist in his lecture notes, so the repo's *shape* is right and its **attribution** is what fails. See his entry above. Ch. 4's literal text was still not obtained from any legitimate source — the author-hosted extract carries only Ch. 6 and Ch. 21 — so no Ch. 4 page number is claimed anywhere.
 - ~~**Cockburn's walking skeleton.** Origin unresolved; both known URLs return **404**.~~ **RESOLVED** — `docs/research/06-walking-skeleton-and-harness-post.md`. The live site really is 404, but his old `alistair.cockburn.us` pages are archived intact. The *Crystal Clear* (2004) definition is quoted verbatim from his own page (**Wayback capture 2008-10-16**), and an earlier wiki text of his (last modified **2001-08-12**, capture **2004-05-13**) predates the book. He himself dates the idea to *"around 1994, named it somewhere between then and 1997"* — record that as **his claim**, not as fact; the page's `6/1/1996` field is CMS metadata and is not a publication date.
