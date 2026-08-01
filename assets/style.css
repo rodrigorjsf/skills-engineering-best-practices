@@ -1,0 +1,697 @@
+/* ==========================================================================
+   Shared stylesheet for the engineering-skills teaching workspace.
+   Every lesson and reference document links this file.
+
+   Design intent: Tufte-flavoured — generous measure, real typographic
+   hierarchy, sidenotes instead of footnote jumps, evidence visible next to
+   the claim it supports. Prints cleanly on A4/Letter.
+   ========================================================================== */
+
+/* --- Design tokens ------------------------------------------------------ */
+
+:root {
+  --ink:            #1a1a18;
+  --ink-soft:       #4a4a45;
+  --ink-faint:      #78786f;
+  --paper:          #fffef9;
+  --paper-sunk:     #f5f3ea;
+  --rule:           #ddd9c8;
+  --rule-soft:      #eceadd;
+
+  /* Accents. Each carries a fixed meaning — see the semantic blocks below. */
+  --accent:         #a4361b;  /* primary: links, emphasis, the argument */
+  --accent-soft:    #f3e2dc;
+  --seam:           #1f6f6b;  /* seams, interfaces, structure */
+  --seam-soft:      #dcecea;
+  --evidence:       #4a5b8c;  /* citations, data, primary sources */
+  --evidence-soft:  #e2e6f2;
+  --warn:           #8a6510;  /* anti-patterns, traps */
+  --warn-soft:      #f6ecd4;
+  --ai:             #6b3f8f;  /* the AI / agent parallel */
+  --ai-soft:        #ece2f4;
+
+  --font-body:  "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua",
+                Georgia, "Times New Roman", serif;
+  --font-sans:  ui-sans-serif, -apple-system, "Segoe UI", Inter, Roboto,
+                "Helvetica Neue", Arial, sans-serif;
+  --font-mono:  ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code",
+                Menlo, Consolas, "Liberation Mono", monospace;
+
+  --measure: 44rem;      /* body text column */
+  --gutter:  15rem;      /* sidenote column */
+  --page:    calc(var(--measure) + var(--gutter) + 3rem);
+}
+
+/* Scale the whole layout up on large displays. Everything below is sized in
+   rem, so moving the root size grows the text AND the column together —
+   the measure stays a comfortable ~70 characters instead of the line getting
+   longer and harder to track. */
+html { font-size: 16px; }
+
+@media (min-width: 90rem)  { html { font-size: 17px; } }
+@media (min-width: 105rem) { html { font-size: 18px; } }
+@media (min-width: 125rem) { html { font-size: 19px; } }
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink:           #e6e3d8;
+    --ink-soft:      #b3afa1;
+    --ink-faint:     #858173;
+    --paper:         #16161a;
+    --paper-sunk:    #1e1e23;
+    --rule:          #3a3a42;
+    --rule-soft:     #2a2a31;
+
+    --accent:        #e8886a;
+    --accent-soft:   #3a2019;
+    --seam:          #64c9c2;
+    --seam-soft:     #14302f;
+    --evidence:      #9fb0e0;
+    --evidence-soft: #1c2135;
+    --warn:          #e0b657;
+    --warn-soft:     #332a12;
+    --ai:            #c193e0;
+    --ai-soft:       #2a1c35;
+  }
+}
+
+:root[data-theme="dark"] {
+  --ink:           #e6e3d8;
+  --ink-soft:      #b3afa1;
+  --ink-faint:     #858173;
+  --paper:         #16161a;
+  --paper-sunk:    #1e1e23;
+  --rule:          #3a3a42;
+  --rule-soft:     #2a2a31;
+  --accent:        #e8886a;
+  --accent-soft:   #3a2019;
+  --seam:          #64c9c2;
+  --seam-soft:     #14302f;
+  --evidence:      #9fb0e0;
+  --evidence-soft: #1c2135;
+  --warn:          #e0b657;
+  --warn-soft:     #332a12;
+  --ai:            #c193e0;
+  --ai-soft:       #2a1c35;
+}
+
+:root[data-theme="light"] {
+  --ink:           #1a1a18;
+  --ink-soft:      #4a4a45;
+  --ink-faint:     #78786f;
+  --paper:         #fffef9;
+  --paper-sunk:    #f5f3ea;
+  --rule:          #ddd9c8;
+  --rule-soft:     #eceadd;
+  --accent:        #a4361b;
+  --accent-soft:   #f3e2dc;
+  --seam:          #1f6f6b;
+  --seam-soft:     #dcecea;
+  --evidence:      #4a5b8c;
+  --evidence-soft: #e2e6f2;
+  --warn:          #8a6510;
+  --warn-soft:     #f6ecd4;
+  --ai:            #6b3f8f;
+  --ai-soft:       #ece2f4;
+}
+
+/* --- Base --------------------------------------------------------------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  padding: 3.5rem 2rem 8rem;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--font-body);
+  font-size: 1.1875rem;
+  line-height: 1.65;
+  font-kerning: normal;
+  font-variant-numeric: oldstyle-num proportional-nums;
+  text-rendering: optimizeLegibility;
+}
+
+/* The page grid: body column + sidenote gutter. */
+.page { max-width: var(--page); margin: 0 auto; }
+
+p, ul, ol, dl, blockquote, .callout, .figure, .quiz, pre, table, h1, h2, h3, h4,
+.lede, .kicker, .meta, hr, details {
+  max-width: var(--measure);
+}
+
+/* Full-bleed elements opt out of the measure. Wins over every rule above. */
+.wide, .figure.wide, .table-wrap.wide, .split.wide { max-width: var(--page) !important; }
+
+/* --- Typography --------------------------------------------------------- */
+
+h1, h2, h3, h4 { font-weight: 600; line-height: 1.2; color: var(--ink); }
+
+h1 {
+  font-size: 2.7rem;
+  letter-spacing: -0.02em;
+  margin: 0 0 0.6rem;
+  font-weight: 500;
+}
+
+h2 {
+  font-size: 1.7rem;
+  margin: 3.2rem 0 0.9rem;
+  padding-top: 1.1rem;
+  border-top: 1px solid var(--rule);
+  font-weight: 500;
+}
+
+h3 {
+  font-size: 1.3rem;
+  margin: 2.2rem 0 0.5rem;
+  font-weight: 600;
+}
+
+h4 {
+  font-size: 1.05rem;
+  margin: 1.6rem 0 0.4rem;
+  font-family: var(--font-sans);
+  font-weight: 650;
+  letter-spacing: 0.01em;
+  color: var(--ink-soft);
+}
+
+p { margin: 0 0 1.1rem; }
+
+.kicker {
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 0.7rem;
+}
+
+.lede {
+  font-size: 1.4rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  margin: 0 0 2rem;
+  font-style: italic;
+}
+
+.meta {
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  color: var(--ink-faint);
+  margin: 0 0 2.5rem;
+  padding-bottom: 1.2rem;
+  border-bottom: 2px solid var(--rule);
+}
+
+.meta a { color: var(--ink-faint); }
+
+strong, b { font-weight: 650; color: var(--ink); }
+
+em, i { font-style: italic; }
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+  border-bottom: 1px solid color-mix(in srgb, var(--accent) 35%, transparent);
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+
+a:hover {
+  background: var(--accent-soft);
+  border-bottom-color: var(--accent);
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid var(--rule);
+  margin: 3rem 0;
+}
+
+ul, ol { padding-left: 1.4rem; margin: 0 0 1.1rem; }
+li { margin-bottom: 0.45rem; }
+li > ul, li > ol { margin-top: 0.45rem; }
+
+blockquote {
+  margin: 1.6rem 0;
+  padding: 0.2rem 0 0.2rem 1.4rem;
+  border-left: 3px solid var(--rule);
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+blockquote p:last-child { margin-bottom: 0; }
+
+blockquote cite {
+  display: block;
+  margin-top: 0.7rem;
+  font-family: var(--font-sans);
+  font-size: 0.86rem;
+  font-style: normal;
+  color: var(--ink-faint);
+}
+
+/* A quote lifted verbatim from a primary source — the highest-trust block. */
+blockquote.source {
+  border-left-color: var(--evidence);
+  background: var(--evidence-soft);
+  padding: 1rem 1.2rem;
+  border-radius: 0 3px 3px 0;
+  font-style: normal;
+}
+
+/* --- Term marks --------------------------------------------------------- */
+
+/* A glossary term at its point of definition. */
+.term {
+  font-family: var(--font-sans);
+  font-weight: 650;
+  font-size: 0.94em;
+  color: var(--seam);
+  border-bottom: 1px dotted var(--seam);
+  text-decoration: none;
+}
+
+a.term:hover { background: var(--seam-soft); }
+
+/* An English term deliberately kept untranslated in pt-BR prose. */
+.en {
+  font-style: italic;
+  font-family: var(--font-sans);
+  font-size: 0.93em;
+  letter-spacing: 0.005em;
+}
+
+/* --- Sidenotes ---------------------------------------------------------- */
+
+/* Sidenotes are SIBLINGS of the prose blocks, direct children of `.page` —
+   never nested inside a <p>. So they float against `.page`'s right edge and
+   need no negative margin: `--page` is already `--measure + --gutter + 3rem`,
+   which leaves exactly a 3rem channel between the text column and the note.
+   (A negative margin here would push the note outside `.page` and visually
+   de-centre the whole layout, because `.page` is what `margin: 0 auto`
+   centres.) */
+.sidenote {
+  float: right;
+  clear: right;
+  width: var(--gutter);
+  margin-top: 0.35rem;
+  margin-bottom: 1rem;
+  font-family: var(--font-sans);
+  font-size: 0.88rem;
+  line-height: 1.5;
+  color: var(--ink-faint);
+  border-left: 2px solid var(--rule);
+  padding-left: 0.8rem;
+}
+
+.sidenote a { color: var(--evidence); border-bottom-color: transparent; }
+.sidenote a:hover { border-bottom-color: var(--evidence); }
+
+.sidenote-number {
+  font-family: var(--font-sans);
+  font-size: 0.68em;
+  vertical-align: super;
+  color: var(--accent);
+  font-weight: 650;
+  padding: 0 0.1em;
+}
+
+@media (max-width: 62rem) {
+  .sidenote {
+    float: none;
+    width: auto;
+    margin: 0.8rem 0 1.2rem;
+    max-width: var(--measure);
+    background: var(--paper-sunk);
+    padding: 0.7rem 0.9rem;
+    border-left-width: 3px;
+    border-radius: 0 3px 3px 0;
+  }
+}
+
+/* --- Callouts ----------------------------------------------------------- */
+
+.callout {
+  margin: 1.8rem 0;
+  padding: 1.1rem 1.3rem;
+  border-radius: 4px;
+  border-left: 4px solid var(--rule);
+  background: var(--paper-sunk);
+  font-size: 1.03rem;
+}
+
+.callout > :first-child { margin-top: 0; }
+.callout > :last-child  { margin-bottom: 0; }
+
+.callout-title {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  margin: 0 0 0.55rem;
+  display: block;
+}
+
+/* Semantic variants. The colour is the meaning — keep these consistent. */
+.callout.child     { border-left-color: var(--accent);   background: var(--accent-soft); }
+.callout.child     .callout-title { color: var(--accent); }
+.callout.phd       { border-left-color: var(--evidence); background: var(--evidence-soft); }
+.callout.phd       .callout-title { color: var(--evidence); }
+.callout.ai        { border-left-color: var(--ai);       background: var(--ai-soft); }
+.callout.ai        .callout-title { color: var(--ai); }
+.callout.trap      { border-left-color: var(--warn);     background: var(--warn-soft); }
+.callout.trap      .callout-title { color: var(--warn); }
+.callout.seam      { border-left-color: var(--seam);     background: var(--seam-soft); }
+.callout.seam      .callout-title { color: var(--seam); }
+.callout.evidence  { border-left-color: var(--evidence); background: var(--evidence-soft); }
+.callout.evidence  .callout-title { color: var(--evidence); }
+
+/* --- Code --------------------------------------------------------------- */
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.87em;
+  background: var(--paper-sunk);
+  padding: 0.1em 0.34em;
+  border-radius: 3px;
+  border: 1px solid var(--rule-soft);
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+pre {
+  margin: 1.5rem 0;
+  padding: 1.1rem 1.2rem;
+  background: var(--paper-sunk);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  overflow-x: auto;
+  font-size: 0.94rem;
+  line-height: 1.6;
+  tab-size: 2;
+}
+
+pre code {
+  background: none;
+  border: 0;
+  padding: 0;
+  font-size: inherit;
+}
+
+/* Code label ribbon — the file or role the snippet plays. */
+.code-block { margin: 1.5rem 0; max-width: var(--measure); }
+.code-block pre { margin: 0; border-radius: 0 0 4px 4px; }
+
+.code-label {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  padding: 0.4rem 0.85rem;
+  background: var(--ink);
+  color: var(--paper);
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.code-label .verdict { font-family: var(--font-sans); font-weight: 650; opacity: 0.85; }
+
+.code-block.bad  .code-label { background: var(--warn); color: #fff; }
+.code-block.good .code-label { background: var(--seam); color: #fff; }
+
+/* Minimal Java syntax colouring — applied via spans, no external highlighter. */
+.k  { color: var(--ai);      font-weight: 600; }  /* keyword */
+.t  { color: var(--seam);    font-weight: 600; }  /* type */
+.s  { color: var(--warn); }                       /* string / literal */
+.c  { color: var(--ink-faint); font-style: italic; } /* comment */
+.a  { color: var(--evidence); }                   /* annotation */
+.hl { background: color-mix(in srgb, var(--accent) 18%, transparent);
+      border-radius: 2px; padding: 0 0.15em; }    /* highlighted line/fragment */
+
+/* --- Figures & diagrams ------------------------------------------------- */
+
+.figure {
+  margin: 2.2rem 0;
+  padding: 1.4rem;
+  background: var(--paper-sunk);
+  border: 1px solid var(--rule);
+  border-radius: 5px;
+}
+
+.figure svg { display: block; width: 100%; height: auto; max-width: 100%; }
+
+.figure figcaption,
+.caption {
+  font-family: var(--font-sans);
+  font-size: 0.87rem;
+  line-height: 1.55;
+  color: var(--ink-faint);
+  margin-top: 0.9rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid var(--rule);
+}
+
+.caption b { color: var(--ink-soft); }
+
+/* Text diagrams (the ASCII boxes the skills themselves use). */
+.ascii {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  line-height: 1.35;
+  white-space: pre;
+  overflow-x: auto;
+  color: var(--ink-soft);
+}
+
+/* Side-by-side comparison. */
+.split {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.2rem;
+  margin: 1.8rem 0;
+  max-width: var(--measure);
+}
+
+@media (max-width: 52rem) {
+  .split { grid-template-columns: 1fr; }
+}
+
+/* --- Tables ------------------------------------------------------------- */
+
+.table-wrap { overflow-x: auto; margin: 1.8rem 0; max-width: var(--measure); }
+
+table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.97rem;
+  font-family: var(--font-sans);
+}
+
+th, td {
+  text-align: left;
+  padding: 0.55rem 0.8rem;
+  border-bottom: 1px solid var(--rule-soft);
+  vertical-align: top;
+}
+
+th {
+  font-weight: 650;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-faint);
+  border-bottom: 1.5px solid var(--rule);
+  white-space: nowrap;
+}
+
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr:hover { background: var(--paper-sunk); }
+
+/* --- Quiz --------------------------------------------------------------- */
+
+.quiz {
+  margin: 2.2rem 0;
+  padding: 1.3rem 1.4rem;
+  border: 2px solid var(--rule);
+  border-radius: 5px;
+  background: var(--paper);
+}
+
+.quiz-head {
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 0.9rem;
+}
+
+.quiz-q { font-weight: 600; margin: 0 0 1rem; }
+
+.quiz-options { list-style: none; padding: 0; margin: 0; }
+
+.quiz-options li { margin: 0 0 0.5rem; }
+
+.quiz-opt {
+  display: block;
+  width: 100%;
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  line-height: 1.5;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease;
+}
+
+.quiz-opt:hover:not(:disabled) { background: var(--paper-sunk); border-color: var(--ink-faint); }
+.quiz-opt:disabled { cursor: default; }
+
+.quiz-opt.correct {
+  border-color: var(--seam);
+  background: var(--seam-soft);
+  font-weight: 600;
+}
+
+.quiz-opt.wrong {
+  border-color: var(--warn);
+  background: var(--warn-soft);
+  text-decoration: line-through;
+  text-decoration-color: color-mix(in srgb, var(--warn) 60%, transparent);
+}
+
+.quiz-feedback {
+  margin-top: 1rem;
+  padding: 0.85rem 1rem;
+  border-radius: 4px;
+  background: var(--paper-sunk);
+  border-left: 3px solid var(--evidence);
+  font-size: 1rem;
+  display: none;
+}
+
+.quiz-feedback.shown { display: block; }
+.quiz-feedback > :last-child { margin-bottom: 0; }
+
+/* Free-recall prompt: answer from memory before revealing. */
+details.recall {
+  margin: 1.8rem 0;
+  border: 1px dashed var(--rule);
+  border-radius: 4px;
+  padding: 0.9rem 1.1rem;
+  background: var(--paper-sunk);
+}
+
+details.recall summary {
+  cursor: pointer;
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: var(--accent);
+  list-style: none;
+}
+
+details.recall summary::-webkit-details-marker { display: none; }
+details.recall summary::before { content: "▸ "; }
+details.recall[open] summary::before { content: "▾ "; }
+details.recall[open] summary { margin-bottom: 0.8rem; }
+details.recall > :last-child { margin-bottom: 0; }
+
+/* --- Navigation & footer ------------------------------------------------ */
+
+.nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 3rem 0 0;
+  padding-top: 1.4rem;
+  border-top: 2px solid var(--rule);
+  max-width: var(--measure);
+}
+
+.nav a {
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  color: var(--ink-soft);
+}
+
+.nav a:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+
+.ask-teacher {
+  margin: 2.5rem 0 0;
+  padding: 1.1rem 1.3rem;
+  border: 2px dashed var(--accent);
+  border-radius: 5px;
+  background: var(--accent-soft);
+  font-size: 1.03rem;
+  max-width: var(--measure);
+}
+
+.ask-teacher > :first-child { margin-top: 0; }
+.ask-teacher > :last-child  { margin-bottom: 0; }
+
+.sources {
+  margin-top: 2.5rem;
+  font-family: var(--font-sans);
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.sources ol { padding-left: 1.3rem; }
+.sources li { margin-bottom: 0.6rem; color: var(--ink-soft); }
+
+.flag {
+  font-family: var(--font-sans);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.12em 0.42em;
+  border-radius: 3px;
+  vertical-align: 0.1em;
+  white-space: nowrap;
+}
+
+.flag.cited      { background: var(--evidence-soft); color: var(--evidence); }
+.flag.coinage    { background: var(--warn-soft);     color: var(--warn); }
+.flag.unverified { background: var(--warn-soft);     color: var(--warn); }
+.flag.ours       { background: var(--ai-soft);       color: var(--ai); }
+
+/* --- Print -------------------------------------------------------------- */
+
+@media print {
+  :root {
+    --ink: #000; --ink-soft: #333; --ink-faint: #555;
+    --paper: #fff; --paper-sunk: #f7f7f4;
+    --rule: #bbb; --rule-soft: #ddd;
+  }
+
+  body { padding: 0; font-size: 10.5pt; background: #fff; }
+  .page { max-width: none; }
+  .nav, .quiz-opt { display: none; }
+  h2 { page-break-after: avoid; break-after: avoid; }
+  pre, .figure, .callout, blockquote, table { page-break-inside: avoid; break-inside: avoid; }
+  details.recall[open] > summary ~ * { display: block; }
+  details.recall:not([open]) > summary::after { content: " (resposta oculta)"; }
+  a { color: #000; border-bottom: 1px solid #999; }
+  a[href^="http"]::after {
+    content: " (" attr(href) ")";
+    font-size: 7.5pt;
+    color: #666;
+    word-break: break-all;
+  }
+  .sidenote { float: none; width: auto; margin: 0.5rem 0; }
+}

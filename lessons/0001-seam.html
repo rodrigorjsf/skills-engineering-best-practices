@@ -1,0 +1,401 @@
+<title>0001 — Seam</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/lesson.js" defer></script>
+
+<div class="page">
+
+<p class="kicker">Lição 0001 · Trilha I — Estrutura</p>
+<h1>Seam</h1>
+<p class="lede">O lugar onde você pode trocar o comportamento sem editar ali. É a unidade de tudo que vem depois: se você não sabe colocar um seam, não sabe testar, não sabe fatiar, e não sabe delegar para um agente.</p>
+
+<p class="meta">
+Tempo: ~15 min · Código: <code>code/0001-seam/SeamDemo.java</code> (roda com <code>java SeamDemo.java</code>) ·
+Glossário: <a href="../reference/0001-glossary.html#seam">seam</a>, <a href="../reference/0001-glossary.html#adapter">adapter</a>, <a href="../reference/0001-glossary.html#interface">interface</a>
+</p>
+
+<h2>1 · A intuição</h2>
+
+<p>Pegue um suéter. Ele não foi cortado de um pano só — ele tem <strong>costuras</strong>: a manga encontra o corpo numa linha específica. Essa linha é uma decisão de quem fez a peça.</p>
+
+<p>Agora suponha que você queira uma manga diferente. Existem dois caminhos:</p>
+
+<div class="split">
+  <div class="callout trap">
+    <span class="callout-title">Sem costura</span>
+    <p>Você pega a tesoura e <strong>corta o tecido</strong>. Funciona uma vez. Fica uma borda desfiada. Se você mudar de ideia, cortou de novo.</p>
+  </div>
+  <div class="callout seam">
+    <span class="callout-title">Na costura</span>
+    <p>Você <strong>descose</strong>, tira a manga, põe outra, costura de volta. O tecido do corpo nunca foi tocado. Você pode fazer isso quantas vezes quiser.</p>
+  </div>
+</div>
+
+<p>A costura é o lugar onde você <strong>troca uma parte sem cortar o resto</strong>. É exatamente isso que a palavra significa em código — e não é metáfora inventada por professor: é a palavra que Michael Feathers escolheu, e ele escolheu essa porque é essa a imagem.</p>
+
+<div class="callout child">
+  <span class="callout-title">Para uma criança de cinco anos</span>
+  <p>O abajur não está grudado na parede. Ele tem um <strong>plugue</strong>. Se você quiser um abajur diferente, você não quebra a parede — você desliga um e liga outro. A tomada é a costura.</p>
+</div>
+
+<h2>2 · O mecanismo</h2>
+
+<p>A definição de Feathers, do próprio livro — é uma definição <em>emoldurada</em>, das poucas que ele destaca em caixa no texto:</p>
+
+<blockquote class="source">
+  <p><strong>Seam</strong><br>
+  A seam is a place where you can alter behavior in your program without editing in that place.</p>
+  <cite>Michael C. Feathers, <em>Working Effectively with Legacy Code</em>, Cap. 4, p. 31 (caixa de definição; repetida na p. 36) <span class="flag cited">verbatim, fonte primária</span></cite>
+</blockquote>
+
+<p>Leia devagar a parte que faz o trabalho: <strong><em>without editing in that place</em></strong>. Não é "sem editar". É <em>sem editar ali</em>. O comportamento muda; o arquivo onde o comportamento está escrito, não.</p>
+
+<p>O repositório de skills carrega essa definição — e a atribui explicitamente:</p>
+
+<blockquote class="source">
+  <p><strong>Seam</strong> <em>(Michael Feathers)</em> — a place where you can alter behaviour without editing in that place; the <em>location</em> at which a module's interface lives. Where to put the seam is its own design decision, distinct from what goes behind it.</p>
+  <cite><code>codebase-design/SKILL.md:22</code> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p class="sidenote">A segunda metade dessa frase é do próprio repositório, não de Feathers: <em>onde</em> colocar o seam é uma decisão de design separada de <em>o que</em> fica atrás dele. Muita discussão de arquitetura confunde as duas.</p>
+
+<h3>A mesma coisa, vista do outro lado</h3>
+
+<p>O repo define <span class="en">seam</span> uma segunda vez, em outro skill — e é aí que a ideia fica poderosa:</p>
+
+<blockquote class="source">
+  <p>A <strong>seam</strong> is the public boundary you test at: the interface where you observe behavior without reaching inside. Tests live at seams, never against internals.</p>
+  <cite><code>tdd/SKILL.md:20</code> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<div class="callout seam">
+  <span class="callout-title">A ideia central da lição</span>
+  <p>Essas duas definições não são dois conceitos que dividem um nome. São <strong>um conceito visto de dois lados</strong>.</p>
+  <p>O lugar onde você pode <strong>trocar</strong> comportamento é exatamente o lugar de onde você pode <strong>observar</strong> comportamento. Design e teste atravessam a mesma linha. É por isso que o repo diz: <em>"The interface is the test surface. Callers and tests cross the same seam."</em></p>
+  <p>Consequência prática: quando um teste é difícil de escrever, isso quase nunca é um problema de teste. É o código dizendo que não tem seam ali.</p>
+</div>
+
+<figure class="figure">
+<svg viewBox="0 0 720 260" role="img" aria-label="Diagrama: um caller atravessa o seam para alcançar dois adapters diferentes">
+  <defs>
+    <marker id="ar" markerWidth="9" markerHeight="9" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L9,3 z" fill="currentColor"/>
+    </marker>
+  </defs>
+  <g font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">
+
+    <!-- caller -->
+    <rect x="16" y="66" width="132" height="52" rx="5" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.75"/>
+    <text x="82" y="88" text-anchor="middle" font-weight="600" fill="currentColor">NightGuard</text>
+    <text x="82" y="105" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.65">a regra</text>
+
+    <!-- test -->
+    <rect x="16" y="160" width="132" height="46" rx="5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.55"/>
+    <text x="82" y="188" text-anchor="middle" font-size="12" fill="currentColor" opacity="0.7">o teste</text>
+
+    <!-- the seam line -->
+    <line x1="290" y1="18" x2="290" y2="242" stroke="#1f6f6b" stroke-width="2.5" stroke-dasharray="7 5"/>
+    <text x="290" y="14" text-anchor="middle" font-size="11" font-weight="700" fill="#1f6f6b" letter-spacing="1.5">SEAM</text>
+    <text x="290" y="256" text-anchor="middle" font-size="10.5" fill="#1f6f6b" opacity="0.85">interface: Clock</text>
+
+    <!-- arrows to seam -->
+    <line x1="150" y1="92" x2="282" y2="92" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)" opacity="0.8"/>
+    <line x1="150" y1="183" x2="282" y2="150" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)" opacity="0.5"/>
+
+    <!-- adapters -->
+    <rect x="410" y="40" width="180" height="52" rx="5" fill="none" stroke="#1f6f6b" stroke-width="1.5"/>
+    <text x="500" y="62" text-anchor="middle" font-weight="600" fill="#1f6f6b">Clock.system…()</text>
+    <text x="500" y="79" text-anchor="middle" font-size="11" fill="#1f6f6b" opacity="0.75">adapter · produção</text>
+
+    <rect x="410" y="145" width="180" height="52" rx="5" fill="none" stroke="#1f6f6b" stroke-width="1.5"/>
+    <text x="500" y="167" text-anchor="middle" font-weight="600" fill="#1f6f6b">Clock.fixed(…)</text>
+    <text x="500" y="184" text-anchor="middle" font-size="11" fill="#1f6f6b" opacity="0.75">adapter · teste</text>
+
+    <line x1="298" y1="80" x2="402" y2="66" stroke="#1f6f6b" stroke-width="1.4" marker-end="url(#ar)" opacity="0.85"/>
+    <line x1="298" y1="150" x2="402" y2="171" stroke="#1f6f6b" stroke-width="1.4" marker-end="url(#ar)" opacity="0.85"/>
+
+    <text x="655" y="118" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.6">dois</text>
+    <text x="655" y="133" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.6">adapters</text>
+  </g>
+</svg>
+<figcaption><b>A regra e o teste atravessam a mesma linha.</b> O seam não é o <code>Clock</code> — é o <em>lugar</em> onde a interface <code>Clock</code> fica. Dois adapters atravessam ele, e é isso que o torna real e não hipotético.</figcaption>
+</figure>
+
+<h2>3 · Em Java</h2>
+
+<p>A regra, no domínio bancário do curso: <strong>uma transferência acima de 10.000 é recusada durante a madrugada (22:00–06:00)</strong> e espera a manhã seguinte.</p>
+
+<p>As duas versões abaixo têm a <em>mesma</em> regra, a <em>mesma</em> lógica de branch, o <em>mesmo</em> número de linhas. A única diferença é de onde vem a resposta para "que horas são".</p>
+
+<div class="code-block bad">
+  <div class="code-label"><span>NightGuardNoSeam.java</span><span class="verdict">sem seam</span></div>
+<pre><code><span class="k">static final class</span> <span class="t">NightGuardNoSeam</span> {
+
+    <span class="k">boolean</span> allows(<span class="t">BigDecimal</span> amount) {
+        <span class="t">LocalTime</span> now = <span class="t">LocalTime</span>.now(ZONE);   <span class="c">// &lt;-- hard-wired. No seam.</span>
+        <span class="k">return</span> !(isNight(now) &amp;&amp; amount.compareTo(LIMIT) &gt; <span class="s">0</span>);
+    }
+}</code></pre>
+</div>
+
+<div class="code-block good">
+  <div class="code-label"><span>NightGuard.java</span><span class="verdict">com seam</span></div>
+<pre><code><span class="k">static final class</span> <span class="t">NightGuard</span> {
+
+    <span class="k">private final</span> <span class="t">Clock</span> clock;
+
+    <span class="hl">NightGuard(<span class="t">Clock</span> clock) { <span class="k">this</span>.clock = clock; }</span>   <span class="c">// &lt;-- o enabling point</span>
+
+    <span class="k">boolean</span> allows(<span class="t">BigDecimal</span> amount) {
+        <span class="t">LocalTime</span> now = <span class="t">LocalTime</span>.now(clock);  <span class="c">// &lt;-- observado através do seam</span>
+        <span class="k">return</span> !(isNight(now) &amp;&amp; amount.compareTo(LIMIT) &gt; <span class="s">0</span>);
+    }
+}</code></pre>
+</div>
+
+<div class="callout evidence">
+  <span class="callout-title">Rode você mesmo — e o que sai</span>
+  <p>Este é o output <strong>real</strong>, capturado ao rodar <code>java SeamDemo.java</code>, não um output escrito à mão para parecer convincente:</p>
+<pre><code>A. NightGuardNoSeam — dependency created inside
+   wall clock right now .......... 21:50:05 (day)
+   allows(25000) ................. true
+   branch reachable in this run .. day only
+   <span class="hl">BRANCHES COVERED .............. 1 of 2</span>
+   the other branch is unreachable until the wall clock moves.
+
+B. NightGuard — dependency accepted at a seam
+   allows(25000) at 23:30 local .. false   (expected false)
+   allows(25000) at 10:00 local .. true    (expected true)
+   <span class="hl">BRANCHES COVERED .............. 2 of 2</span>
+
+Rule verified end to end: YES
+<span class="hl">Rule source lines changed to get there: 0</span></code></pre>
+</div>
+
+<p>Essa é a evidência inteira da lição, em três números:</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th></th><th>Sem seam</th><th>Com seam</th></tr></thead>
+  <tbody>
+    <tr><td>Branches da regra verificáveis</td><td>1 de 2</td><td><strong>2 de 2</strong></td></tr>
+    <tr><td>Depende de quando você roda</td><td>Sim</td><td><strong>Não</strong></td></tr>
+    <tr><td>Linhas da regra alteradas</td><td>—</td><td><strong>0</strong></td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>Repare no que <em>não</em> aconteceu: a regra não ficou mais bonita, não ganhou abstração, não virou <span class="en">framework</span>. Ela ficou <strong>observável</strong>. Era isso que faltava.</p>
+
+<div class="callout phd">
+  <span class="callout-title">O detalhe que a maioria passa batido</span>
+  <p><code>java.time.Clock</code> existe no JDK <strong>para exatamente isso</strong>. Ele não é uma interface que alguém inventou para agradar testes — é a resposta oficial da plataforma ao problema de "o tempo é uma dependência escondida". Quando você injeta um <code>Clock</code>, você não está aplicando um truque de teste: está usando o seam que os projetistas da linguagem já colocaram lá.</p>
+  <p>Vale como princípio geral: <strong>prefira os seams que a plataforma já te deu</strong> antes de esculpir os seus.</p>
+</div>
+
+<h2>4 · A regra que decide se um seam vale a pena</h2>
+
+<p>Seam não é de graça. Cada um é uma indireção a mais para quem lê o código. O repositório dá o critério em uma linha:</p>
+
+<blockquote class="source">
+  <p>One adapter means a hypothetical seam. Two adapters means a real one. Don't introduce a seam unless something actually varies across it.</p>
+  <cite><code>codebase-design/SKILL.md:65</code> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>E o corolário, mais afiado ainda: <em>"A single-adapter seam is just indirection."</em> <span class="caption" style="border:0;padding:0;display:inline">— <code>DEEPENING.md:29</code></span></p>
+
+<p>No nosso exemplo o seam é real, e é fácil auditar isso: <code>Clock.systemDefaultZone()</code> em produção, <code>Clock.fixed(…)</code> no teste. Dois. Se existisse só um, seria uma interface a mais para ler e nada a mais para ganhar.</p>
+
+<details class="recall">
+  <summary>Antes de continuar — responda de memória: por que "produção + teste" já conta como dois adapters?</summary>
+  <p>Porque o teste é um <strong>caller de verdade</strong>, não um observador externo. Ele atravessa a mesma interface que o código de produção atravessa — é isso que "the interface is the test surface" quer dizer. O comportamento realmente <em>varia</em> através daquele seam: em produção o tempo anda, no teste ele fica parado. Variação real, dois adapters, seam justificado.</p>
+  <p>É por isso que "vou precisar disso um dia" <strong>não</strong> conta. Seam hipotético é indireção paga adiantado.</p>
+</details>
+
+<h2>5 · A fonte primária</h2>
+
+<p><strong>Michael C. Feathers, <em>Working Effectively with Legacy Code</em></strong> — Prentice Hall PTR (Pearson), Upper Saddle River, NJ, <strong>2005</strong>, xxi + 434 p. O livro onde o termo foi cunhado. O Seam Model é o <strong>Capítulo 4, "The Seam Model"</strong>. <span class="flag cited">capítulo localizado — ToC da editora</span></p>
+
+<p class="sidenote"><strong>Nota de proveniência — vale ler, porque é a lição de evidência acontecendo.</strong> Este capítulo passou por três estados nesta mesma sessão: <em>não confirmado</em> (só notas de leitura de terceiros; o ToC da O'Reilly retorna 403) → <em>capítulo localizado</em> (ToC da editora) → <strong>texto conferido</strong> (o livro em mãos). Cada citação desta seção traz agora a página impressa. O ano também se moveu: circula muito como 2004; editora e catálogo dizem <strong>2005</strong>.</p>
+
+<p class="sidenote"><strong>Duas versões circulam — agora dá para arbitrar.</strong> Fowler renderiza <em>"…without editing in that place"</em>; outras fontes secundárias renderizam <em>"A Seam is a place to alter program behavior, without changing the code."</em> Confrontado com o livro: <strong>Fowler está exato, palavra por palavra</strong>. A outra é paráfrase de terceiro. Se você encontrar a segunda por aí, não cite como se fosse Feathers.</p>
+
+<p>Feathers não escreveu sobre design bonito. Ele escreveu sobre código que já existe, não tem teste, e você precisa mudar sem quebrar. A definição de seam nasce dessa pressão — por isso ela é sobre <em>onde você consegue entrar</em>, e não sobre <em>como deveria ter sido feito</em>.</p>
+
+<div class="callout phd">
+  <span class="callout-title">O que o repositório de skills <em>não</em> carregou de Feathers</span>
+  <p>O repo para na definição de seam. Feathers não para: ele pareia <strong>todo</strong> seam com um <strong>enabling point</strong>, e essa também é uma definição emoldurada:</p>
+  <blockquote class="source" style="margin:0.8rem 0">
+    <p><strong>Enabling Point</strong><br>
+    Every seam has an enabling point, a place where you can make the decision to use one behavior or another.</p>
+    <cite>Feathers, Cap. 4, p. 36 <span class="flag cited">verbatim, fonte primária</span></cite>
+  </blockquote>
+  <p>E a frase que explica <em>por que</em> o conceito precisa existir:</p>
+  <blockquote class="source" style="margin:0.8rem 0">
+    <p>When you have a seam, you have a place where behavior can change. We can't really go to that place and change the code just to test it. <strong>The source code should be the same in both production and test.</strong></p>
+    <cite>Feathers, Cap. 4, p. 36 <span class="flag cited">verbatim</span></cite>
+  </blockquote>
+  <p><strong>O seam é a linha; o enabling point é a maçaneta.</strong> Um seam sem enabling point acessível é uma linha que você não consegue abrir.</p>
+</div>
+
+<div class="callout seam">
+  <span class="callout-title">O exemplo do próprio Feathers é o nosso exemplo — e ele diz a frase que faltava</span>
+  <p>Feathers monta exatamente o mesmo par que montamos na seção 3, em Java. Primeiro o caso sem seam, onde o objeto é criado dentro do método:</p>
+<pre><code><span class="k">public</span> <span class="t">Spreadsheet</span> buildMartSheet() {
+    <span class="t">Cell</span> cell = <span class="k">new</span> <span class="t">FormulaCell</span>(<span class="k">this</span>, <span class="s">"A1"</span>, <span class="s">"=A2+A3"</span>);
+    cell.Recalculate();
+}</code></pre>
+  <blockquote class="source" style="margin:0.8rem 0">
+    <p>Is the call to <code>Recalculate</code> an object seam? <strong>No. There is no enabling point.</strong> We can't change which <code>Recalculate</code> method is called because the choice depends on the class of the cell. The class of the cell is decided when the object is created, and we can't change it without modifying the method.</p>
+    <cite>Feathers, Cap. 4, p. 41 <span class="flag cited">verbatim</span></cite>
+  </blockquote>
+  <p>E então a versão que recebe a dependência em vez de criá-la:</p>
+<pre><code><span class="k">public</span> <span class="t">Spreadsheet</span> buildMartSheet(<span class="hl"><span class="t">Cell</span> cell</span>) {
+    cell.Recalculate();
+}</code></pre>
+  <blockquote class="source" style="margin:0.8rem 0">
+    <p>Is the call to <code>cell.Recalculate</code> in <code>buildMartSheet</code> a seam now? <strong>Yes.</strong> … Where is the enabling point? In this example, <strong>the enabling point is the argument list of <code>buildMartSheet</code></strong>.</p>
+    <cite>Feathers, Cap. 4, p. 42 <span class="flag cited">verbatim</span></cite>
+  </blockquote>
+  <p>Compare com o nosso <code>SeamDemo</code>: <code>NightGuardNoSeam</code> constrói o tempo dentro do método — <em>sem enabling point</em>. <code>NightGuard(Clock clock)</code> recebe — <strong>e o enabling point é a lista de argumentos do construtor</strong>. Não é analogia nossa: é a estrutura que Feathers descreve, na letra dele.</p>
+</div>
+
+<h3>Os três tipos de seam</h3>
+
+<p>Feathers deriva a taxonomia de um lugar não óbvio: <em>"look at all of the steps involved in turning the text of a program into running code on a machine. Each identifiable step exposes different kinds of seams."</em> Cada etapa do build vira uma oportunidade de troca.</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Tipo</th><th>Etapa do build</th><th>Onde fica o enabling point</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Preprocessing seam</strong></td><td>Antes do compilador (só C/C++)</td><td>Um <code>#define</code> — no exemplo dele, <code>TESTING</code></td></tr>
+    <tr><td><strong>Link seam</strong></td><td>Ligação dos objetos compilados</td><td><em>"always outside the program text"</em> — makefile, script de build, IDE</td></tr>
+    <tr><td><strong>Object seam</strong></td><td>Runtime, via despacho dinâmico</td><td>Lista de argumentos, construtor, ou onde o objeto é criado</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>E o veredito dele, que vale para Java:</p>
+
+<blockquote class="source">
+  <p>It is important to choose the right type of seam when you want to get pieces of code under test. <strong>In general, object seams are the best choice in object-oriented languages.</strong> Preprocessing seams and link seams can be useful at times but they are not as explicit as object seams. In addition, tests that depend upon them can be hard to maintain.</p>
+  <cite>Feathers, Cap. 4, p. 44 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p class="sidenote">Repare que <code>link seam</code> tem o enabling point <em>fora do texto do programa</em> — e Feathers avisa: <em>"This makes the use of link seams somewhat hard to notice."</em> É a mesma razão pela qual configuração escondida em script de build é difícil de auditar, com ou sem teste.</p>
+
+<div class="callout evidence">
+  <span class="callout-title">Leia isto a seguir</span>
+  <p>Martin Fowler, <a href="https://martinfowler.com/bliki/LegacySeam.html"><strong>bliki: LegacySeam</strong></a> (4 jan 2024). Duas páginas, alta confiança, e é a corroboração usada nesta lição. Depois dela, o Capítulo 4 do Feathers.</p>
+</div>
+
+<h2>6 · O paralelo com agentes</h2>
+
+<p>Agora a parte que amarra o curso inteiro. A tese: <strong>as propriedades que tornam um código tratável para um mantenedor humano tornam ele tratável para um LLM</strong> — e seam é o primeiro caso.</p>
+
+<h3>Um seam é onde uma tarefa pode ser cortada</h3>
+
+<p>Quando você delega trabalho a um agente, a pergunta operacional é: <em>qual é o menor pedaço de contexto que ele precisa para fazer isso certo?</em> Essa pergunta é a mesma pergunta de seam, com outro nome. Um module com seam limpo pode ser entregue com um contrato pequeno. Um sem seam exige carregar os callers junto — e contexto carregado é contexto gasto.</p>
+
+<p>O repositório transforma isso em regra explícita, e é a prática mais transferível do conjunto:</p>
+
+<blockquote class="source">
+  <p>Test only at pre-agreed seams. Before writing any test, write down the seams under test and confirm them with the user. No test is written at an unconfirmed seam.</p>
+  <cite><code>tdd/SKILL.md:22</code> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>Repare no que essa regra realmente faz: ela força a decisão de <em>onde</em> testar a acontecer <strong>enquanto o humano ainda está na conversa</strong>, e antes de qualquer código. Um agente deixado sozinho com "escreva testes" produz cobertura difusa em toda superfície que ele encontrar. Com os seams acordados antes, o esforço cai nos caminhos críticos.</p>
+
+<div class="callout ai">
+  <span class="callout-title">Onde este paralelo é nosso, e onde não é</span>
+  <p><strong>Verificado:</strong> a Anthropic afirma, verbatim, que <em>"Similar to the functions of a well-designed codebase, tools should be self-contained, robust to error, and extremely clear with respect to their intended use"</em>, e nomeia como anti-pattern as ferramentas que <em>"merely wrap existing software functionality"</em>.</p>
+  <p><strong>Nosso <span class="flag ours">analogia</span>:</strong> o mapeamento seam/deep module ↔ design de ferramenta. Uma verificação de termos no texto completo de "Writing effective tools for agents" por <code>deep</code>, <code>shallow</code>, <code>module</code>, <code>information hiding</code>, <code>Ousterhout</code>, <code>Parnas</code> retornou <strong>nenhum presente</strong>.</p>
+  <p><strong>E o contra-sinal, que não vamos esconder:</strong> a posição declarada da Anthropic é que ferramentas de agente exigem <em>repensar</em> a prática de API, não herdá-la — <em>"instead of writing tools and MCP servers the way we'd write functions and APIs for other developers or systems, we need to design them for agents"</em>. A analogia é uma lente útil. Não é uma afirmação deles.</p>
+</div>
+
+<p class="sidenote">Este bloco é o padrão de honestidade do curso inteiro. Sempre que uma correlação entre arquitetura de software e arquitetura de agentes aparecer, ela vem rotulada: <span class="flag cited">verificado</span>, <span class="flag coinage">cunhagem</span> ou <span class="flag ours">nossa analogia</span>. Uma tese boa não precisa de citação inflada.</p>
+
+<h2>7 · Retrieval</h2>
+
+<p>Não releia o que está acima. Responda de memória — errar aqui é o que faz a lição grudar.</p>
+
+<div class="quiz" data-answer="0">
+  <div class="quiz-head">Pergunta 1 de 3</div>
+  <p class="quiz-q">O que faz de um lugar um <span class="en">seam</span>?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Você pode alterar o comportamento sem editar ali</button></li>
+    <li><button class="quiz-opt">Você pode ler o comportamento sem executar ele</button></li>
+    <li><button class="quiz-opt">Você pode medir o comportamento sem alterar ele</button></li>
+    <li><button class="quiz-opt">Você pode isolar o comportamento sem copiar ele</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p><strong>Sem editar <em>ali</em>.</strong> Essa é a palavra que carrega a definição. O comportamento muda; o arquivo onde ele está escrito não é tocado. As outras três descrevem coisas boas — observabilidade, medição, isolamento — mas nenhuma delas é o que Feathers definiu.</p>
+  </div>
+</div>
+
+<div class="quiz" data-answer="0">
+  <div class="quiz-head">Pergunta 2 de 3</div>
+  <p class="quiz-q">Quando um seam é real, e não hipotético?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Quando pelo menos dois adapters o atravessam</button></li>
+    <li><button class="quiz-opt">Quando pelo menos uma interface o especifica</button></li>
+    <li><button class="quiz-opt">Quando pelo menos três testes o atravessam</button></li>
+    <li><button class="quiz-opt">Quando pelo menos dois callers o atravessam</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p><em>"One adapter means a hypothetical seam. Two adapters means a real one."</em> Cuidado com a última opção: <strong>callers não são adapters</strong>. Mil callers atravessando a mesma implementação não fazem o seam real — o que faz é <em>algo variar</em> através dele. Produção + teste é o par mínimo honesto.</p>
+  </div>
+</div>
+
+<div class="quiz" data-answer="0">
+  <div class="quiz-head">Pergunta 3 de 3</div>
+  <p class="quiz-q">No <code>SeamDemo</code>, o que mudou entre as duas versões?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">De onde a dependência de tempo vem</button></li>
+    <li><button class="quiz-opt">Como a regra de horário é escrita</button></li>
+    <li><button class="quiz-opt">Quanto a regra de limite aceita hoje</button></li>
+    <li><button class="quiz-opt">Onde a classe de teste foi salva</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p><code>LocalTime.now(ZONE)</code> virou <code>LocalTime.now(clock)</code>. A regra é byte-por-byte a mesma: mesmo limite, mesma janela, mesma comparação. <strong>Zero linhas da regra mudaram</strong> — e a cobertura foi de 1 branch para 2. É esse o formato de todo par ruim/bom deste curso: uma coisa muda, e você vê o efeito dela isolado.</p>
+  </div>
+</div>
+
+<details class="recall">
+  <summary>Recall livre — a mais difícil: explique por que "teste difícil de escrever" quase nunca é um problema de teste</summary>
+  <p>Porque <strong>callers e testes atravessam o mesmo seam</strong>. Se o teste não consegue observar o comportamento, é porque não existe lugar de onde observar — e se não existe lugar de onde observar, também não existe lugar de onde <em>trocar</em>. A dificuldade do teste é o sintoma; a ausência de seam é a doença.</p>
+  <p>O repositório coloca isso como critério de forma: <em>"If you want to test past the interface, the module is probably the wrong shape."</em> Quando você se pega querendo alcançar o <em>interior</em> de um module para testar, a resposta não é um mock mais esperto — é que o seam está no lugar errado.</p>
+</details>
+
+<h2>Para onde isso vai</h2>
+
+<p>Você já tem a unidade. As próximas três lições constroem em cima dela:</p>
+
+<ul>
+  <li><strong>0002 — Deep vs shallow module.</strong> Você sabe <em>onde</em> cortar; falta saber <em>quanto</em> deve ficar atrás do corte. É onde o repositório rejeita a métrica de depth do Ousterhout — enquanto cita a tese dele com aprovação.</li>
+  <li><strong>0003 — Interface é mais que a assinatura.</strong> Invariantes, ordem, modos de erro, performance. Tudo que o <code>Clock</code> te obriga a saber e não aparece no tipo.</li>
+  <li><strong>0008 — Pre-agreed seams.</strong> A prática que transforma esta lição em protocolo de trabalho com agente.</li>
+</ul>
+
+<div class="ask-teacher">
+  <p><strong>Eu sou seu professor aqui.</strong> Se alguma parte não fechou, isso é defeito da lição e não seu — me diga qual trecho e eu reescrevo. Perguntas boas para agora: <em>"me dá um exemplo de seam mal colocado em Java"</em>, <em>"como isso muda com Spring e injeção de dependência?"</em>, <em>"mostra um seam que NÃO vale a pena"</em>, ou <em>"o que Feathers diz sobre link seams e object seams?"</em>.</p>
+</div>
+
+<div class="sources">
+  <h4>Fontes desta lição</h4>
+  <ol>
+    <li>Michael C. Feathers, <em>Working Effectively with Legacy Code</em>, Prentice Hall PTR (Pearson), 2005 — Cap. 4 "The Seam Model", pp. 29–44. Citações desta lição: definição de <em>seam</em> p. 31; <em>Enabling Point</em> e "source code should be the same" p. 36; exemplo sem enabling point p. 41; "the enabling point is the argument list" p. 42; escolha do tipo de seam p. 44. <span class="flag cited">texto conferido</span></li>
+    <li>Martin Fowler, <a href="https://martinfowler.com/bliki/LegacySeam.html">bliki: LegacySeam</a>, 4 jan 2024 — confrontado com o livro: a renderização dele da definição está <strong>exata</strong>. <span class="flag cited">verbatim</span></li>
+    <li>Matt Pocock, <a href="https://github.com/mattpocock/skills">mattpocock/skills</a> — <code>codebase-design/SKILL.md:22,64,65</code>; <code>tdd/SKILL.md:20,22</code>; <code>codebase-design/DEEPENING.md:29</code>. Docs publicados em <code>https://aihero.dev/skills-codebase-design</code> e <code>https://aihero.dev/skills-tdd</code>. <span class="flag cited">verbatim</span></li>
+    <li>Anthropic Engineering, "Writing effective tools for agents" e "Effective context engineering for AI agents" — citados no bloco do paralelo. <span class="flag cited">verbatim</span></li>
+    <li>Corpus completo com 130 termos e 677 citações verificadas: <code>docs/research/01-skills-corpus.md</code>.</li>
+  </ol>
+</div>
+
+<div class="nav">
+  <a href="../index.html">↑ Índice do curso</a>
+  <a href="../reference/0001-glossary.html">Glossário</a>
+  <a href="../code/0001-seam/SeamDemo.java">Código desta lição</a>
+  <a href="../docs/curriculum.md">Mapa do currículo</a>
+</div>
+
+</div>

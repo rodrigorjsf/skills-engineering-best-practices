@@ -1,0 +1,122 @@
+# Engineering discipline as agent architecture
+
+A course-in-progress studying [Matt Pocock's agent-skills repository](https://github.com/mattpocock/skills) and the software-engineering literature its skills apply — then tracing the correspondence to how AI agents actually behave.
+
+**The thesis:** the same properties that make code tractable for a human maintainer make a codebase and a workflow tractable for an LLM. A small interface is a small context. A seam is a place to cut a task. A glossary is a shared prompt.
+
+This repository exists to test that claim against primary sources rather than assert it.
+
+> **Language note.** Lessons and reference documents are written in **Brazilian Portuguese**, with every technical term kept in English verbatim (`seam`, `deep module`, `vertical slice`, `tracer bullet`, `context rot`). Research, code, and operating documents are in English. Code examples are **Java**.
+
+---
+
+## Mission
+
+Four goals drive every artifact here. If something serves none of them, it does not get built.
+
+1. **Apply** these practices in day-to-day Java work.
+2. **Teach and evangelise** them — which requires evidence that survives a hostile question, not slogans.
+3. **Author skills** on the same principles.
+4. **Hold the full intellectual genealogy** — Parnas, Feathers, Evans, Beck, Fowler, Nygard — and how it reconnects to agent architecture.
+
+Full version: [`MISSION.md`](./MISSION.md).
+
+## Evidence discipline
+
+This is the part worth stealing even if you never read a lesson.
+
+Every claim carries one of four tiers, and the tier is **visible to the reader**, not just to the author:
+
+| Tier | Meaning |
+|---|---|
+| **Quoted** | Text was fetched; the quote is verbatim; a source is given |
+| **Metadata verified** | Title/author/publisher/year/ISBN from a publisher page, DOI, or the author's own site |
+| **Chapter located** | A real table of contents or excerpt was seen |
+| **`[unverified]`** | Everything else — and it stays visibly unverified |
+
+Three standing rules:
+
+- **No guessed locators.** If a table of contents could not be fetched, the chapter number is omitted rather than invented.
+- **No smoothing.** An unverified claim is never rewritten into confident prose.
+- **Coinages are labelled as coinages,** and attributed to whoever actually coined them.
+
+A fourth marker, `[our analogy]`, separates what a source says from what we are inferring by analogy. The research corpus currently carries **125 explicit `[unverified]` marks** — that count is a feature. It is the difference between a document that knows what it doesn't know and one that reads confidently everywhere.
+
+### What that discipline has already caught
+
+- The widely-circulated **"dumb zone begins at ~100K tokens / ~40% of the context window"** figure appears in no primary source. Matt Pocock's own written definition says *"around 125K-150K tokens — though this is debated"* and explicitly states the zones do **not** track a percentage of the window.
+- **"Dumb zone was coined by Dex Horthy"** does not hold up — the phrase does not appear in HumanLayer's own document. What *is* his: the 40–60% utilization target and *intentional compaction*.
+- **"Harness engineering"** traces to **Mitchell Hashimoto**, self-identified, not to Pocock.
+- The favourable **TDD** case study (Nagappan et al., "40–90% fewer defects") is four case studies, not experiments; its "15–35% slower" figure is explicitly *"subjectively estimated by management."* Fucci et al. (TSE 2017) found that **sequencing — test-first versus test-after — had no important influence**; granularity and uniformity carried the effect.
+
+## What's inside
+
+| Path | What it is |
+|---|---|
+| [`MISSION.md`](./MISSION.md) | Why this exists and what counts as success. Every lesson anchors here. |
+| [`CLAUDE.md`](./CLAUDE.md) | Operating rules — the lesson contract, evidence tiers, markup contracts, delegation policy. |
+| [`RESOURCES.md`](./RESOURCES.md) | Curated, verified sources with annotations, plus an explicit `Gaps` section. |
+| [`docs/curriculum.md`](./docs/curriculum.md) | The full map: 4 tracks, 20 lessons, in order. |
+| `lessons/` | Self-contained HTML lessons. **1 of 20 built.** |
+| `reference/` | Compressed documents built to be revisited and printed. The glossary is binding. |
+| `docs/research/` | The research corpus — ~5,500 lines, cited. |
+| `code/` | Java examples that compile and run. |
+| `learning-records/` | What was actually learned, and what it changes. |
+
+### Research corpus
+
+Produced by delegated agents, every claim cited:
+
+- **`01-skills-corpus.md`** — exhaustive harvest of the skills repo: **152 term entries, 667 `file:line` citations**, the stateful flow graph, a per-skill dossier, and a verbatim quote bank.
+- **`02-se-literature.md`** — the software-engineering literature map, with the empirical record reported honestly including null and negative results.
+- **`03-agent-engineering.md`** — context rot, lost-in-the-middle, progressive disclosure, harness, tooling — with the measured numbers.
+- **`04-matt-pocock-sources.md`** — the author's own primary sources and a coinage ledger.
+
+### Curriculum
+
+Four tracks, built one lesson at a time.
+
+- **I — Structure**: seam · deep vs shallow module · interface beyond the signature · adapters and internal seams · the deletion test
+- **II — Process**: vertical slices and tracer bullets · red-green · pre-agreed seams · test anti-patterns · diagnosis as a loop
+- **III — Language**: ubiquitous language · bounded context · ADRs · grilling to shared understanding
+- **IV — The AI parallel**: context rot · progressive disclosure · durable state over long context · harness engineering · the stateful flow end to end · writing your own skill
+
+Every lesson follows the same six beats, which is how "explain it to a five-year-old, then to a PhD" is satisfied without splitting the audience: **Intuição → Mecanismo → Java → Fonte primária → Paralelo IA → Retrieval**.
+
+## Using it
+
+Lessons are plain, self-contained HTML — no build step, no dependencies.
+
+```bash
+git clone https://github.com/rodrigorjsf/skills-engineering-best-practices
+cd skills-engineering-best-practices
+xdg-open index.html          # or just open lessons/0001-seam.html
+```
+
+Java examples run without a compile step (Java 25, single-file source mode):
+
+```bash
+cd code/0001-seam && java SeamDemo.java
+```
+
+## Attribution and licensing
+
+The **MIT license applies to the material authored here** — lessons, reference documents, research write-ups, Java examples, stylesheets, and operating documents.
+
+It does **not** extend to quoted material, which remains the property of its authors and is reproduced in short, attributed excerpts for study and commentary:
+
+- [**mattpocock/skills**](https://github.com/mattpocock/skills) and [**mattpocock/dictionary-of-ai-coding**](https://github.com/mattpocock/dictionary-of-ai-coding) — Matt Pocock. Published docs at [aihero.dev](https://www.aihero.dev/skills). This repository studies that work; it is not affiliated with or endorsed by its author.
+- Books and papers by Michael Feathers, David Parnas, John Ousterhout, Eric Evans, Kent Beck, Martin Fowler, Michael Nygard and others, cited with page numbers where verified.
+- Engineering publications by Anthropic, Chroma Research, and other primary sources, cited with URLs.
+
+No copyrighted book, paper, or vendored repository is redistributed here — see [`.gitignore`](./.gitignore).
+
+## Status
+
+Early and deliberately so. The research corpus is broad; the lessons are built **one at a time**, because working memory is the binding constraint and breadth belongs to the map rather than inside a lesson.
+
+Open gaps are tracked honestly in [`RESOURCES.md`](./RESOURCES.md#gaps) rather than quietly omitted.
+
+## License
+
+[MIT](./LICENSE.md) © Rodrigo Jorge de Santana França

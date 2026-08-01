@@ -1,0 +1,71 @@
+<title>Engineering Skills — curso</title>
+<link rel="stylesheet" href="assets/style.css">
+<script src="assets/lesson.js" defer></script>
+
+<div class="page">
+
+<p class="kicker">Workspace de aprendizado</p>
+<h1>Disciplina de engenharia como arquitetura de agentes</h1>
+<p class="lede">Um estudo das <em>engineering skills</em> de Matt Pocock — e da tese que as sustenta: as mesmas propriedades que tornam um código tratável para um mantenedor humano tornam um codebase e um fluxo de trabalho tratáveis para um LLM.</p>
+
+<p class="meta">Domínio dos exemplos: <strong>banking</strong> (<code>Account</code>, <code>Transfer</code>, <code>Balance</code>, <code>Ledger</code>) · Java 25 · Prosa em pt-BR, termos técnicos em inglês verbatim</p>
+
+<h2>Comece aqui</h2>
+
+<ul>
+  <li><a href="MISSION.md">MISSION.md</a> — por que este curso existe e o que conta como sucesso. Toda lição se ancora aqui.</li>
+  <li><a href="docs/curriculum.md">Mapa do currículo</a> — as quatro trilhas e as vinte lições, na ordem.</li>
+  <li><a href="RESOURCES.md">RESOURCES.md</a> — as fontes de alta confiança, anotadas.</li>
+</ul>
+
+<h2>Referência</h2>
+
+<p>Documentos comprimidos, feitos para consulta rápida e para imprimir. Estes você revisita; as lições, não.</p>
+
+<ul>
+  <li><a href="reference/0001-glossary.html">0001 — Glossário</a> <span class="flag cited">vinculante</span><br>
+    <span class="caption" style="border:0;padding:0;margin:0">Todo termo, a definição verbatim do repositório, a fonte primária e os sinônimos explicitamente rejeitados. Nenhuma lição redefine um termo daqui.</span></li>
+</ul>
+
+<h2>Lições</h2>
+
+<div class="table-wrap">
+<table>
+  <thead>
+    <tr><th>#</th><th>Lição</th><th>Trilha</th><th>A vitória</th></tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><a href="lessons/0001-seam.html">0001</a></td>
+      <td><a href="lessons/0001-seam.html">Seam</a></td>
+      <td>I — Estrutura</td>
+      <td>Saber olhar uma classe Java e dizer onde o seam vai, e por quê.</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<h2>Corpus de pesquisa</h2>
+
+<p>Tudo que foi investigado fica persistido, citado e em inglês, para servir de base às próximas sessões.</p>
+
+<ul>
+  <li><a href="docs/research/01-skills-corpus.md">01 — Skills corpus</a> — colheita do repositório: ledger de termos, grafo do fluxo stateful, dossiê por skill, banco de citações. Tudo com <code>file:line</code>.</li>
+  <li><a href="docs/research/02-se-literature.md">02 — Literatura de engenharia</a> — Feathers, Parnas, Ousterhout, Evans, Beck, Fowler, Nygard. Com o registro empírico reportado honestamente.</li>
+  <li><a href="docs/research/03-agent-engineering.md">03 — Engenharia de agentes</a> — context rot, lost-in-the-middle, progressive disclosure, harness, tooling. Com números.</li>
+  <li><a href="docs/research/04-matt-pocock-sources.md">04 — Fontes primárias do autor</a> — repositório, docs publicados, vídeos, e o ledger de cunhagens.</li>
+</ul>
+
+<h2>Código</h2>
+
+<p>Os exemplos das lições são programas Java reais, que compilam e rodam. O output citado nas lições é output capturado, não imaginado.</p>
+
+<ul>
+  <li><code>code/0001-seam/SeamDemo.java</code> — a mesma regra bancária com e sem seam. Rode com <code>java SeamDemo.java</code>.</li>
+</ul>
+
+<div class="ask-teacher">
+  <p><strong>Eu sou seu professor neste workspace.</strong> Pergunte a qualquer momento: para aprofundar um conceito, contestar uma afirmação, pedir mais exemplos em Java, ou pedir a próxima lição. Se algo não fez sentido, isso é um defeito da lição — me diga qual parte e eu reescrevo.</p>
+</div>
+
+</div>

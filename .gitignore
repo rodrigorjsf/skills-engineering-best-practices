@@ -1,0 +1,50 @@
+# Teaching workspace — what does NOT belong in version control.
+#
+# The rule of thumb: this repo holds what we *authored* (lessons, reference
+# docs, research, code, operating rules). Source material we merely *read* is
+# either someone else's repo or someone else's copyrighted book — neither
+# belongs here.
+
+# --- The vendored copy of the upstream skills repo -------------------------
+# `skills/` is a Windows copy of https://github.com/mattpocock/skills and
+# carries its own `.git`, so git would otherwise record it as an embedded
+# repository (a gitlink) and refuse to track its contents usefully.
+# It is disposable: read the live clone at ../skills instead. See CLAUDE.md.
+skills/
+
+# --- Books and other copyrighted source material ---------------------------
+# Read for citation, never redistributed. Quotes live in the lessons with
+# page numbers; the book itself stays out of the repo.
+*.pdf
+*.epub
+*.mobi
+*.azw3
+*.djvu
+
+# --- Windows / WSL interop junk --------------------------------------------
+# Alternate data streams that ride along when files are copied from Windows.
+*:Zone.Identifier
+
+# --- OS junk ---------------------------------------------------------------
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Java ------------------------------------------------------------------
+# Examples run via `java File.java` (single-file source mode, no build step),
+# but an accidental `javac` would litter these.
+*.class
+code/**/out/
+code/**/target/
+
+# --- Editors ---------------------------------------------------------------
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# --- Scratch ---------------------------------------------------------------
+scratch/
+tmp/
+*.log

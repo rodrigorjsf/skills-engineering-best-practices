@@ -1,0 +1,12 @@
+# Normalise line endings to LF in the repository, regardless of the platform
+# a contributor is on. Without this, a Windows/WSL checkout with
+# core.autocrlf=true rewrites every file and the whole repo shows up as
+# modified on the next `git status`.
+* text=auto eol=lf
+
+# Binary-ish assets, should they ever appear: never touch them.
+*.png  binary
+*.jpg  binary
+*.gif  binary
+*.svg  text eol=lf
+*.pdf  binary

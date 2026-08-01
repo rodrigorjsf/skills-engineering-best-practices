@@ -1,0 +1,457 @@
+<title>Glossário — Engineering Skills</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/lesson.js" defer></script>
+
+<div class="page">
+
+<p class="kicker">Referência 0001 · vinculante</p>
+<h1>Glossário</h1>
+<p class="lede">Toda definição aqui é <strong>verbatim do repositório ou da fonte primária</strong>. Nenhuma lição redefine um termo desta página. A lista <code>_Avoid_</code> é a rejeição explícita do próprio repositório — honre-a.</p>
+
+<p class="meta">
+Repositório: <a href="https://github.com/mattpocock/skills">github.com/mattpocock/skills</a> ·
+Docs publicados: <code>https://aihero.dev/skills-&lt;skill-name&gt;</code> ·
+Snapshot: <code>2ab9580</code> ·
+Citações no formato <code>arquivo:linha</code> apontam para o repo upstream
+</p>
+
+<div class="callout evidence">
+  <span class="callout-title">Como ler os marcadores</span>
+  <p><span class="flag cited">verbatim</span> texto copiado exatamente da fonte, com <code>arquivo:linha</code> ou URL.<br>
+  <span class="flag coinage">cunhagem</span> termo de praticante, com autoria rastreada até uma fonte primária.<br>
+  <span class="flag unverified">unverified</span> não confirmado contra fonte primária. Fica visivelmente marcado — nunca é suavizado.<br>
+  <span class="flag ours">nossa analogia</span> inferência nossa, não afirmação da fonte.</p>
+</div>
+
+<div class="callout trap">
+  <span class="callout-title">A regra que o repositório impõe sobre si mesmo</span>
+  <blockquote class="source" style="margin:0">
+    <p>Use these terms exactly — don't substitute "component," "service," "API," or "boundary." Consistent language is the whole point.</p>
+    <cite>codebase-design/SKILL.md:12</cite>
+  </blockquote>
+</div>
+
+<hr>
+
+<h2>1 · Vocabulário de deep modules</h2>
+<p class="caption" style="border:0;padding:0;margin:0 0 1.5rem">Dono: <code>codebase-design</code>. Este é o único lugar autoritativo destas palavras no repositório.</p>
+
+<h3 id="module">Module</h3>
+<blockquote class="source">
+  <p>anything with an interface and an implementation. Deliberately scale-agnostic: a function, class, package, or tier-spanning slice.</p>
+  <cite>codebase-design/SKILL.md:14 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p><strong>_Avoid_:</strong> <code>unit</code>, <code>component</code>, <code>service</code> — e também <code>layer</code>, <code>wrapper</code> quando você quer dizer module.</p>
+<p><em>Por que importa:</em> a escala é deliberadamente indefinida. Uma função é um module. Um pacote é um module. Uma fatia que atravessa camadas é um module. Isso é o que permite o mesmo vocabulário funcionar do método ao sistema.</p>
+
+<h3 id="interface">Interface</h3>
+<blockquote class="source">
+  <p>everything a caller must know to use the module correctly: the type signature, but also invariants, ordering constraints, error modes, required configuration, and performance characteristics.</p>
+  <cite>codebase-design/SKILL.md:16 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p><strong>_Avoid_:</strong> <code>API</code>, <code>signature</code> — "too narrow — they refer only to the type-level surface".</p>
+<p class="sidenote">Esta é a definição mais radical do glossário e a que mais muda comportamento. Se a ordem de chamada importa, isso é interface. Se falha com <code>null</code>, isso é interface. Se é O(n²), isso é interface. Nada disso aparece na assinatura Java.</p>
+<p><strong>Framing rejeitado:</strong> "<em>Interface</em> as the TypeScript <code>interface</code> keyword or a class's public methods: too narrow — interface here includes every fact a caller must know." <span class="caption" style="border:0;padding:0">— codebase-design/SKILL.md:108</span></p>
+<p><strong>Relação:</strong> "A <strong>Module</strong> has exactly one <strong>Interface</strong>." <span class="caption" style="border:0;padding:0">— :99</span></p>
+
+<h3 id="implementation">Implementation</h3>
+<blockquote class="source">
+  <p>what's inside a module, its body of code. Distinct from <strong>Adapter</strong>: a thing can be a small adapter with a large implementation (a Postgres repo) or a large adapter with a small implementation (an in-memory fake). Reach for "adapter" when the seam is the topic; "implementation" otherwise.</p>
+  <cite>codebase-design/SKILL.md:18 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="seam">Seam <span class="flag cited">Michael Feathers</span></h3>
+<blockquote class="source">
+  <p>a place where you can alter behaviour without editing in that place; the <em>location</em> at which a module's interface lives. Where to put the seam is its own design decision, distinct from what goes behind it.</p>
+  <cite>codebase-design/SKILL.md:22 — atribuído a Michael Feathers no próprio repo <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p>O repositório carrega uma <strong>segunda definição</strong>, do lado do teste:</p>
+<blockquote class="source">
+  <p>A <strong>seam</strong> is the public boundary you test at: the interface where you observe behavior without reaching inside. Tests live at seams, never against internals.</p>
+  <cite>tdd/SKILL.md:20 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p><strong>_Avoid_:</strong> <code>boundary</code> — "overloaded with DDD's bounded context. Say <strong>seam</strong> or <strong>interface</strong>."</p>
+<p><em>As duas definições são a mesma coisa vista de dois lados:</em> onde você pode <strong>trocar</strong> comportamento (design) é exatamente onde você pode <strong>observar</strong> comportamento (teste). Ver <a href="../lessons/0001-seam.html">lição 0001</a>.</p>
+
+<div class="callout phd">
+  <span class="callout-title">A definição original, da fonte primária</span>
+  <p>O repo cita Feathers quase palavra por palavra. A caixa de definição do livro diz:</p>
+  <blockquote class="source" style="margin:0.8rem 0 0">
+    <p>A seam is a place where you can alter behavior in your program without editing in that place.</p>
+    <cite>Feathers, <em>Working Effectively with Legacy Code</em>, Prentice Hall PTR, 2005, Cap. 4, p. 31 <span class="flag cited">texto conferido</span></cite>
+  </blockquote>
+</div>
+
+<h3 id="enabling-point">Enabling point <span class="flag unverified">ausente do repositório</span></h3>
+<blockquote class="source">
+  <p>Every seam has an enabling point, a place where you can make the decision to use one behavior or another.</p>
+  <cite>Feathers, Cap. 4, p. 36 (caixa de definição) <span class="flag cited">texto conferido</span></cite>
+</blockquote>
+<p><strong>O repositório de skills não carrega este termo</strong> — ele para na definição de seam. Mas Feathers o trata como inseparável: <em>todo</em> seam tem um. A razão está na frase seguinte dele:</p>
+<blockquote class="source">
+  <p>When you have a seam, you have a place where behavior can change. We can't really go to that place and change the code just to test it. <strong>The source code should be the same in both production and test.</strong></p>
+  <cite>Feathers, Cap. 4, p. 36 <span class="flag cited">texto conferido</span></cite>
+</blockquote>
+<p>Mnemônico: <strong>o seam é a linha; o enabling point é a maçaneta.</strong> Um seam sem enabling point acessível é uma linha que você não consegue abrir. Ver <a href="../lessons/0001-seam.html">lição 0001</a>.</p>
+
+<h3 id="seam-types">Os três tipos de seam <span class="flag unverified">ausentes do repositório</span></h3>
+<p>Feathers deriva a taxonomia das etapas do build: <em>"Each identifiable step exposes different kinds of seams."</em></p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Tipo</th><th>Etapa</th><th>Enabling point</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Preprocessing seam</strong></td><td>Antes do compilador (C/C++)</td><td>Um <code>#define</code></td></tr>
+    <tr><td><strong>Link seam</strong></td><td>Linkagem</td><td><em>"always outside the program text"</em> — makefile, IDE</td></tr>
+    <tr><td><strong>Object seam</strong></td><td>Runtime, despacho dinâmico</td><td>Lista de argumentos, construtor, ponto de criação</td></tr>
+  </tbody>
+</table>
+</div>
+<p>Veredito dele: <em>"In general, object seams are the best choice in object-oriented languages."</em> <span class="caption" style="border:0;padding:0;display:inline">— p. 44</span></p>
+
+<h3 id="internal-external-seam">Internal seam · External seam</h3>
+<blockquote class="source">
+  <p>A deep module can have internal seams (private to its implementation, used by its own tests) as well as the external seam at its interface. Don't expose internal seams through the interface just because tests use them.</p>
+  <cite>codebase-design/DEEPENING.md:30 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="adapter">Adapter</h3>
+<blockquote class="source">
+  <p>a concrete thing that satisfies an interface at a seam. Describes <em>role</em> (what slot it fills), not substance (what's inside).</p>
+  <cite>codebase-design/SKILL.md:24 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="port">Port</h3>
+<blockquote class="source">
+  <p>Define a <strong>port</strong> (interface) at the seam. The deep module owns the logic; the transport is injected as an <strong>adapter</strong>. Tests use an in-memory adapter. Production uses an HTTP/gRPC/queue adapter.</p>
+  <cite>codebase-design/DEEPENING.md:19 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="depth">Depth · Deep module · Shallow module</h3>
+<blockquote class="source">
+  <p><strong>Depth</strong> — leverage at the interface: the amount of behaviour a caller (or test) can exercise per unit of interface they have to learn. A module is <strong>deep</strong> when a large amount of behaviour sits behind a small interface, <strong>shallow</strong> when the interface is nearly as complex as the implementation.</p>
+  <cite>codebase-design/SKILL.md:20 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p><strong>Princípio:</strong> "Depth is a property of the interface, not the implementation." <span class="caption" style="border:0;padding:0">— :62</span></p>
+<div class="callout trap">
+  <span class="callout-title">Framing rejeitado — e é o Ousterhout</span>
+  <p>"<strong>Depth as ratio of implementation-lines to interface-lines</strong> (Ousterhout): rewards padding the implementation. We use depth-as-leverage instead." <span class="caption" style="border:0;padding:0;display:inline">— codebase-design/SKILL.md:107</span></p>
+  <p>O repositório rejeita a <em>métrica</em> de Ousterhout e ainda assim cita a <em>tese</em> dele com aprovação no README: <em>"The best modules are deep. They allow a lot of functionality to be accessed through a simple interface."</em> <span class="caption" style="border:0;padding:0;display:inline">— README.md:166-168</span></p>
+  <p><strong>Mas há uma questão em aberto, e ela é honesta:</strong> <span class="flag unverified">não resolvido</span> não foi possível confirmar que Ousterhout de fato define depth como uma <em>razão</em> de linhas. Os resumos secundários de <em>A Philosophy of Software Design</em> mostram consistentemente um tratamento <strong>qualitativo</strong> de custo/benefício mais um diagrama de retângulos — <strong>nenhuma fórmula</strong>. Fechar isso exige o texto do livro.</p>
+  <p>Ou seja: a rejeição do repositório pode estar mirando um framing que o autor citado não sustenta. Isso não invalida <em>depth-as-leverage</em> — que é uma boa definição por mérito próprio — mas invalida contar a história como "o Ousterhout erra e o repo corrige". Ver lição 0002.</p>
+</div>
+<p class="sidenote"><strong>Metadados do livro:</strong> John Ousterhout, <em>A Philosophy of Software Design</em>, 2ª ed., <strong>2021</strong>, ISBN 173210221X — o capítulo é o <strong>4, "Modules Should Be Deep"</strong>. O debate público <a href="https://github.com/johnousterhout/aposd-vs-clean-code">Ousterhout × Robert C. Martin</a> é real (set/2024–fev/2025), mas trata de <em>tamanho de método</em> — não resolve como o APOSD mede depth.</p>
+
+<h3 id="leverage">Leverage</h3>
+<blockquote class="source">
+  <p>what callers get from depth: more capability per unit of interface they learn. One implementation pays back across N call sites and M tests.</p>
+  <cite>codebase-design/SKILL.md:26 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="locality">Locality</h3>
+<blockquote class="source">
+  <p>what maintainers get from depth: change, bugs, knowledge, and verification concentrate in one place rather than spreading across callers. Fix once, fixed everywhere.</p>
+  <cite>codebase-design/SKILL.md:28 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="deletion-test">The deletion test</h3>
+<blockquote class="source">
+  <p>Imagine deleting the module. If complexity vanishes, it was a pass-through. If complexity reappears across N callers, it was earning its keep.</p>
+  <cite>codebase-design/SKILL.md:63 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="test-surface">The interface is the test surface</h3>
+<blockquote class="source">
+  <p>Callers and tests cross the same seam. If you want to test <em>past</em> the interface, the module is probably the wrong shape.</p>
+  <cite>codebase-design/SKILL.md:64 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="two-adapters">A regra de justificação do seam</h3>
+<blockquote class="source">
+  <p>One adapter means a hypothetical seam. Two adapters means a real one. Don't introduce a seam unless something actually varies across it.</p>
+  <cite>codebase-design/SKILL.md:65 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p>Reforçado em <code>DEEPENING.md:29</code>: "A single-adapter seam is just indirection."</p>
+
+<h3 id="dependency-categories">As quatro categorias de dependência</h3>
+<p>De <code>codebase-design/DEEPENING.md:5-25</code> — determinam como um module é testado através do seam:</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Categoria</th><th>Definição verbatim</th><th>Onde fica o seam</th></tr></thead>
+  <tbody>
+    <tr><td><code>in-process</code></td><td>"Pure computation, in-memory state, no I/O. Always deepenable"</td><td>Nenhum necessário</td></tr>
+    <tr><td><code>local-substitutable</code></td><td>"Dependencies that have local test stand-ins (PGLite for Postgres, in-memory filesystem)"</td><td>Interno — "no port at the module's external interface"</td></tr>
+    <tr><td><code>ports &amp; adapters</code></td><td>Remoto mas seu (Remote but owned)</td><td>Port na interface externa</td></tr>
+    <tr><td><code>mock</code></td><td>"Third-party services (Stripe, Twilio, etc.) you don't control"</td><td>System boundary</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="replace-dont-layer">Replace, don't layer</h3>
+<blockquote class="source">
+  <p>Old unit tests on shallow modules become waste once tests at the deepened module's interface exist — delete them.</p>
+  <cite>codebase-design/DEEPENING.md:34 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="design-it-twice">Design It Twice <span class="flag cited">Ousterhout</span></h3>
+<p>"Based on 'Design It Twice' (Ousterhout) — your first idea is unlikely to be the best." <span class="caption" style="border:0;padding:0;display:inline">— DESIGN-IT-TWICE.md:3</span>. Mecânica: 3+ sub-agents paralelos, cada um com uma restrição de design diferente, comparados em <strong>depth</strong>, <strong>locality</strong> e <strong>seam placement</strong>.</p>
+
+<h3 id="deepening-opportunity">Deepening opportunity <span class="flag coinage">cunhagem</span></h3>
+<blockquote class="source">
+  <p>refactors that turn shallow modules into deep ones. The aim is testability and AI-navigability.</p>
+  <cite>improve-codebase-architecture/SKILL.md:9 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<hr>
+
+<h2>2 · Vocabulário de testes</h2>
+<p class="caption" style="border:0;padding:0;margin:0 0 1.5rem">Dono: <code>tdd</code>.</p>
+
+<h3 id="red-green">Red → green <span class="flag cited">note: sem "refactor"</span></h3>
+<blockquote class="source">
+  <p>TDD is the red → green loop.</p>
+  <cite>tdd/SKILL.md:8 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<div class="callout trap">
+  <span class="callout-title">O repositório removeu o "refactor" do loop — deliberadamente</span>
+  <p>"<strong>Refactoring is not part of the loop.</strong> It belongs to the review stage (see the <code>code-review</code> skill), not the red → green implementation cycle." <span class="caption" style="border:0;padding:0;display:inline">— tdd/SKILL.md:36</span></p>
+  <p>O histórico confirma que foi intencional: <em>"Also dropped the refactor stage — TDD is now red → green; refactoring belongs to the review stage."</em> <span class="caption" style="border:0;padding:0;display:inline">— CHANGELOG.md:55</span></p>
+  <p>A frase "red-green-refactor" sobrevive apenas como <strong>gatilho de invocação</strong> na <code>description</code> do skill — não como o loop. Esta é uma divergência real de Kent Beck, e vale entender por quê. Ver lição 0007.</p>
+</div>
+
+<h3 id="red-before-green">Red before green</h3>
+<blockquote class="source">
+  <p>Write the failing test first, then only enough code to pass it. Don't anticipate future tests or add speculative features.</p>
+  <cite>tdd/SKILL.md:34 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="pre-agreed-seams">Pre-agreed seams</h3>
+<blockquote class="source">
+  <p>Test only at pre-agreed seams. Before writing any test, write down the seams under test and confirm them with the user. No test is written at an unconfirmed seam. You can't test everything — agreeing the seams up front is how testing effort lands on the critical paths and complex logic instead of every edge case.</p>
+  <cite>tdd/SKILL.md:22 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p><em>Esta é a dobradiça entre design e processo</em>, e a prática mais transferível para trabalho agêntico. Consumida por <code>implement</code> ("Use /tdd where possible, at pre-agreed seams" — <code>implement/SKILL.md:9</code>) e acordada em <code>to-spec</code>.</p>
+
+<h3 id="vertical-slice">Vertical slice · Tracer bullet <span class="flag unverified">tracer bullet: glossado nos docs, nunca definido num <code>SKILL.md</code></span> · Horizontal slicing</h3>
+<blockquote class="source">
+  <p><strong>Horizontal slicing</strong> — writing all tests first, then all implementation. Bulk tests verify <em>imagined</em> behavior: you test the <em>shape</em> of things rather than user-facing behavior, the tests go insensitive to real changes, and you commit to test structure before understanding the implementation. Work in <strong>vertical slices</strong> instead — one test → one implementation → repeat, each test a <strong>tracer bullet</strong> that responds to what the last cycle taught you.</p>
+  <cite>tdd/SKILL.md:30 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p>O contraste mais nítido está no doc publicado:</p>
+<blockquote class="source">
+  <p>A <strong>horizontal</strong> slice ships one layer of the change — all the schema, or all the API — and nothing works until every layer lands. A <strong>vertical</strong> slice, the tracer bullet, ships one narrow path through <em>every</em> layer at once, so it can be demoed the moment it's done.</p>
+  <cite>docs/engineering/to-tickets.md:40 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="implementation-coupled">Implementation-coupled <span class="flag unverified">anti-pattern</span></h3>
+<blockquote class="source">
+  <p>mocks internal collaborators, tests private methods, or verifies through a side channel (querying the database instead of using the interface). The tell: the test breaks when you refactor but behavior hasn't changed.</p>
+  <cite>tdd/SKILL.md:28 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="tautological">Tautological <span class="flag unverified">anti-pattern</span></h3>
+<blockquote class="source">
+  <p>the assertion recomputes the expected value the way the code does (<code>expect(add(a, b)).toBe(a + b)</code>, a snapshot derived by hand the same way, a constant asserted equal to itself), so it passes by construction and can never disagree with the code. Expected values must come from an independent source of truth — a known-good literal, a worked example, the spec.</p>
+  <cite>tdd/SKILL.md:29 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p class="sidenote">Este é o anti-pattern com formato especificamente de LLM. Um agente que escreve o teste para um código que ele mesmo acabou de escrever recalcula o valor esperado do mesmo jeito. O teste passa por construção e nunca pode discordar do código.</p>
+
+<h3 id="mocking-policy">Mocking policy</h3>
+<p>"Mock at <strong>system boundaries</strong> only" <span class="caption" style="border:0;padding:0;display:inline">— tdd/mocking.md:3</span>.</p>
+<div class="split">
+  <div class="callout seam"><span class="callout-title">Mock</span><p>APIs externas · bancos (às vezes — prefira test DB) · tempo e aleatoriedade · filesystem (às vezes)</p></div>
+  <div class="callout trap"><span class="callout-title">Não mocke</span><p>"Your own classes/modules · Internal collaborators · Anything you control"</p></div>
+</div>
+
+<h3 id="good-test">O que é um bom teste</h3>
+<blockquote class="source">
+  <p>Tests verify behavior through public interfaces, not implementation details. Code can change entirely; tests shouldn't. A good test reads like a specification — "user can checkout with valid cart" tells you exactly what capability exists — and survives refactors because it doesn't care about internal structure.</p>
+  <cite>tdd/SKILL.md:14 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<hr>
+
+<h2>3 · Vocabulário de domínio</h2>
+<p class="caption" style="border:0;padding:0;margin:0 0 1.5rem">Dono: <code>domain-modeling</code>.</p>
+
+<h3 id="domain-model">Domain model — ativo, não passivo</h3>
+<blockquote class="source">
+  <p>Actively build and sharpen the project's domain model as you design. This is the <em>active</em> discipline — challenging terms, inventing edge-case scenarios, and writing the glossary and decisions down the moment they crystallise.</p>
+  <cite>domain-modeling/SKILL.md:8 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p>Regra do repo: apenas <em>ler</em> o <code>CONTEXT.md</code> não é este skill — "that's a one-line habit any skill can do. This skill is for when you're changing the model, not just consuming it."</p>
+
+<h3 id="context-md"><code>CONTEXT.md</code></h3>
+<blockquote class="source">
+  <p><code>CONTEXT.md</code> should be totally devoid of implementation details. Do not treat <code>CONTEXT.md</code> as a spec, a scratch pad, or a repository for implementation decisions. It is a glossary and nothing else.</p>
+  <cite>domain-modeling/SKILL.md:64 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p>Regras de formato (<code>CONTEXT-FORMAT.md:27-29</code>):</p>
+<ul>
+  <li>"<strong>Be opinionated.</strong> When multiple words exist for the same concept, pick the best one and list the others under <code>_Avoid_</code>."</li>
+  <li>"<strong>Keep definitions tight.</strong> One or two sentences max. Define what it IS, not what it does."</li>
+  <li>"<strong>Only include terms specific to this project's context.</strong> General programming concepts don't belong even if the project uses them extensively."</li>
+</ul>
+
+<h3 id="adr">ADR — o portão de três testes</h3>
+<p>Os três precisam valer <strong>simultaneamente</strong> (<code>domain-modeling/SKILL.md:70-72</code>):</p>
+<blockquote class="source">
+  <p>1. <strong>Hard to reverse</strong> — the cost of changing your mind later is meaningful<br>
+  2. <strong>Surprising without context</strong> — a future reader will wonder "why did they do it this way?"<br>
+  3. <strong>The result of a real trade-off</strong> — there were genuine alternatives and you picked one for specific reasons</p>
+  <cite>domain-modeling/SKILL.md:70-72 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p>"An ADR can be a single paragraph. The value is in recording <em>that</em> a decision was made and <em>why</em> — not in filling out sections." <span class="caption" style="border:0;padding:0;display:inline">— ADR-FORMAT.md:15</span></p>
+
+<h3 id="ubiquitous-language">Ubiquitous language <span class="flag unverified">used-but-undefined-in-repo</span></h3>
+<div class="callout trap">
+  <span class="callout-title">Achado importante da pesquisa</span>
+  <p>O termo aparece na <code>description</code> do <code>domain-modeling</code>, nos docs publicados e na epígrafe de Eric Evans no README — mas <strong>nenhum arquivo do repositório define o termo</strong>. O repo entrega <code>CONTEXT.md</code>-como-glossário e o skill <code>domain-modeling</code> no lugar da definição.</p>
+  <p>A definição fica com a fonte primária: Eric Evans, <em>Domain-Driven Design</em> (2003). Ver <code>docs/research/02-se-literature.md</code>.</p>
+</div>
+
+<h3 id="bounded-context">Bounded context <span class="flag unverified">used-but-undefined-in-repo</span></h3>
+<p>Aparece apenas como uma <strong>colisão a evitar</strong>: "boundary — overloaded with DDD's bounded context" (<code>codebase-design/SKILL.md:22</code> e <code>:109</code>). Nunca definido no repo.</p>
+
+<hr>
+
+<h2>4 · Vocabulário de agentes</h2>
+<p class="caption" style="border:0;padding:0;margin:0 0 1.5rem">Fontes primárias externas. Aqui a disciplina de evidência importa mais, porque há bastante folclore circulando.</p>
+
+<h3 id="smart-zone">Smart zone · Dumb zone <span class="flag coinage">cunhagem, autoria rastreada</span></h3>
+<p>Fonte primária: Matt Pocock, <em>Dictionary of AI Coding</em>, entrada <code>Smart zone.md</code> — <a href="https://github.com/mattpocock/dictionary-of-ai-coding">github.com/mattpocock/dictionary-of-ai-coding</a>, commit <code>251fec7</code>.</p>
+<blockquote class="source">
+  <p>Early in a session the agent is in a "smart zone" — sharp, focused, recall is good. As the session grows it drifts into a "dumb zone": sloppier, forgetful, more mistakes — and more faithfulness hallucinations. Same model, same harness — just more context. The felt effect of attention degradation. <strong>On frontier models, the dumb zone commonly begins around 125K-150K tokens — though this is debated.</strong> Clear or compact when the session bloats; don't push through.</p>
+  <cite>Dictionary of AI Coding, <code>dictionary/Smart zone.md</code> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<blockquote class="source">
+  <p>The zones don't track the context window limit. A session can be deep in the dumb zone with most of the window still free: the limit is where the harness refuses to continue, but quality falls off long before that. Plan around the smart zone, not the window.</p>
+  <cite>mesma entrada <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<div class="callout trap">
+  <span class="callout-title">Três correções ao que circula online</span>
+  <ol>
+    <li><strong>A cifra "~100K tokens / ~40% da janela" NÃO está na fonte de Pocock.</strong> <span class="flag unverified">unverified</span> Ela aparece só em resumos de terceiros. A fonte escrita dele diz <strong>"around 125K-150K tokens — though this is debated"</strong> e afirma explicitamente que as zonas <em>não</em> acompanham uma porcentagem da janela.</li>
+    <li><strong>"Cunhado por Dex Horthy (HumanLayer)" é <span class="flag unverified">unverified</span>.</strong> O documento primário da HumanLayer foi buscado e <strong>a expressão "dumb zone" não aparece nele</strong>. O que é dele é o número <strong>40–60% de utilização</strong> e o conceito de <em>intentional compaction</em>.</li>
+    <li><strong>A cunhagem fica em aberto.</strong> A afirmação defensável: "'Dumb zone' é definido por Matt Pocock no Dictionary of AI Coding; quem usou a expressão primeiro é <span class="flag unverified">unverified</span>."</li>
+  </ol>
+</div>
+<p><strong>Vizinhos verificáveis</strong> — use estes quando precisar de evidência, não de vocabulário: <em>context rot</em> (18 modelos medidos), <em>lost in the middle</em> (revisado por pares), <em>RULER</em> (comprimento efetivo ≪ anunciado).</p>
+
+<h3 id="attention-budget">Attention budget · Attention degradation <span class="flag coinage">cunhagem</span></h3>
+<blockquote class="source">
+  <p>Each token has a finite amount of influence to distribute across the rest of the context… The budget is per-token and doesn't grow when the context does, which is why long sessions dilute.</p>
+  <cite>Pocock, Dictionary of AI Coding <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<blockquote class="source">
+  <p>An instruction that was the loudest thing at 10k tokens of context is background hum at 150k. This is the mechanism behind attention degradation: the model doesn't forget; the signal gets lost in the noise.</p>
+  <cite>idem <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p class="sidenote">Este é o modelo mental dele, não ciência de transformers estabelecida. A Anthropic usa "attention budget" independentemente, então é vocabulário compartilhado de praticantes — mas o trabalho mecanicístico citável é outro (§5 da pesquisa 03).</p>
+
+<h3 id="harness">Harness <span class="flag cited">vocabulário de fornecedor estabelecido</span></h3>
+<blockquote class="source">
+  <p>An agent harness (or scaffold) is the system that enables a model to act as an agent: it processes inputs, orchestrates tool calls, and returns results.</p>
+  <cite>Anthropic Engineering, "Demystifying evals for AI agents", 9 jan 2026 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<blockquote class="source">
+  <p>Everything around the model that turns it into an agent: tools, system prompt, context-window management, permissions, hooks. Claude.ai and Claude Code run on the same model but behave differently because their harnesses differ.</p>
+  <cite>Pocock, Dictionary of AI Coding, <code>Harness.md</code> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p>E a consequência diagnóstica: <em>"When behaviour differs between two products, or between yesterday and today, the model is often not the variable — the harness is."</em></p>
+
+<h3 id="harness-engineering">Harness engineering <span class="flag coinage">cunhagem rastreada</span></h3>
+<p>Fonte primária: Mitchell Hashimoto, <a href="https://mitchellh.com/writing/my-ai-adoption-journey">"My AI Adoption Journey"</a>, 5 fev 2026. Ele <strong>se identifica como quem cunhou</strong>:</p>
+<blockquote class="source">
+  <p>I don't know if there is a broad industry-accepted term for this yet, but I've grown to calling this "harness engineering."</p>
+  <cite>Hashimoto, 5 fev 2026 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p>A prática: sempre que o agente erra, faça uma correção <em>permanente</em> no ambiente dele — documentação melhor, uma ferramenta nova, um check — de modo que ele não possa cometer aquele erro de novo.</p>
+<p><strong>Relação com "test harness":</strong> <span class="flag ours">nossa analogia</span>. Nenhuma fonte primária afirma que o uso em IA é um empréstimo deliberado do termo de engenharia de software. O que é verificável é que os dois convergem estruturalmente: ambos são o andaime não-produto que torna um artefato inerte executável e observável.</p>
+
+<h3 id="deep-tools">Deep tools <span class="flag ours">nossa analogia</span></h3>
+<div class="callout ai">
+  <span class="callout-title">Rotulado com precisão — a Anthropic não faz esta analogia</span>
+  <p>Uma verificação de termos no texto completo de "Writing effective tools for agents" por <code>deep</code>, <code>shallow</code>, <code>module</code>, <code>information hiding</code>, <code>Ousterhout</code>, <code>Parnas</code>: <strong>nenhum presente</strong>.</p>
+  <p>O que a Anthropic <em>diz</em>, verbatim: <em>"More tools don't always lead to better outcomes. A common error we've observed is tools that merely wrap existing software functionality."</em> E: <em>"Similar to the functions of a well-designed codebase, tools should be self-contained, robust to error, and extremely clear with respect to their intended use."</em></p>
+  <p><strong>E o contra-sinal, que não deve ser suprimido:</strong> <em>"instead of writing tools and MCP servers the way we'd write functions and APIs for other developers or systems, we need to design them for agents"</em> — a posição declarada da Anthropic é que ferramentas de agente exigem <em>repensar</em> a prática de API, não herdá-la.</p>
+  <p>A analogia deep module ↔ deep tool é <strong>nossa</strong>, é forte e defensável, mas o documento não pode dar a entender que a Anthropic a fez.</p>
+</div>
+
+<hr>
+
+<h2>5 · Vocabulário de alinhamento humano × agente</h2>
+<p class="caption" style="border:0;padding:0;margin:0 0 1.5rem">Dono: <code>grilling</code>, <code>grill-with-docs</code>, <code>wayfinder</code>. Fonte primária adicional: o <em>AI Coding Dictionary</em> do autor.</p>
+
+<h3 id="grilling">Grilling <span class="flag coinage">cunhagem dele, com ancestral reconhecido</span></h3>
+<blockquote class="source">
+  <p>A technique for developing a <em>design concept</em> with an <em>agent</em>: the agent interviews the user Socratically, one decision at a time, proposing a recommended answer for each. Slows the rush to a finished plan — no <em>handoff artifact</em> is written until the concept stabilises.</p>
+  <cite><a href="https://www.aihero.dev/ai-coding-dictionary/grilling">aihero.dev/ai-coding-dictionary/grilling</a> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<div class="callout ai">
+  <span class="callout-title">Por que a técnica existe — a frase mais importante do glossário</span>
+  <blockquote class="source" style="margin:0 0 0.8rem">
+    <p>The technique exists because agents fill gaps silently. Asked to write a <em>spec</em> from a two-line prompt, the agent doesn't stop at the decisions you haven't made — it picks defaults and writes them in. … Grilling inverts this — instead of guessing, the agent has to ask.</p>
+    <cite>idem <span class="flag cited">verbatim</span></cite>
+  </blockquote>
+  <p>Guarde <strong>"agents fill gaps silently"</strong>. É o diagnóstico inteiro em três palavras. O problema não é o agente errar — é ele <em>não sinalizar</em> que decidiu. Toda decisão que você não tomou vira um default escrito com a mesma confiança das decisões que você tomou.</p>
+</div>
+
+<p><strong>O ancestral, reconhecido por ele próprio:</strong></p>
+<blockquote class="source">
+  <p>Before AI came along, devs called this <strong>rubber ducking</strong> — talking through your idea until you figured out all the permutations.</p>
+  <cite><a href="https://www.aihero.dev/my-grill-me-skill-has-gone-viral">"My 'Grill Me' Skill Went Viral"</a>, 23 mar 2026 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p>A diferença com o pato de borracha: o pato não pergunta de volta. Grilling é rubber ducking onde o pato tem opinião, faz a pergunta seguinte, e <strong>recomenda uma resposta</strong> a cada passo.</p>
+
+<h3 id="grilling-rules">As quatro regras do protocolo</h3>
+<p>Do <code>grilling/SKILL.md</code>, verbatim — cada uma faz um trabalho específico:</p>
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Regra</th><th>O que ela impede</th></tr></thead>
+  <tbody>
+    <tr><td>"Ask the questions <strong>one at a time</strong>, waiting for feedback on each question before continuing."</td><td>Um bloco de 10 perguntas é respondido superficialmente. "Asking multiple questions at once is bewildering."</td></tr>
+    <tr><td>"For each question, provide your <strong>recommended answer</strong>."</td><td>Transferir todo o trabalho cognitivo para você. A recomendação te dá algo para <em>discordar</em>, que é mais barato que gerar do zero.</td></tr>
+    <tr><td>"If a <em>fact</em> can be found by exploring the environment, <strong>look it up</strong> rather than asking me. The <em>decisions</em>, though, are mine."</td><td>Desperdiçar seu tempo com o que a máquina consegue ler sozinha. A linha fato/decisão é a divisão de trabalho.</td></tr>
+    <tr><td>"<strong>Do not act on it until I confirm</strong> we have reached a shared understanding."</td><td>O agente começar a construir enquanto o desenho ainda está mudando.</td></tr>
+  </tbody>
+</table>
+</div>
+
+<h3 id="shared-understanding">Shared understanding <span class="flag unverified">não é cunhagem — é inglês comum</span></h3>
+<p>Não é um termo inventado (é vocabulário agile/DDD ordinário), mas no repositório ele é <strong>load-bearing</strong>: funciona como <em>stop condition</em>, o portão que separa desenhar de construir.</p>
+<blockquote class="source">
+  <p>Interview me relentlessly about every aspect of this until we reach a shared understanding. … Do not act on it until I confirm we have reached a shared understanding.</p>
+  <cite><code>grilling/SKILL.md</code> @ <code>2ab9580</code> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<div class="callout trap">
+  <span class="callout-title">Version drift — cite uma versão, não misture</span>
+  <p>Esta redação está no <code>SKILL.md</code>. A <a href="https://www.aihero.dev/skills-grilling">página publicada</a> parafraseia ("It won't start enacting the plan until you confirm the shared understanding has been reached"), e o transcript do artigo de março/2026 cita uma redação <em>anterior</em> ainda ("design tree" em vez de "decision tree"). São três textos diferentes. Cite o que você realmente leu.</p>
+</div>
+
+<h3 id="hitl-afk">HITL · AFK <span class="flag coinage">a classificação é dele</span></h3>
+<blockquote class="source">
+  <p>Every ticket is either <strong>HITL</strong> — human in the loop, worked <em>with</em> a human who speaks for themselves — or <strong>AFK</strong>, driven by the agent alone. A HITL ticket only resolves through that live exchange; the agent never stands in for the human's side of it (<strong>a grilling agent that answers its own questions has broken this</strong>).</p>
+  <cite><code>wayfinder/SKILL.md</code> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p>E o modo de falha do AFK, que vale decorar:</p>
+<blockquote class="source">
+  <p>The characteristic failure is coming back to hours of finished, confident work built on a wrong call made in the first ten minutes. The work isn't sloppy — it's coherent, just coherent about the wrong thing.</p>
+  <cite><a href="https://www.aihero.dev/ai-coding-dictionary/afk">aihero.dev/ai-coding-dictionary/afk</a> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p class="sidenote">Este é o argumento econômico do grilling em uma frase. O custo de uma decisão errada não é o erro — é <em>tudo que foi construído coerentemente em cima dele</em>. Grilling é caro; descobrir na sexta-feira é mais caro.</p>
+<p><strong>_Avoid_:</strong> <code>background agent</code> — rejeitado explicitamente por ele: "centers the machine ('running in the background') rather than the human pattern ('user has walked away'). AFK names the fact that matters: the user isn't watching."</p>
+
+<hr>
+
+<div class="ask-teacher">
+  <p><strong>Faltando um termo?</strong> Me pergunte e eu adiciono aqui com a definição verbatim e a citação. Se você encontrar uma definição minha que não bata com a fonte, isso é um defeito — me aponte e eu corrijo.</p>
+</div>
+
+<div class="nav">
+  <a href="../index.html">↑ Índice do curso</a>
+  <a href="../lessons/0001-seam.html">Lição 0001 — Seam →</a>
+  <a href="../docs/curriculum.md">Mapa do currículo</a>
+</div>
+
+</div>
