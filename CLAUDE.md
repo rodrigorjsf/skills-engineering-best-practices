@@ -105,3 +105,5 @@ When something fails repeatedly, when User has to re-explain, or when a workarou
 - Screenshot lessons with `google-chrome --headless=new`; stub `matchMedia` to force dark.
 - PIL is not installed; crop and slice PNGs with PyMuPDF (`fitz`).
 - Keep captured program output under ~70 columns or it overflows the lesson measure.
+- Force dark for a screenshot by stubbing `matchMedia`; `data-theme` alone is overwritten.
+- A `.figure.wide` collides with a sidenote beside it; move the sidenote up a paragraph.

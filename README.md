@@ -48,6 +48,7 @@ A fourth marker, `[our analogy]`, separates what a source says from what we are 
 - **"Dumb zone was coined by Dex Horthy"** does not hold up — the phrase does not appear in HumanLayer's own document. What *is* his: the 40–60% utilization target and *intentional compaction*.
 - **"Harness engineering"** traces to **Mitchell Hashimoto**, self-identified, not to Pocock.
 - The favourable **TDD** case study (Nagappan et al., "40–90% fewer defects") is four case studies, not experiments; its "15–35% slower" figure is explicitly *"subjectively estimated by management."* Fucci et al. (TSE 2017) found that **sequencing — test-first versus test-after — had no important influence**; granularity and uniformity carried the effect.
+- **"Information hiding" is not coined in Parnas' famous 1972 paper.** He writes *The second decomposition was made using "information hiding" [4] as a criteria* — the quotation marks and the citation are his. Reference [4] is his own earlier CMU report, *"Information Distribution Aspects of Design Methodology"* (1971). The criterion is stated in the famous paper; the term arrives from a companion report.
 - **"Depth as a ratio of implementation-lines to interface-lines (Ousterhout)"** — the rejection is sound, the attribution is not. Chapter 4 of *A Philosophy of Software Design* was read in full: the word `ratio` occurs **zero times in all 188 pages**, Figure 4.1 carries no numbers, axes or equation, and he rejects line count as a measure twice. The ratio he *does* write, in his lecture notes, is `functionality/(interface complexity)` — neither term a line count.
 
 ## What's inside
@@ -58,7 +59,7 @@ A fourth marker, `[our analogy]`, separates what a source says from what we are 
 | [`CLAUDE.md`](./CLAUDE.md) | Operating rules — the lesson contract, evidence tiers, markup contracts, delegation policy. |
 | [`RESOURCES.md`](./RESOURCES.md) | Curated, verified sources with annotations, plus an explicit `Gaps` section. |
 | [`docs/curriculum.md`](./docs/curriculum.md) | The full map: 4 tracks, 20 lessons, in order. |
-| `lessons/` | Self-contained HTML lessons. **2 of 20 built.** |
+| `lessons/` | Self-contained HTML lessons. **3 of 20 built.** |
 | `reference/` | Compressed documents built to be revisited and printed. The glossary is binding. |
 | `docs/research/` | The research corpus — 9 files, ~7,800 lines, cited. |
 | `code/` | Java examples that compile and run. |
@@ -104,6 +105,7 @@ Java examples run without a compile step (Java 25, single-file source mode):
 ```bash
 cd code/0001-seam && java SeamDemo.java
 cd code/0002-deep-module && java DepthDemo.java
+cd code/0003-interface && java InterfaceDemo.java
 ```
 
 ## Attribution and licensing

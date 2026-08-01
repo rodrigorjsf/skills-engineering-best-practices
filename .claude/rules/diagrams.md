@@ -72,6 +72,14 @@ classDef trap     fill:#8a5a12,stroke:#5c3c0c,stroke-width:2px,color:#ffffff
 classDef ai       fill:#5b3a8c,stroke:#3b255c,stroke-width:2px,color:#ffffff
 ```
 
+**`**bold**` inside a label ignores the `classDef` colour.** A markdown-string
+label renders its bold run as a nested `<tspan>` that takes the *Mermaid theme's*
+text colour, not the `color:` you set. On a `stage` node — pale fill, dark
+`color:` — the bold run turns light-on-pale and **disappears in dark theme while
+looking fine in light**. Lesson 0003's category numbers were invisible exactly
+this way. Either drop the bold, or only bold inside nodes whose fill is dark
+enough for the theme's light text. Checking one theme is not checking it.
+
 `stage` is the neutral, unemphasised step. The other four carry the same meaning
 as the matching `.callout` class. **The emphasised node is the solid one** — a
 pale tint with dark text reads as disabled next to the neutral boxes, which is

@@ -159,7 +159,9 @@ CACM full text (cacm.acm.org returned HTTP 403 to automated fetch).
 > which it hides from all others. Its interface or definition was chosen to reveal as little as
 > possible about its inner workings."
 
-**Quoted** — 1971 CMU report, section "The Criteria".
+**Quoted** — 1971 CMU report, section "The Criteria", **report p. 17**. Page located 2026-08-01 by
+downloading the PDF and reading its printed `-N-` page markers; the other locators in this section
+were located the same way. These are **report pages, not CACM pages**.
 
 Note what that sentence does *not* say. It says nothing about size, nothing about line counts,
 nothing about method counts. The unit of modularity is **a design decision**, and the property that
@@ -173,7 +175,7 @@ matters is **what the interface refuses to reveal**.
 **Quoted**. Reference [4] in that paper is *Parnas, D. L., "Information Distribution Aspects of
 Design Methodology", Technical Report, Department of Computer Science, Carnegie-Mellon University,
 Pittsburgh, Pa., 1971. Also to be presented at the IFIP Congress 1971, Ljubeljana, Yugoslavia.*
-**Quoted** (reference list). So the phrase pre-dates the famous paper and belongs to Parnas's own
+**Quoted** — reference list, **report p. 25**. So the phrase pre-dates the famous paper and belongs to Parnas's own
 earlier tech report. If you want to be precise when teaching: *the criterion is stated in the 1972
 CACM paper; the term is introduced in a 1971 companion report.*
 
@@ -186,7 +188,7 @@ CACM paper; the term is introduced in a 1971 companion report.*
 > design decisions transcend time of execution, modules will not correspond to steps in the
 > processing."
 
-**Quoted** — 1971 CMU report, "CONCLUSION".
+**Quoted** — 1971 CMU report, "CONCLUSION", **report p. 24**.
 
 **The two modularizations.** Parnas builds a KWIC (Key Word In Context) index two ways.
 *Modularization 1* makes each major processing step a module — "One might say that to get the first
@@ -212,7 +214,7 @@ leaking an ordering guarantee callers did not need —
 > given more information than necessary and so unnecessarily restricted the class of systems that
 > we can build without changing the definitions."
 
-**Quoted**. That is *exactly* the repo's claim that ordering constraints are part of the interface.
+**Quoted** — **report pp. 17–18**. That is *exactly* the repo's claim that ordering constraints are part of the interface.
 It is the strongest available evidence that the repo's unusually broad definition of "interface"
 has a 1971 pedigree rather than being an invention.
 

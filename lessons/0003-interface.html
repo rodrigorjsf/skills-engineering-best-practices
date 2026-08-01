@@ -1,0 +1,403 @@
+<title>0003 — Interface é mais que a assinatura</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/mermaid.min.js" defer></script>
+<script src="../assets/lesson.js" defer></script>
+
+<div class="page">
+
+<p class="kicker">Lição 0003 · Trilha I — Estrutura</p>
+<h1>Interface é mais que a assinatura</h1>
+<p class="lede">Na lição 0002, o <code>caller 3</code> quebrou porque conferiu o saldo depois de commitar. Nenhuma assinatura Java dizia que a ordem importava — e a regra existia mesmo assim. Esta lição é sobre onde essas regras moram, e o que fazer com elas.</p>
+
+<p class="meta">
+Tempo: ~20 min · Código: <code>code/0003-interface/InterfaceDemo.java</code> (roda com <code>java InterfaceDemo.java</code>) ·
+Glossário: <a href="../reference/0001-glossary.html#interface">interface</a>, <a href="../reference/0001-glossary.html#module">module</a>, <a href="../reference/0001-glossary.html#depth">depth</a>, <a href="../reference/0001-glossary.html#seam">seam</a>
+</p>
+
+<div class="quiz" data-answer="1">
+  <div class="quiz-head">Primeiro, de memória · lição 0002</div>
+  <p class="quiz-q">Você abre um arquivo novo e encontra um <span class="en">module</span> chamado <code>AuditLog</code>: <strong>um</strong> método público, <strong>400</strong> linhas de implementação. O que essas duas contagens te dizem sobre a <span class="en">depth</span> dele?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Deep, porque muita implementação fica atrás de um método</button></li>
+    <li><button class="quiz-opt">Nada, porque depth mede a interface, não a implementação</button></li>
+    <li><button class="quiz-opt">Shallow, porque tantas linhas indicam uma implementação já inchada</button></li>
+    <li><button class="quiz-opt">Deep, se as quatrocentas linhas forem testadas pela interface</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>As duas contagens são da <em>implementação</em>, e <code>SKILL.md:62</code> corta isso pela raiz: <em>"Depth is a property of the interface, not the implementation."</em> Foi exatamente por isso que a lição 0002 mediu o <code>PaddedLedger</code> — mesma interface, mesmo comportamento, 2,5× mais "profundo" pela métrica rejeitada, e zero comportamento a mais.</p>
+    <p>Mas agora repare no que a resposta certa te obriga a admitir: se depth é o custo para o caller, <strong>você precisa saber o que o caller realmente tem que aprender</strong>. Um método público não quer dizer uma unidade de interface. É isso que vamos medir hoje.</p>
+  </div>
+</div>
+
+<h2>1 · A intuição</h2>
+
+<p>Duas chaves de luz na mesma parede. Mesmo formato, mesmo plástico, mesmo clique. Você não consegue distinguir uma da outra olhando.</p>
+
+<div class="split">
+  <div class="callout seam">
+    <span class="callout-title">A da esquerda</span>
+    <p>Você aperta. A luz acende.</p>
+    <p>Aperta de novo, apaga. Não tem mais nada para saber.</p>
+  </div>
+  <div class="callout trap">
+    <span class="callout-title">A da direita</span>
+    <p>Você aperta. A luz acende.</p>
+    <p>Mas se apertar antes de trinta segundos desde a última vez, o disjuntor cai e a geladeira desliga. Isso não está escrito em lugar nenhum. O eletricista sabia.</p>
+  </div>
+</div>
+
+<p>As duas chaves têm <strong>o mesmo formato</strong>. Elas não têm a mesma <strong>interface</strong>. E a diferença entre as duas palavras é a lição inteira: formato é o que você vê; interface é <strong>tudo que você precisa saber para usar sem estragar nada</strong>.</p>
+
+<p>A prova de que a regra dos trinta segundos é parte da chave, e não um detalhe externo a ela: se ninguém te contar, você derrete o jantar. Uma regra que decide se você acerta ou erra não é documentação — é parte do produto.</p>
+
+<div class="callout child">
+  <span class="callout-title">Para uma criança de cinco anos</span>
+  <p>Um brinquedo tem um botão. Apertar o botão faz barulho. Isso é o botão.</p>
+  <p>Mas se você apertar o botão com o brinquedo de cabeça para baixo ele quebra — e ninguém te avisou. A regra "não de cabeça para baixo" faz parte do brinquedo <strong>do mesmo jeito que o botão faz</strong>, mesmo que ela não tenha forma, nem cor, nem lugar para apertar.</p>
+</div>
+
+<h2>2 · O mecanismo</h2>
+
+<p>A definição do repositório de skills é a mais radical do glossário inteiro:</p>
+
+<blockquote class="source">
+  <p><strong>Interface</strong> — everything a caller must know to use the module correctly: the type signature, but also invariants, ordering constraints, error modes, required configuration, and performance characteristics.</p>
+  <cite>codebase-design/SKILL.md:16 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>Leia devagar as três primeiras palavras: <em>everything a caller must know</em>. Não é <em>everything you wrote down</em>. Não é <em>everything the compiler enforces</em>. A interface é definida pelo que o caller <strong>precisa</strong>, não pelo que alguém teve o cuidado de declarar.</p>
+
+<p>Isso tem uma consequência desconfortável e imediata: <strong>a interface de um module não muda quando você escreve a documentação. Ela já estava lá.</strong> Documentar não adiciona interface; só torna visível a que já estava sendo cobrada de quem chama.</p>
+
+<p class="sidenote">E o <code>_Avoid_</code> do glossário diz a mesma coisa por outro lado: evite <code>API</code> e <code>signature</code> — <em>"too narrow — they refer only to the type-level surface"</em>. Quando alguém no seu time diz "a API não mudou", quase sempre quer dizer "a assinatura não mudou". São afirmações diferentes, e a segunda não implica a primeira.</p>
+
+<p>O repositório reforça isso recusando explicitamente a leitura estreita:</p>
+
+<blockquote class="source">
+  <p><strong>"Interface" as the TypeScript <code>interface</code> keyword or a class's public methods</strong>: too narrow — interface here includes every fact a caller must know.</p>
+  <cite>codebase-design/SKILL.md:108, seção "Rejected framings" <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>São <strong>seis</strong> categorias na lista. A assinatura é <em>uma</em> delas.</p>
+
+<figure class="figure wide">
+<pre class="mermaid">
+flowchart LR
+  subgraph H["Só na cabeça de quem chama — 4 de 6"]
+    O["2 · ordering constraints"]
+    E["3 · error modes"]
+    I["5 · invariants"]
+    P["6 · performance characteristics"]
+  end
+  subgraph T["O compilador Java checa — 2 de 6"]
+    S["1 · type signature"]
+    C["4 · required configuration"]
+  end
+  O -. "seção 3 · uma única mudança" .-> S
+
+  classDef stage    fill:#f2efe8,stroke:#57534a,stroke-width:1.5px,color:#26241f
+  classDef seam     fill:#1f6f6b,stroke:#0f4d4a,stroke-width:2px,color:#ffffff
+  classDef trap     fill:#8a5a12,stroke:#5c3c0c,stroke-width:2px,color:#ffffff
+  class S,C seam
+  class O trap
+  class E,I,P stage
+  linkStyle 0 stroke:#8a5a12,stroke-width:2.5px
+</pre>
+<figcaption><b>O que notar.</b> Não é que as seis categorias sejam iguais e mal documentadas. Duas delas o compilador já checa por você de graça; quatro não. A que está em âmbar é a que destruiu dinheiro na seção 3. E a lição inteira cabe em <strong>uma seta</strong>: mover <em>uma</em> categoria da coluna da esquerda para a da direita. Depois disso o placar é 3 de 6 — não 6 de 6.</figcaption>
+</figure>
+
+<div class="callout seam">
+  <span class="callout-title">A ligação com a lição 0002, que fecha as duas</span>
+  <p><span class="en">Depth</span> é <em>comportamento por unidade de interface aprendida</em>. Se interface inclui ordem, modos de erro e invariantes, então <strong>essas coisas entram no denominador</strong>.</p>
+  <p>Ou seja: um module com um método só pode ser <span class="en">shallow</span>, se esse método vier acompanhado de quatro regras que você tem que carregar na cabeça. Contar métodos públicos nunca foi medir interface — era só a parte fácil de contar.</p>
+</div>
+
+<h2>3 · Em Java</h2>
+
+<p>Duas classes. <strong>A mesma interface Java, os mesmos três métodos, as mesmas assinaturas.</strong> Um caller escrito contra o tipo não consegue distinguir uma da outra:</p>
+
+<pre><code><span class="k">public interface</span> <span class="t">Ledger</span> {
+    <span class="k">void</span> post(<span class="t">Transfer</span> t);
+    <span class="k">void</span> reconcile();
+    <span class="t">BigDecimal</span> total();
+}</code></pre>
+
+<p>A diferença está em <em>quando</em> a taxa chega à conta de tarifas do banco.</p>
+
+<div class="split">
+  <div class="code-block">
+    <div class="code-label">StrictLedger <span class="verdict">acumula</span></div>
+<pre><code><span class="k">public void</span> post(<span class="t">Transfer</span> t) {
+    book.add(debito(t));
+    book.add(credito(t));
+    accrued = accrued.add(t.fee());
+}
+
+<span class="k">public void</span> reconcile() {
+    book.add(<span class="k">new</span> <span class="t">Entry</span>(FEES, accrued, ...));
+    accrued = <span class="t">BigDecimal</span>.ZERO;
+}</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-label">EagerLedger <span class="verdict">lança na hora</span></div>
+<pre><code><span class="k">public void</span> post(<span class="t">Transfer</span> t) {
+    book.add(debito(t));
+    book.add(credito(t));
+    book.add(<span class="k">new</span> <span class="t">Entry</span>(FEES, t.fee(), at));
+}
+
+<span class="k">public void</span> reconcile() {
+    <span class="c">/* nada a varrer */</span>
+}</code></pre>
+  </div>
+</div>
+
+<p>Agora <strong>um</strong> caller, escrito uma vez contra <code>Ledger</code>, rodado contra os dois:</p>
+
+<pre><code><span class="k">static</span> <span class="t">BigDecimal</span> naiveCaller(<span class="t">Ledger</span> ledger, <span class="t">List</span>&lt;<span class="t">Transfer</span>&gt; batch) {
+    batch.forEach(ledger::post);
+    <span class="k">return</span> ledger.total();
+}</code></pre>
+
+<p>Saída capturada de <code>java InterfaceDemo.java</code>:</p>
+
+<pre><code>A. Same interface, same signatures, different interface
+   methods declared on Ledger ........ 3
+   signatures that differ ............ none
+
+   naive caller  post, post, total()
+   against EagerLedger ...............      0.00   OK
+   against StrictLedger ..............     -5.00   MONEY DESTROYED
+
+   informed caller  post, post, reconcile, total()
+   against EagerLedger ...............      0.00   OK
+   against StrictLedger ..............      0.00   OK
+
+   rule that decides which is safe ... not in the type</code></pre>
+
+<p>Cinco reais evaporaram — duas taxas de R$&nbsp;2,50 debitadas do pagador e nunca creditadas em lugar nenhum. A invariante de partidas dobradas, que na lição 0002 era o critério de "não criar nem destruir dinheiro", foi violada em silêncio. Nenhuma exceção, nenhum log, nenhum teste vermelho: só um total que fecha errado.</p>
+
+<p>E repare no que <em>não</em> aconteceu: o compilador não reclamou de nada. Ele não tinha do que reclamar. <strong>As assinaturas são idênticas.</strong> A regra que decide entre R$&nbsp;0,00 e dinheiro destruído — <em>"chame <code>reconcile()</code> antes de <code>total()</code>"</em> — é uma <span class="en">ordering constraint</span>, e ela não tem onde morar em Java. Mora num comentário, num Confluence, ou na cabeça de quem escreveu.</p>
+
+<div class="callout trap">
+  <span class="callout-title">Por que este é o bug mais caro que existe</span>
+  <p>Um <code>NullPointerException</code> aparece. Um teste vermelho aparece. <strong>Uma ordering constraint violada não aparece</strong> — ela produz um número plausível.</p>
+  <p>É por isso que a lição 0002 escolheu o domínio bancário: R$&nbsp;-5,00 num ledger de partidas dobradas é impossível por construção, e ainda assim aqui está ele, produzido por código que compila.</p>
+</div>
+
+<h3>A correção muda exatamente uma coisa</h3>
+
+<p>Não vamos renomear nada, não vamos extrair helper, não vamos adicionar validação. <strong>Uma única mudança</strong>: a ordem sai da prosa e entra no tipo.</p>
+
+<div class="code-block good">
+  <div class="code-label">A ordem virou um tipo <span class="verdict">mesmo comportamento do StrictLedger</span></div>
+<pre><code><span class="k">public final class</span> <span class="t">OpenBooks</span> {
+    <span class="k">public</span> <span class="t">OpenBooks</span> post(<span class="t">Transfer</span> t)  { ...; <span class="k">return this</span>; }
+    <span class="k">public</span> <span class="t">SettledBooks</span> reconcile()   { ...; <span class="k">return new</span> <span class="t">SettledBooks</span>(book); }
+}
+
+<span class="k">public final class</span> <span class="t">SettledBooks</span> {
+    <span class="k">public</span> <span class="t">BigDecimal</span> total() { ... }
+}</code></pre>
+</div>
+
+<p><code>total()</code> não existe em <code>OpenBooks</code>. <code>post()</code> não existe em <code>SettledBooks</code>. E o <strong>único</strong> jeito de obter um <code>SettledBooks</code> no programa inteiro é chamar <code>reconcile()</code>. A regra não foi documentada melhor — ela deixou de ser documentação.</p>
+
+<pre><code>B. The one change — ordering moved into the type
+   post, post, reconcile, total() ....      0.00   OK
+   total() declared on OpenBooks ..... false
+   post() declared on SettledBooks ... false
+   only producer of SettledBooks ..... OpenBooks.reconcile()</code></pre>
+
+<h3>"Não compila" é uma afirmação verificável — então vamos verificar</h3>
+
+<p>Dizer que algo não compila é fácil. O programa desta lição compila o próprio arquivo para um diretório temporário, escreve um caller que pede <code>total()</code> cedo demais, chama o <code>javac</code> de verdade em cima dele e imprime o diagnóstico real:</p>
+
+<pre><code>C. Does the wrong order compile? Ask javac.
+   caller asks total() too early ..... REJECTED
+
+   WrongOrder.java:6: error: cannot find symbol
+           return books.total();
+                       ^
+     symbol:   method total()
+     location: variable books of type OpenBooks
+   1 error</code></pre>
+
+<p class="sidenote">Isso é o <code>javac</code> falando, não uma saída escrita à mão para parecer saída. O programa usa <code>ToolProvider.findFirst("javac")</code> em tempo de execução — o mesmo compilador que rodou o arquivo. Se você rodar de outro diretório ele avisa que pulou, em vez de fingir.</p>
+
+<h3>Contando o que sobrou — e é aqui que a lição fica honesta</h3>
+
+<p>Tentação natural: concluir que "então basta colocar tudo no tipo". Não basta, e o próprio programa mede isso. Ele pergunta ao JVM, por reflexão, quantas exceções verificadas <code>post</code> declara e quantos parâmetros o construtor exige:</p>
+
+<pre><code>D. Which of the six categories does the type check?
+   1 type signature .................. in the type
+   2 ordering constraints ............ prose only
+   3 error modes ..................... prose only
+   4 required configuration .......... in the type
+   5 invariants ...................... prose only
+   6 performance characteristics ..... prose only
+
+   checked exceptions on post ........ 0
+   constructor parameters required ... 1
+
+   checked before section B .......... 2 of 6
+   checked after section B ........... 3 of 6</code></pre>
+
+<p><strong>Três de seis.</strong> Depois de uma refatoração que a lição está vendendo como uma vitória. As outras três continuam onde estavam — e a categoria 4 já estava no tipo desde a lição 0002, porque o <code>Clock</code> chega pelo construtor. Não foi mérito desta lição; foi mérito do <span class="en">seam</span> da lição 0001.</p>
+
+<div class="callout evidence">
+  <span class="callout-title">O que fazer com as três que sobraram</span>
+  <p>Não existe truque de tipo para "o ledger sempre soma zero" em Java. O que existe é escolher <em>onde</em> a regra é checada, e a ordem de preferência é sempre a mesma:</p>
+  <p><strong>compilador</strong> (grátis, imediato, impossível de ignorar) → <strong>teste</strong> (barato, roda no CI) → <strong>runtime</strong> (caro, mas ainda dentro de casa) → <strong>incidente</strong> (o cliente descobre por você).</p>
+  <p>A seção B moveu <em>uma</em> regra do quarto degrau para o primeiro. As outras três descem só até o segundo ou terceiro, e admitir isso é parte de saber a diferença.</p>
+</div>
+
+<h2>4 · A fonte primária</h2>
+
+<p>Antes de puxar o crédito, o contra-dado — e ele é constrangedor para o enquadramento que acabamos de usar.</p>
+
+<div class="callout trap">
+  <span class="callout-title">Parnas não diz o que o repositório diz</span>
+  <p>A frase mais citada do paper de 1972 é esta:</p>
+  <blockquote class="source" style="margin:0.8rem 0">
+    <p>Every module in the second decomposition is characterized by its knowledge of a design decision which it hides from all others. <strong>Its interface or definition was chosen to reveal as little as possible about its inner workings.</strong></p>
+    <cite>Parnas, relatório técnico CMU, 1971, p. 17 <span class="flag cited">verbatim, PDF conferido</span></cite>
+  </blockquote>
+  <p><em>Was <strong>chosen</strong>.</em> Para Parnas, a interface é um <strong>artefato autoral</strong> — algo que você decide revelar. Para o repositório, a interface é <strong>tudo que o caller precisa saber</strong>, quer alguém tenha decidido revelar, quer não.</p>
+  <p>Essas duas frases descrevem objetos diferentes. Pela leitura de Parnas, o <code>StrictLedger</code> tem uma interface <em>pequena</em> — três métodos — que por acaso foi mal escolhida. Pela do repositório, ele tem uma interface <em>grande</em>, porque a regra de ordem entra na conta mesmo sem estar escrita. <strong>Não são a mesma afirmação, e fingir que são seria exatamente o erro que a lição 0002 documentou.</strong></p>
+</div>
+
+<p>Dito isso — a ponte entre as duas existe, e está no mesmo paper, três parágrafos depois. Parnas pega o próprio módulo que ele acabou de projetar e o critica:</p>
+
+<blockquote class="source">
+  <p>Hindsight now suggests that this definition reveals more information than necessary. While we have carefully hidden the method of storing or calculating the list of circular shifts, we have indicated an order to that list. […] <strong>By prescribing the order for the shifts we have given more information than necessary and so unnecessarily restricted the class of systems that we can build without changing the definitions.</strong></p>
+  <cite>Parnas, relatório técnico CMU, 1971, pp. 17–18 <span class="flag cited">verbatim, PDF conferido</span></cite>
+</blockquote>
+
+<p>Repare no que ele está tratando como informação revelada: <strong>uma garantia de ordenação</strong>. Não um método, não um tipo, não uma assinatura. Uma <em>ordem</em>. Em 1971, num paper que não conhecia a palavra <span class="en">interface</span> no sentido que usamos hoje, Parnas já contava ordem como parte do que a definição de um módulo entrega ao mundo.</p>
+
+<p>Então a posição honesta é esta: a definição de seis itens do repositório <strong>não está no Parnas</strong>. Mas a categoria mais surpreendente dela — <span class="en">ordering constraints</span> — está, e está pela mão do próprio autor se autocriticando. Isso é bem mais forte do que uma citação de apoio: é o coiner do campo aplicando o critério a si mesmo e se dando errado.</p>
+
+<div class="callout phd">
+  <span class="callout-title">Três precisões que quase todo mundo erra ao citar este paper</span>
+  <p><strong>1. O termo "information hiding" não é cunhado aqui.</strong> Parnas escreve, na seção "The Criteria": <em>The second decomposition was made using "information hiding" [4] as a criteria.</em> As aspas e a referência são dele. A referência [4] é <em>Parnas, D. L., "Information Distribution Aspects of Design Methodology", Technical Report, Department of Computer Science, Carnegie-Mellon University, Pittsburgh, Pa., 1971. Also to be presented at the IFIP Congress 1971, Ljubeljana, Yugoslavia.</em> <span class="flag cited">lista de referências, p. 25, conferida</span> Ou seja: <strong>o critério é enunciado no paper famoso; o termo vem de um relatório companheiro anterior, também dele.</strong></p>
+  <p><strong>2. O que ele propõe não é "quebre em partes pequenas".</strong> A conclusão, verbatim: <em>"We propose instead that one begins with a list of difficult design decisions or design decisions which are likely to change. Each module is then designed to hide such a decision from the others."</em> <span class="flag cited">p. 24</span> A unidade de modularidade é <strong>uma decisão de projeto</strong>, não um tamanho.</p>
+  <p><strong>3. As citações acima são do relatório de 1971, não da CACM de 1972.</strong> O paper publicado é <em>Communications of the ACM</em>, Vol. 15, No. 12, dezembro de 1972, pp. 1053–1058. O texto que foi lido e citado aqui é o relatório técnico da Carnegie-Mellon de 1971, do qual a publicação de 1972 é a versão editada; os números de página acima são <strong>páginas do relatório</strong>. Acredita-se que o texto seja idêntico, mas isso <span class="flag unverified">não foi diferenciado linha a linha</span>. Se você for citar página, cite a da CACM e confira lá.</p>
+</div>
+
+<p>E a crítica, que também é nossa e não de um crítico nomeado: <em>"esconda as decisões que provavelmente vão mudar"</em> exige acertar a previsão. Quando você erra, a abstração cobra e não paga — é o mesmo objeto que o smell <em>Speculative Generality</em> do Fowler descreve, e volta na lição 0005. <span class="flag ours">nossa síntese</span></p>
+
+<h2>5 · O paralelo com IA</h2>
+
+<p>Para um agente, a distância entre assinatura e interface não é um detalhe de estilo. <strong>É a superfície inteira onde ele adivinha.</strong></p>
+
+<p>Um humano que herda o <code>StrictLedger</code> tem saídas: lê o código-fonte, pergunta no Slack, lembra do incidente de março. Um agente tem <em>a descrição da tool</em> e mais nada. Se a ordering constraint não está literalmente escrita ali em tokens, ela não existe para ele — e ele vai produzir o caller ingênuo, que compila, roda, e destrói cinco reais.</p>
+
+<p>A Anthropic chega ao mesmo lugar por outro caminho, com o vocabulário dela:</p>
+
+<blockquote class="source">
+  <p>Similar to the functions of a well-designed codebase, tools should be self-contained, robust to error, and <strong>extremely clear with respect to their intended use</strong>.</p>
+  <cite>Anthropic Engineering, <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">"Effective context engineering for AI agents"</a>, 29 set. 2025 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>No mesmo texto, o modo de falha que eles nomeiam é <em>"bloated tool sets that cover too much functionality or lead to <strong>ambiguous decision points</strong>"</em>. <span class="flag cited">verbatim, mesma fonte</span> Um <em>ambiguous decision point</em> é exatamente o que a nossa <code>interface Ledger</code> de três métodos apresenta: dois caminhos igualmente plausíveis, e nenhum sinal no tipo dizendo qual.</p>
+
+<p>O <em>Building effective agents</em> chama isso de <strong>ACI</strong> — <em>agent-computer interface</em> — e argumenta que ela merece o mesmo investimento de projeto que uma interface humano-computador, incluindo o conselho de <em>"put yourself in the model's shoes"</em> e o de desenhar os argumentos de forma que o erro seja difícil de cometer. <span class="flag cited">"put yourself in the model's shoes" verbatim; o resto é paráfrase</span></p>
+
+<div class="callout ai">
+  <span class="callout-title">Onde este paralelo é nosso, e onde não é</span>
+  <p><strong>Verificado:</strong> as citações acima, verbatim, nas fontes dadas.</p>
+  <p><strong>Nossa <span class="flag ours">analogia</span>:</strong> o mapeamento <em>"o que não está na assinatura" ↔ "onde o agente alucina"</em>. Uma verificação de termos no texto completo de <em>"Writing effective tools for agents"</em> por <code>deep</code>, <code>shallow</code>, <code>module</code>, <code>information hiding</code>, <code>Ousterhout</code> e <code>Parnas</code> retornou <strong>nenhum presente</strong>. A Anthropic não desce à literatura de Parnas; o enquadramento é nosso.</p>
+  <p><strong>E o contra-sinal:</strong> a posição declarada deles é que tools de agente exigem <em>repensar</em> a prática de API, não herdá-la — <em>"instead of writing tools and MCP servers the way we'd write functions and APIs for other developers or systems, we need to design them for agents"</em>. O argumento é que uma tool é um contrato entre um sistema determinístico e um consumidor <em>não</em> determinístico, e portanto não é uma API com outro caller.</p>
+</div>
+
+<p>Mas há um ponto onde a analogia fica mais forte do lado do agente, não mais fraca. Para o humano, cada fato não escrito da interface custa <em>uma vez</em>: ele aprende e guarda. Para o agente, <strong>a descrição da tool é reenviada em tokens a cada turno</strong> — e a lição 0002 já mostrou a Anthropic medindo isso em 150.000 tokens contra 2.000. O custo da interface deixa de ser cognitivo e vira fatura. Um fato que você não escreveu é adivinhado; um fato que você escreveu é pago, sempre.</p>
+
+<p class="sidenote">O que sugere um corolário incômodo, e nosso: <strong>a mesma pressão que faz você querer descrições curtas é a que faz o agente adivinhar.</strong> A saída é a mesma da seção 3 — não documentar melhor, e sim tornar o estado ilegal inexprimível, para não ter o que documentar. <span class="flag ours">nossa inferência</span></p>
+
+<h2>6 · Retrieval</h2>
+
+<p>De memória. Errar aqui é o que faz a lição durar.</p>
+
+<div class="quiz" data-answer="0">
+  <div class="quiz-head">Pergunta 1 de 3</div>
+  <p class="quiz-q">Você escreve, no Javadoc de <code>post</code>, que <code>reconcile()</code> deve ser chamado antes de <code>total()</code>. O que aconteceu com a interface do module?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Nada, ela já continha essa regra desde sempre</button></li>
+    <li><button class="quiz-opt">Cresceu, porque agora existe uma regra escrita nela</button></li>
+    <li><button class="quiz-opt">Diminuiu, porque o caller aprende menos por conta</button></li>
+    <li><button class="quiz-opt">Nada, porque Javadoc nunca fez parte da interface</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>Interface é <em>everything a caller must know</em>. O caller sempre precisou saber. <strong>Documentar não cria interface — torna visível a que já estava sendo cobrada.</strong></p>
+    <p>A última opção erra por outro motivo e vale reparar: o Javadoc <em>é</em> um lugar legítimo para a regra morar. O erro é achar que escrever mudou o tamanho do que o caller carrega. Não mudou. Só mudou a chance de ele descobrir sem quebrar nada.</p>
+  </div>
+</div>
+
+<div class="quiz" data-answer="3">
+  <div class="quiz-head">Pergunta 2 de 3</div>
+  <p class="quiz-q">Depois de <code>OpenBooks</code> / <code>SettledBooks</code>, quantas das seis categorias o compilador verifica — e por quê?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Seis, porque a ordem era a única que faltava resolver</button></li>
+    <li><button class="quiz-opt">Uma, porque só a assinatura chega até o compilador Java</button></li>
+    <li><button class="quiz-opt">Quatro, contando a invariante que o construtor passa a garantir</button></li>
+    <li><button class="quiz-opt">Três, somando a ordem à assinatura e à configuração exigida</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>Medido pelo programa, não estimado: <code>checked after section B ... 3 of 6</code>. A configuração já estava no tipo desde a lição 0001, porque o <code>Clock</code> chega pelo construtor — mérito do <span class="en">seam</span>, não desta refatoração.</p>
+    <p>Modos de erro, invariantes e performance seguem em prosa. Uma lição que dissesse "seis" estaria vendendo o próprio truque melhor do que ele é.</p>
+  </div>
+</div>
+
+<div class="quiz" data-answer="2">
+  <div class="quiz-head">Pergunta 3 de 3</div>
+  <p class="quiz-q">Qual é a diferença entre o que Parnas escreveu e o que o repositório define?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Nenhuma — o repositório copia a definição dele quase literalmente</button></li>
+    <li><button class="quiz-opt">Parnas exclui ordem; o repositório foi quem primeiro a incluiu</button></li>
+    <li><button class="quiz-opt">Parnas define o escolhido para revelar; o repo, o necessário</button></li>
+    <li><button class="quiz-opt">Parnas trata de módulos grandes; o repositório trata de métodos</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p><em>"Its interface or definition was <strong>chosen</strong> to reveal as little as possible"</em> — interface como artefato autoral. O repositório diz <em>everything a caller must know</em>, escrito ou não. Objetos diferentes.</p>
+    <p>A segunda opção é a armadilha, e é o inverso do que aconteceu: Parnas <strong>inclui</strong> ordem, e de forma memorável — ele critica o próprio circular shifter por ter revelado uma ordenação desnecessária.</p>
+  </div>
+</div>
+
+<details class="recall">
+  <summary>Recall livre — por que "documentar melhor" não reduz o preço da interface, e o que reduz?</summary>
+  <p>Porque o preço é pago por <strong>quem chama</strong>, e o que ele paga é a quantidade de fatos que precisa carregar para acertar. Escrever esses fatos num Javadoc muda <em>onde eles estão guardados</em>, não <em>quantos são</em>. O caller ainda precisa ler, entender, lembrar e aplicar — e a chance de falhar em qualquer um desses quatro passos continua maior que zero.</p>
+  <p>O que reduz de verdade é <strong>tornar o fato desnecessário</strong>. Duas formas, em ordem de preferência:</p>
+  <p><strong>1. Absorver</strong> — o module passa a fazer sozinho o que exigia a regra. Foi o <code>EagerLedger</code>: sem acumulação, a ordem some porque não há o que ordenar. <strong>2. Tornar inexprimível</strong> — o estado errado deixa de existir como valor legal. Foi o <code>OpenBooks</code>/<code>SettledBooks</code>: a regra não é obedecida, ela é impossível de desobedecer.</p>
+  <p>E o teste que você aplica amanhã, no seu código: <em>se eu apagasse todo o comentário desta classe, o que um colega competente erraria?</em> Cada item dessa lista é uma unidade de interface que você está cobrando sem cobrar visivelmente — e é candidata a virar tipo.</p>
+</details>
+
+<h2>Para onde isso vai</h2>
+
+<ul>
+  <li><strong>0004 — Adapter, e seams internos vs externos.</strong> O <code>Clock</code> chega pelo construtor, e por isso é interface — <em>required configuration</em>, categoria 4. Mas nem toda dependência deveria subir até lá. A regra que decide é "um adapter é um seam hipotético; dois são um seam real".</li>
+  <li><strong>0005 — O deletion test.</strong> A técnica de varredura: dado um codebase inteiro, onde a interface está cobrando mais do que entrega.</li>
+</ul>
+
+<div class="ask-teacher">
+  <p><strong>Eu sou seu professor aqui.</strong> Se alguma parte não fechou, isso é defeito da lição e não seu — me diga qual trecho e eu reescrevo. Perguntas boas para agora: <em>"o padrão OpenBooks/SettledBooks tem nome?"</em>, <em>"como faço isso em Spring, onde tudo é bean singleton?"</em>, <em>"quando o tipo extra custa mais do que a regra em prosa?"</em>, ou <em>"aplica as seis categorias numa classe do meu código"</em>.</p>
+</div>
+
+<div class="sources">
+  <h4>Fontes desta lição</h4>
+  <ol>
+    <li><strong>Leia esta.</strong> D. L. Parnas, <em>On the Criteria To Be Used in Decomposing Systems into Modules</em>. Publicado em <em>Communications of the ACM</em>, Vol. 15, No. 12, dez. 1972, pp. 1053–1058, <a href="https://dl.acm.org/doi/10.1145/361598.361623">DOI 10.1145/361598.361623</a>. As citações desta lição vêm do <strong>relatório técnico da Carnegie-Mellon, 1971</strong>, de acesso livre em <a href="http://rule11.tech/papers/1971-decomposing-parnas.pdf">rule11.tech</a> — pp. 17, 18, 24 e 25 <strong>desse relatório</strong>. <span class="flag cited">PDF baixado e conferido</span> São 31 páginas e vale cada uma; é a fonte primária mais alta de toda a Trilha I.</li>
+    <li>Matt Pocock, <a href="https://github.com/mattpocock/skills">mattpocock/skills</a> — <code>codebase-design/SKILL.md:16</code> (a definição de seis itens), <code>:62</code>, <code>:108</code> (framing rejeitado). Docs publicados em <a href="https://www.aihero.dev/skills-codebase-design">aihero.dev</a>. <span class="flag cited">verbatim</span></li>
+    <li>Anthropic Engineering, <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents">"Effective context engineering for AI agents"</a>, <a href="https://www.anthropic.com/engineering/writing-tools-for-agents">"Writing effective tools for agents"</a> (11 set. 2025) e <a href="https://www.anthropic.com/engineering/building-effective-agents">"Building effective agents"</a> §3 (ACI). <span class="flag cited">verbatim onde citado</span></li>
+    <li>O dossiê completo, com o veredito sobre o termo <em>information hiding</em> e a comparação com coupling/cohesion: <code>docs/research/02-se-literature.md</code> §2a. O contra-sinal da Anthropic e a verificação de termos: <code>docs/research/03-agent-engineering.md</code> §8.2.</li>
+  </ol>
+</div>
+
+<div class="nav">
+  <a href="0002-deep-module.html">← 0002 · Deep vs shallow</a>
+  <a href="../index.html">↑ Índice do curso</a>
+  <a href="../reference/0001-glossary.html#interface">Glossário</a>
+  <a href="../code/0003-interface/InterfaceDemo.java">Código desta lição</a>
+</div>
+
+</div>
