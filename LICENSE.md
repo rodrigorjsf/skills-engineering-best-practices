@@ -19,20 +19,3 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
-
----
-
-## Scope note
-
-This license covers the material **authored in this repository**: lessons,
-reference documents, research write-ups, Java examples, stylesheets, scripts,
-and operating documents.
-
-It does **not** cover third-party material quoted within those documents.
-Short excerpts from books, papers, engineering blog posts, and other
-repositories are reproduced for study and commentary, with attribution and —
-where verified — page numbers or `file:line` references. Those excerpts remain
-the property of their respective authors and publishers, and their reuse is
-governed by the rights applying to the original works, not by this license.
-
-No copyrighted book, paper, or vendored repository is redistributed here.

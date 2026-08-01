@@ -109,7 +109,7 @@ It does **not** extend to quoted material, which remains the property of its aut
 - Books and papers by Michael Feathers, David Parnas, John Ousterhout, Eric Evans, Kent Beck, Martin Fowler, Michael Nygard and others, cited with page numbers where verified.
 - Engineering publications by Anthropic, Chroma Research, and other primary sources, cited with URLs.
 
-No copyrighted book, paper, or vendored repository is redistributed here — see [`.gitignore`](./.gitignore).
+No copyrighted book, paper, or vendored repository is redistributed here — see [`.gitignore`](./.gitignore). Full attribution and scope details: [`NOTICE.md`](./NOTICE.md).
 
 ## Status
 
