@@ -104,7 +104,18 @@
         securityLevel: "strict",
         theme: currentTheme() === "dark" ? "dark" : "default",
         fontFamily: getComputedStyle(document.body)
-          .getPropertyValue("--font-sans") || "sans-serif"
+          .getPropertyValue("--font-sans") || "sans-serif",
+        // Mermaid's default 16px renders small once the SVG is scaled down to
+        // the measure. Bumping the font grows the diagram's natural size, which
+        // is what `useMaxWidth` then scales to — so labels stay legible.
+        fontSize: 17,
+        flowchart: {
+          useMaxWidth: true,
+          htmlLabels: false,
+          padding: 12,
+          nodeSpacing: 45,
+          rankSpacing: 55
+        }
       });
       window.mermaid.run({ nodes: blocks });
     } catch (e) {

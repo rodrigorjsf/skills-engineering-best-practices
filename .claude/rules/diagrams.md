@@ -56,6 +56,43 @@ describing it. Plot the data, cite the source in the caption.
 - **Wide diagrams scroll in their own container.** The page body must never
   scroll horizontally.
 
+## Palette — use these `classDef`s, don't invent new ones
+
+The page has a light and a dark theme and `lesson.js` re-renders on toggle, so a
+diagram cannot know which theme it is in. **Always set `fill` AND `color`
+together** — a node that inherits either one from the Mermaid theme flips to
+invisible on the other side of the toggle. That is exactly how the first draft
+of lesson 0001's pipeline lost its `link seam` label.
+
+```
+classDef stage    fill:#f2efe8,stroke:#57534a,stroke-width:1.5px,color:#26241f
+classDef seam     fill:#1f6f6b,stroke:#0f4d4a,stroke-width:2px,color:#ffffff
+classDef evidence fill:#1e4f7a,stroke:#12314b,stroke-width:2px,color:#ffffff
+classDef trap     fill:#8a5a12,stroke:#5c3c0c,stroke-width:2px,color:#ffffff
+classDef ai       fill:#5b3a8c,stroke:#3b255c,stroke-width:2px,color:#ffffff
+```
+
+`stage` is the neutral, unemphasised step. The other four carry the same meaning
+as the matching `.callout` class. **The emphasised node is the solid one** — a
+pale tint with dark text reads as disabled next to the neutral boxes, which is
+the opposite of the intent.
+
+Style the edges too, or the dashed "this is where the seam is" line renders in
+the theme's default grey and the emphasis stops at the box:
+`linkStyle 4,5,6 stroke:#1f6f6b,stroke-width:2px` (indices count every edge in
+declaration order, from 0).
+
+## Orientation and size
+
+`flowchart TB` by default. `LR` renders wide and short, and the SVG is then
+scaled down to the column — which shrinks the labels until they are unreadable.
+`TB` grows into the vertical space, which is free.
+
+`lesson.js` initialises Mermaid with `fontSize: 17` and generous
+`nodeSpacing`/`rankSpacing` so the diagram's *natural* size is large enough that
+`useMaxWidth` scales it up, not down. A figure that still feels cramped gets
+`class="figure wide"` — the explicit opt-in to `--page` width.
+
 ## Rendering contract
 
 Embed as `<pre class="mermaid">…</pre>`, always inside a `.figure`, always with a

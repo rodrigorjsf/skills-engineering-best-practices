@@ -275,25 +275,31 @@ Rule verified end to end: YES
 </table>
 </div>
 
-<figure class="figure">
+<figure class="figure wide">
 <pre class="mermaid">
-flowchart LR
+flowchart TB
   SRC["`código-fonte
-idêntico em prod e teste`"] --> PRE["pré-processador"] --> COMP["compilador"] --> LINK["linker"] --> RUN["runtime"]
+idêntico em prod e teste`"] --> PRE["pré-processador"]
+  PRE --> COMP["compilador"]
+  COMP --> LINK["linker"]
+  LINK --> RUN["runtime"]
 
-  PRE -.-> E1["`**preprocessing seam**
-enabling point: diretiva define`"]
-  LINK -.-> E2["`**link seam**
-enabling point: makefile ou IDE
-fora do texto do programa`"]
-  RUN -.-> E3["`**object seam**
+  PRE -.-> E1["`PREPROCESSING SEAM
+enabling point: a diretiva define`"]
+  LINK -.-> E2["`LINK SEAM
+enabling point: makefile, script de build ou IDE
+— sempre fora do texto do programa`"]
+  RUN -.-> E3["`OBJECT SEAM
 enabling point: lista de argumentos
-ou construtor`"]
+ou onde o objeto é criado`"]
 
-  classDef stage fill:none,stroke:#8a8a80,color:#8a8a80
-  classDef seam fill:#dcecea,stroke:#1f6f6b,color:#14302f,stroke-width:2px
+  classDef stage fill:#f2efe8,stroke:#57534a,stroke-width:1.5px,color:#26241f
+  classDef seam fill:#1f6f6b,stroke:#0f4d4a,stroke-width:2px,color:#ffffff
   class SRC,PRE,COMP,LINK,RUN stage
   class E1,E2,E3 seam
+
+  linkStyle 0,1,2,3 stroke:#8a857a,stroke-width:1.6px
+  linkStyle 4,5,6 stroke:#1f6f6b,stroke-width:2px
 </pre>
 <figcaption><b>O que notar.</b> Os seams não são inventados — eles <em>caem</em> das etapas que já existem entre o seu texto e o programa rodando. Repare que o enabling point vai ficando mais perto do código conforme você desce o pipeline: no <code>link seam</code> ele está fora do texto do programa (por isso Feathers avisa que é <em>"hard to notice"</em>); no <code>object seam</code> ele é uma lista de argumentos que você lê na própria assinatura. É por isso que object seam é o mais explícito — e o recomendado em Java.</figcaption>
 </figure>
