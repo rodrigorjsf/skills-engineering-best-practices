@@ -1,0 +1,196 @@
+<title>Checkpoint 0001 — Trilha I</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/mermaid.min.js" defer></script>
+<script src="../assets/lesson.js" defer></script>
+
+<div class="page">
+
+<p class="kicker">Checkpoint 0001 · fecha a Trilha I — Estrutura</p>
+<h1>Onde você está, medido</h1>
+<p class="lede">Seis lições foram escritas <strong>sem nenhuma evidência de que você as entendeu</strong>. A calibragem foi cega o tempo todo. Este documento existe para acabar com isso: ele não ensina nada novo e não tem seção de Java. Ele pergunta.</p>
+
+<div class="callout evidence">
+  <span class="callout-title">O que este documento é, e o que ele não é</span>
+  <p>Não é uma lição. Não tem as seis batidas, não recomenda uma fonte primária e não introduz termo nenhum — tudo aqui já foi ensinado em <a href="../lessons/0001-seam.html">0001</a>–<a href="../lessons/0006-dependency-inversion.html">0006</a>.</p>
+  <p><strong>As perguntas são novas.</strong> Os doze quizzes que vivem dentro das lições continuam intactos e continuam inéditos para você — nenhum deles foi reaproveitado aqui. E nenhuma pergunta abaixo se resolve dentro de uma lição só: <strong>toda questão exige atravessar duas</strong>.</p>
+  <p>O que eu faço com o resultado: se um cruzamento falhar, o defeito é da lição que o preparou, não seu. Eu reescrevo o trecho, e a ordem da Trilha II muda se precisar.</p>
+</div>
+
+<p class="sidenote">A Trilha I fecha em 0005; a 0006 já abriu a Trilha II. Ela entra aqui porque os dois cruzamentos finais só existem com ela — a inversão é o que dá nome ao que a 0004 tinha topado sem nomear.</p>
+
+<div class="callout trap">
+  <span class="callout-title">Ordem importa — Parte A antes da Parte B</span>
+  <p>A Parte B é múltipla escolha, e ler as alternativas <strong>contamina</strong> a recordação livre: você reconhece a resposta certa em vez de produzi-la. Reconhecimento e produção são medidas diferentes, e só a segunda diz alguma coisa sobre a força de armazenamento.</p>
+  <p>Escreva a Parte A primeiro. Não role a página até terminar.</p>
+</div>
+
+<hr>
+
+<h2>Parte A · Recordação livre</h2>
+
+<p><strong>Este é o sinal principal.</strong> Não há gabarito nesta página, e é de propósito — as respostas vêm para mim, em prosa, no chat. Escreva de memória, sem abrir as lições. Uma resposta errada escrita com convicção me diz mais do que uma certa escolhida entre quatro.</p>
+
+<div class="callout child">
+  <span class="callout-title">A1 — seam, e o que ele <em>não</em> decide</span>
+  <p>Em duas ou três frases: <strong>o que é um seam</strong>, e por que o fato de um seam ser real <strong>não decide onde ele mora</strong>. Use <code>Clock</code> e <code>FeePolicy</code> se ajudar.</p>
+</div>
+
+<div class="callout child">
+  <span class="callout-title">A2 — o procedimento, não a definição</span>
+  <p>Você abre uma classe Java de 400 linhas num código que não é seu. Descreva o <strong>procedimento</strong> que você seguiria para decidir se ela é <span class="en">deep</span> ou <span class="en">shallow</span> — os passos, na ordem. Depois diga qual medida você <strong>recusaria</strong> usar, e por quê.</p>
+</div>
+
+<div class="callout child">
+  <span class="callout-title">A3 — explique para quem nunca ouviu falar</span>
+  <p>Sem jargão e sem citar ninguém: <strong>qual a diferença entre injetar e inverter uma dependência?</strong> Depois dê um exemplo concreto de código em que a injeção acontece e a inversão <strong>não</strong>.</p>
+</div>
+
+<div class="callout child">
+  <span class="callout-title">A4 — o que não fechou</span>
+  <p>Qual trecho de qual lição <strong>não fechou</strong>? Nomeie a lição e a seção. Se tudo fechou, responda a outra: qual afirmação deste curso você <strong>não conseguiria defender</strong> se um colega discordasse dela na sua frente?</p>
+  <p>Esta é a pergunta mais útil da página inteira. Uma resposta honesta aqui vale mais do que seis acertos abaixo.</p>
+</div>
+
+<hr>
+
+<h2>Parte B · Seis cruzamentos</h2>
+
+<p>Cada questão precisa de <strong>duas lições ao mesmo tempo</strong>. Uma sozinha não resolve nenhuma delas.</p>
+
+<figure class="figure">
+<pre class="mermaid">
+flowchart TB
+  L1["`0001
+seam`"]
+  L2["`0002
+deep vs shallow`"]
+  L3["`0003
+interface`"]
+  L4["`0004
+adapter`"]
+  L5["`0005
+deletion test`"]
+  L6["`0006
+inversão`"]
+  L2 ---|Q1| L3
+  L1 ---|Q2| L4
+  L3 ---|Q3| L4
+  L2 ---|Q4| L5
+  L4 ---|Q5| L6
+  L5 ---|Q6| L6
+  classDef stage    fill:#f2efe8,stroke:#57534a,stroke-width:1.5px,color:#26241f
+  classDef seam     fill:#1f6f6b,stroke:#0f4d4a,stroke-width:2px,color:#ffffff
+  class L1,L2,L3,L5,L6 stage
+  class L4 seam
+</pre>
+<figcaption><b>O que reparar.</b> A <strong>0004 é o nó de grau três</strong> — é nela que as decisões de estrutura colidem, porque é ela que separa "o seam existe" de "o seam mora aqui". A 0001 aparece uma vez só, e isso é correto: ela é a premissa que as outras cinco assumem, não uma peça que se combine com elas. Nenhuma lição ficou de fora.</figcaption>
+</figure>
+
+<div class="quiz" data-answer="2" data-qid="Q1" data-cross="0002x0003">
+  <div class="quiz-head">Q1 · 0002 × 0003</div>
+  <p class="quiz-q">A 0002 provou que <span class="en">depth</span> é propriedade da interface, não da implementação — os corpos de método eram byte a byte idênticos. O <code>StrictLedger</code> da 0003 exige <code>reconcile()</code> antes de <code>total()</code>. O que essa regra de ordem faz com a depth dele?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Nada, porque a regra de ordem não altera nenhuma assinatura de método</button></li>
+    <li><button class="quiz-opt">Aumenta, porque o module passou a garantir mais uma invariante do domínio</button></li>
+    <li><button class="quiz-opt">Reduz, porque cresce o que o chamador aprende sem crescer o comportamento</button></li>
+    <li><button class="quiz-opt">Reduz, porque a razão entre linhas de implementação e de interface caiu</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>As duas lições se encaixam exatamente aqui. A 0003 diz que <strong>ordering constraint é interface</strong>, escrito ou não; a 0002 diz que depth é <strong>comportamento por unidade de interface aprendida</strong>. A regra de ordem engorda o denominador e deixa o numerador parado — logo, raso. E note a opção 3: a razão entre linhas é justamente a métrica que a 0002 <em>rejeitou</em>, e que não é do Ousterhout (<code>ratio</code>, zero ocorrências em 188 páginas).</p>
+  </div>
+</div>
+
+<div class="quiz" data-answer="1" data-qid="Q2" data-cross="0001x0004">
+  <div class="quiz-head">Q2 · 0001 × 0004</div>
+  <p class="quiz-q">A definição de seam da 0001 — o lugar onde se muda comportamento sem editar naquele lugar — é satisfeita tanto por <code>Clock</code> quanto por <code>FeePolicy</code> (0004). O que a 0004 acrescentou que a 0001 <strong>não</strong> decidia?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Que dois adapters escritos separam um seam real de um seam hipotético</button></li>
+    <li><button class="quiz-opt">Que um seam real não decide se ele mora na interface pública</button></li>
+    <li><button class="quiz-opt">Que a política precisa declarar o port que o adapter depois implementa</button></li>
+    <li><button class="quiz-opt">Que o adapter de teste descreve substância e não apenas papel cumprido</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>A opção 1 é verdadeira — e é da <strong>0001</strong>, então não responde o que foi perguntado. A opção 3 é a 0006. A 0004 abriu uma terceira pergunta que nenhuma das duas fazia: <strong>seam interno ou externo</strong>. A JVM fechou o caso com <code>public constructors ... 1</code> e a taxa trocada de R$&nbsp;2,50 para R$&nbsp;0,00 com <code>callers who had to learn it ... 0</code>.</p>
+  </div>
+</div>
+
+<div class="quiz" data-answer="3" data-qid="Q3" data-cross="0003x0004">
+  <div class="quiz-head">Q3 · 0003 × 0004</div>
+  <p class="quiz-q">Junte as seis categorias de interface da 0003 com a regra <em>accept dependencies, don't create them</em> que a 0004 cobrou de volta da 0001. Por que essa regra nunca foi de graça?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Porque construir a dependência por dentro custa mais linhas do que recebê-la</button></li>
+    <li><button class="quiz-opt">Porque o teste exige um segundo adapter para cada parâmetro aceito ali</button></li>
+    <li><button class="quiz-opt">Porque o compilador não verifica nenhuma das seis categorias de interface listadas</button></li>
+    <li><button class="quiz-opt">Porque configuração exigida é interface, e o parâmetro cobra de todo chamador</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p><em>Required configuration</em> é uma das seis categorias da 0003. Um parâmetro de construtor <strong>é</strong> interface — logo aceitar uma dependência cobra de todo chamador, inclusive dos que nunca vão querer trocá-la. A opção 3 é falsa por um número que você já viu: o placar da 0003 foi <code>3 of 6</code>, não zero.</p>
+  </div>
+</div>
+
+<div class="quiz" data-answer="2" data-qid="Q4" data-cross="0002x0005">
+  <div class="quiz-head">Q4 · 0002 × 0005</div>
+  <p class="quiz-q">A 0005 apagou o <code>TransferFacade</code> de verdade e mediu: o chamador ficou <strong>mais curto</strong> (<code>−1</code>), porque o <code>new TransferFacade(ledger)</code> foi embora junto. Diga esse resultado no vocabulário da 0002.</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">A razão entre linhas de implementação e linhas de interface era baixa</button></li>
+    <li><button class="quiz-opt">Ele era um module raso por ter poucos métodos públicos declarados ali</button></li>
+    <li><button class="quiz-opt">Ele cobrava interface do chamador e não entregava comportamento nenhum em troca</button></li>
+    <li><button class="quiz-opt">Ele era um seam hipotético por ter um único adapter escrito ali</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p><code>3 of 3</code> métodos eram puro repasse: numerador zero, denominador três. É o mesmo eixo da 0002, só que agora <strong>executado</strong> em vez de imaginado. A opção 2 é a confusão que a 0002 existe para desfazer — número de métodos não mede profundidade; o <code>DeepLedger</code> tinha <em>menos</em> métodos e era mais profundo.</p>
+  </div>
+</div>
+
+<div class="quiz" data-answer="3" data-qid="Q5" data-cross="0004x0006">
+  <div class="quiz-head">Q5 · 0004 × 0006</div>
+  <p class="quiz-q">A 0006 rodou dois portões sobre quatro dependências: <strong>4 passaram na regra dos dois adapters, 2 no portão de categoria</strong>. Em que ponto da 0004 esse mesmo desacordo já tinha aparecido — antes de existir um nome para ele?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Quando o adapter de disco mediu dezessete linhas contra seis do outro</button></li>
+    <li><button class="quiz-opt">Quando o mesmo teste passou pelos dois adapters e deu resultado idêntico</button></li>
+    <li><button class="quiz-opt">Quando a reflexão contou um único construtor público na classe do serviço</button></li>
+    <li><button class="quiz-opt">Quando <code>Clock</code> e <code>FeePolicy</code> passaram os dois e apenas um foi exposto</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>A 0004 tropeçou no fenômeno; a 0006 deu o nome e a causa. A causa é o parêntese do próprio repositório — <em>"(typically production + test)"</em>, <code>DEEPENING.md:29</code> — que <strong>homologa um test double como o segundo adapter</strong>. Se você aceita escrever um fake, a dependência passa. Quase todas passam.</p>
+  </div>
+</div>
+
+<div class="quiz" data-answer="0" data-qid="Q6" data-cross="0005x0006">
+  <div class="quiz-head">Q6 · 0005 × 0006</div>
+  <p class="quiz-q">A 0005 concluiu que o <span class="en">deletion test</span> <strong>errou</strong> no caso C: <code>+3</code> linhas, veredito "mantenha", e mesmo assim 3 dos 4 métodos eram repasse. A 0006 concluiu que a regra dos dois adapters quase não freia nada. Qual defeito os dois instrumentos têm em comum?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Os dois dão um veredito binário sobre um defeito que é proporcional</button></li>
+    <li><button class="quiz-opt">Os dois foram escritos para TypeScript e não sobrevivem à tipagem nominal</button></li>
+    <li><button class="quiz-opt">Os dois contam linhas, e linha de código não mede coisa alguma</button></li>
+    <li><button class="quiz-opt">Os dois exigem que o teste exista antes de confirmar o seam</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>Manter ou apagar; passa ou não passa. Nenhum dos dois consegue dizer <em>"75% deste module é ruído"</em> — e essa é exatamente a forma real do defeito nos dois casos. A saída também é a mesma nos dois: <strong>aplique por método, não por module</strong>, e quando a resposta vier misturada, a jogada não é nem manter nem apagar.</p>
+  </div>
+</div>
+
+<hr>
+
+<h2>Parte C · Como me devolver isso</h2>
+
+<p>A caixa abaixo se preenche sozinha conforme você responde a Parte B. Ela já está visível — se o botão de copiar falhar (o navegador restringe a área de transferência em páginas abertas como arquivo local), selecione o texto e copie à mão. <strong>Cole no chat junto com as quatro respostas em prosa da Parte A.</strong></p>
+
+<div class="tally" data-tally>
+  <div class="tally-head">Canal de retorno</div>
+  <textarea class="tally-out" readonly rows="9" aria-label="Resultado do checkpoint, pronto para copiar"></textarea>
+  <button class="tally-copy" type="button">Copiar</button>
+  <p class="caption">A alternativa que você escolheu importa mais do que o placar: cada distrator aqui é uma leitura equivocada específica que alguma lição deveria ter fechado. Qual delas você pegou me diz qual lição reescrever.</p>
+</div>
+
+<div class="ask-teacher">
+  <p><strong>Me devolva as respostas e eu recalibro.</strong> Enquanto isso, três coisas ficam paradas de propósito: a lição <strong>0007</strong> (YAGNI, DRY e a abstração errada — a evidência já está toda em <code>docs/research/11</code>), a ordem do resto da Trilha II, e a decisão sobre quanto de fonte primária cada lição deve carregar. Se alguma pergunta desta página parecer injusta, me diga <em>qual</em> — pergunta injusta é defeito de lição.</p>
+</div>
+
+<div class="nav">
+  <a href="../lessons/0005-deletion-test.html">← 0005 — O deletion test</a>
+  <a href="../lessons/0006-dependency-inversion.html">0006 — Dependency inversion</a>
+  <a href="../index.html">Índice do curso ↑</a>
+</div>
+
+</div>

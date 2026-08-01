@@ -59,6 +59,104 @@
     });
   }
 
+  /* --- Checkpoint tally -------------------------------------------------- */
+
+  /* A checkpoint has to get its answers off the page and into a conversation.
+   * localStorage is unreliable over file:// (and is per-origin anyway), so the
+   * payload is rendered into a textarea that is visible from the first paint:
+   * if every clipboard route fails, the reader can still select and copy.
+   *
+   * The signal is `chosen`, not `correct`. Which distractor was picked names
+   * the misreading; a bare score does not.
+   *
+   * Inert unless a page carries [data-tally], so lessons are unaffected. */
+
+  function mountTally() {
+    var box = document.querySelector("[data-tally]");
+    if (!box) return;
+
+    var out = box.querySelector(".tally-out");
+    var btn = box.querySelector(".tally-copy");
+    var quizzes = Array.prototype.slice.call(
+      document.querySelectorAll(".quiz[data-qid]")
+    );
+    if (!out || !quizzes.length) return;
+
+    var LETTERS = "ABCDEFGH";
+    var title = (document.title || "checkpoint").trim();
+
+    function render() {
+      var lines = [];
+      var answered = 0;
+      var right = 0;
+
+      quizzes.forEach(function (quiz) {
+        var id = quiz.getAttribute("data-qid");
+        var cross = quiz.getAttribute("data-cross") || "";
+        var answer = parseInt(quiz.getAttribute("data-answer"), 10);
+        var chosen = quiz.dataset.chosen;
+
+        if (chosen === undefined || chosen === "") {
+          lines.push(id + "  " + cross + "  (sem resposta)");
+          return;
+        }
+
+        answered++;
+        var ok = quiz.dataset.correct === "true";
+        if (ok) right++;
+
+        lines.push(
+          id + "  " + cross +
+          "  escolhi " + LETTERS.charAt(parseInt(chosen, 10)) +
+          " · correta " + LETTERS.charAt(answer) +
+          "  " + (ok ? "ok" : "ERRO")
+        );
+      });
+
+      out.value =
+        title + "\n" +
+        lines.join("\n") + "\n" +
+        "respondidas " + answered + "/" + quizzes.length +
+        " · acertos " + right;
+    }
+
+    document.addEventListener("quiz:answered", function (e) {
+      var quiz = e.target;
+      if (!quiz || !quiz.getAttribute || !quiz.getAttribute("data-qid")) return;
+      quiz.dataset.chosen = String(e.detail.chosen);
+      render();
+    });
+
+    if (btn) {
+      var label = btn.textContent;
+      btn.addEventListener("click", function () {
+        out.focus();
+        out.select();
+        try { out.setSelectionRange(0, out.value.length); } catch (e) { /* ok */ }
+
+        function done(copied) {
+          btn.textContent = copied ? "copiado" : "selecionado — use Ctrl+C";
+          setTimeout(function () { btn.textContent = label; }, 2600);
+        }
+
+        var copied = false;
+        try { copied = document.execCommand("copy"); } catch (e) { copied = false; }
+        if (copied) { done(true); return; }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(out.value).then(
+            function () { done(true); },
+            function () { done(false); }
+          );
+          return;
+        }
+        done(false);
+      });
+    }
+
+    render();
+  }
+
   /* --- Mermaid ---------------------------------------------------------- */
 
   /* Diagrams are authored as <pre class="mermaid">…</pre>.
@@ -216,6 +314,7 @@
   function init() {
     applyTheme(currentTheme());
     Array.prototype.forEach.call(document.querySelectorAll(".quiz"), wireQuiz);
+    mountTally();
     mountThemeToggle();
     mountProgressBar();
     renderMermaid();

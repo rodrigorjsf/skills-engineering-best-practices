@@ -59,8 +59,9 @@ A fourth marker, `[our analogy]`, separates what a source says from what we are 
 | [`MISSION.md`](./MISSION.md) | Why this exists and what counts as success. Every lesson anchors here. |
 | [`CLAUDE.md`](./CLAUDE.md) | Operating rules — the lesson contract, evidence tiers, markup contracts, delegation policy. |
 | [`RESOURCES.md`](./RESOURCES.md) | Curated, verified sources with annotations, plus an explicit `Gaps` section. |
-| [`docs/curriculum.md`](./docs/curriculum.md) | The full map: 4 tracks, 20 lessons, in order. |
+| [`docs/curriculum.md`](./docs/curriculum.md) | The full map: 4 tracks, 22 lessons, in order. |
 | `lessons/` | Self-contained HTML lessons. **6 of 22 built.** |
+| `checkpoints/` | One per closed track. Measures what landed; teaches nothing. **1 built** (Track I). |
 | `reference/` | Compressed documents built to be revisited and printed. The glossary is binding. |
 | `docs/research/` | The research corpus — 12 files, ~10,300 lines, cited. |
 | `code/` | Java examples that compile and run. |
@@ -79,6 +80,9 @@ Produced by delegated agents, every claim cited:
 - **`07-communities.md`** — four verified venues for testing this work outside the learning environment.
 - **`08-ddd-evans.md`** — Evans on ubiquitous language and bounded context, chapters confirmed, including one hypothesis the agent disproved and reported.
 - **`09-supplementary-sources.md`** — provenance checks on two supplementary sources; one was promoted, one demoted to a finding aid.
+- **`10-dependency-inversion.md`** — Martin's article recovered from a pinned Wayback capture and read in full; DI ≠ DIP settled by grep over Fowler's own pages.
+- **`11-yagni-dry-and-the-cost-of-abstraction.md`** — the exemption Fowler writes for himself, and the signed retraction in the DRY authors' 20th-anniversary text.
+- **`12-indirection-and-agents.md`** — what is actually measured about fault localization, and sixteen numbered claims no source supports.
 
 ### Curriculum
 

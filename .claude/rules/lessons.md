@@ -2,6 +2,7 @@
 paths:
   - "lessons/**/*.html"
   - "reference/**/*.html"
+  - "checkpoints/**/*.html"
   - "index.html"
   - "assets/**"
 ---
@@ -10,6 +11,20 @@ paths:
 
 Root `CLAUDE.md` carries the six beats and the hard constraints — they must be
 known before a lesson is composed, not after. This file is the detail.
+
+**Checkpoints are not lessons.** A `checkpoints/NNNN-*.html` closes a track and
+measures it: no six beats, no opening spaced-retrieval question, no primary-source
+recommendation, no Java section. Everything else here binds — quiz word-count
+uniformity, the sidenote contract, no hard-coded `px`, `.wide` as explicit opt-in,
+`.ask-teacher` and `.nav`. Two rules are specific to them:
+
+- **Free recall comes before multiple choice.** Reading the options replaces
+  production with recognition, and only production measures storage strength.
+- **Every distractor is a real misreading a lesson was written to close** —
+  depth-as-ratio, DI = DIP, the two-adapter rule as sufficient, "small adapter"
+  measured in lines, the deletion test as a binary verdict. That is what makes the
+  chosen option a diagnosis instead of a score, and it is why the return channel
+  records `chosen`, not just `correct`.
 
 ## The running domain is banking
 

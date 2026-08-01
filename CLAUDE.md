@@ -87,6 +87,7 @@ Docs are living, not write-once.
 | ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `lessons/`          | `NNNN-dash-case-name.html`, sequential                                                                                                                                      |
 | `reference/`        | `NNNN-dash-case-name.html`, sequential                                                                                                                                      |
+| `checkpoints/`      | `NNNN-track-name.html`, own numbering — **one per closed track.** Not a lesson: it measures, it does not teach. Contract in `.claude/rules/lessons.md`.                    |
 | `learning-records/` | `NNNN-dash-case-name.md` — written only on *evidence* of understanding, disclosed prior knowledge, a corrected misconception, or a mission shift. Coverage is not learning. |
 | `docs/research/`    | `NN-topic.md`, English, cited                                                                                                                                               |
 | `code/`             | `NNNN-slug/` matching the lesson number                                                                                                                                     |
@@ -107,3 +108,4 @@ When something fails repeatedly, when User has to re-explain, or when a workarou
 - Keep captured program output under ~70 columns or it overflows the lesson measure.
 - Force dark for a screenshot by stubbing `matchMedia`; `data-theme` alone is overwritten.
 - A `.figure.wide` collides with a sidenote beside it; move the sidenote up a paragraph.
+- `--virtual-time-budget` freezes CSS transitions mid-flight; set `data-theme` pre-paint.
