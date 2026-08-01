@@ -106,4 +106,64 @@ The attribution to **Don Roberts** is therefore *probably* right, and `Don Rober
 | **0013 / 0014** ubiquitous language · bounded context | DDD (already held) | **Closable now** — chapter numbers recoverable, §0 |
 | **0007** Rule of Three | Refactoring | **Not closed.** §3 |
 
-**Still worth acquiring:** **Beck, *Test-Driven Development by Example* (2002)** for lesson 0009, and a **legitimate *Refactoring*** — 2nd edition (2018) preferred, since it is the current text.
+---
+
+## 5 · The two Brazilian editions — and a new evidence sub-tier
+
+Both remaining recommendations arrived as **authorized Brazilian translations**. Both are legitimate publisher editions, and both close their gap — but they are **the translator's words, not the author's**, which needed a policy rather than a case-by-case judgement.
+
+### The policy, now in `.claude/rules/research.md`
+
+**`Quoted (translation)`** — verbatim from an authorized published translation, publisher and **translator named**, and the fact that the original wording was not seen stated explicitly. Below `Quoted`, above `Chapter located`.
+
+- **Never back-translate into English and present it as a quote.** That fabricates a sentence the author never wrote.
+- **Proper names, numbers and dates survive translation.** An *attribution* read in an authorized edition is verified at **full** tier; only the *wording* is translated.
+
+### Refatoração, 2ª edição (Novatec)
+
+**Metadata verified.** `ISBN 978-85-7522-724-4` (impresso) / `978-85-7522-725-1` (ebook). Tradução: **Lúcia A. Kinoshita**. Front matter, verbatim:
+
+> Authorized translation from the English language edition, entitled REFACTORING: IMPROVING THE DESIGN OF EXISTING CODE, **2nd Edition** by MARTIN FOWLER, published by Pearson Education, Inc, publishing as Addison-Wesley Professional, **Copyright © 2019** by Pearson Education, Inc.
+
+**It is the 2nd edition** — the one recommended — confirmed twice over: the front matter says so, and the code is JavaScript (`JavaScript` ×64, `function ` ×523, against `Java ` ×3).
+
+**GAP CLOSED — the Rule of Three.** PDF p. 78, section *A Regra dos Três* <span>Quoted (translation)</span>:
+
+> Eis uma orientação que **Don Roberts** me deu: na primeira vez que fizer algo, você simplesmente faz. Na segunda vez que fizer algo similar, você torce o nariz diante da duplicação, mas faz a duplicação, de qualquer modo. Na terceira vez que fizer algo similar, você refatora.
+>
+> Ou, para aqueles que gostam de beisebol: três strikes, então você refatora.
+
+**The attribution to Don Roberts is now verified at full tier** — a proper name in an authorized edition of the current text. It had been resting on a practitioner blog post. The **English wording** stays unseen and must not be reconstructed.
+
+This also **retroactively vindicates refusing §3's file**: the retype's English matches this passage closely, so it was probably faithful *there* — which is exactly the trap. Fidelity that cannot be checked in advance is not fidelity, and a spot-check after the fact is not a publisher chain.
+
+### TDD: Desenvolvimento Guiado por Testes (Bookman)
+
+**Metadata verified.** `ISBN 978-85-7780-747-5`, and the front matter also prints the original's **`ISBN 978-0-321-14653-3`** — which **closes the "Beck's ISBN" item** in `RESOURCES.md`'s deliberately-omitted list. *"Tradução autorizada a partir do original em língua inglesa"*, Bookman, 2010.
+
+**GAP CLOSED — lesson 0009.** 44 outline entries; Part III is *Padrões para Desenvolvimento Guiado por Testes*, with ch. **31 Refatoração** and ch. **32 Dominando TDD**. The mantra itself <span>Quoted (translation)</span>:
+
+> 1. **Vermelho** – Escrever um pequeno teste que não funcione e que talvez nem mesmo compile inicialmente.
+> 2. **Verde** – Fazer rapidamente o teste funcionar, mesmo cometendo algum pecado necessário no processo.
+> 3. **Refatorar** – Eliminar todas as duplicatas criadas apenas para que o teste funcione.
+>
+> Vermelho/verde/refatorar – o mantra do TDD.
+
+Note for lesson 0009: the repo's sharp deviation is that **refactoring is not in the loop** — *"It belongs to the review stage."* Beck's own text puts it **inside** the mantra, as step 3. That contrast is the lesson, and both sides are now quotable from primary editions.
+
+---
+
+## 6 · Acquisition list — closed
+
+Every book on the ranked list has arrived, and **the list is now empty**:
+
+| # | Book | State |
+|---|---|---|
+| 1 | Pragmatic Programmer 20th | held, clean |
+| 2 | Refactoring | held as the **2nd-edition authorized translation**; the English retype is refused (§3) |
+| 3 | Beck, *TDD by Example* | held as the **authorized translation** |
+| 4 | GOOS | held, clean |
+| 5 | Crystal Clear | held; manuscript caveat (§2) |
+| 6 | Agans, *Debugging* | held, clean |
+
+**Nothing further is worth acquiring right now.** The only upgrades left are English originals of Fowler's *Refactoring* 2nd ed. and Beck's *TDD by Example*, and they buy exactly one thing: the right to quote those two passages in English rather than at `Quoted (translation)`. That is a small gain against a course written in pt-BR for a Brazilian reader — **not a blocker for any lesson.**

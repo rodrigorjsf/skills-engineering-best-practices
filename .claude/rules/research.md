@@ -17,6 +17,23 @@ orientation and authoring, and does not re-run a search it delegated.
 | **Chapter located**   | A real table of contents or searchable excerpt was seen. Chapter numbers without this tag are not given. |
 | **`[unverified]`**    | Everything else. Stays visibly unverified.                                                               |
 
+**Sub-tier: `Quoted (translation)`.** Verbatim from an **authorized published
+translation**, with the publisher, the **translator named**, and the fact that
+the original-language wording was *not* seen stated explicitly. It sits just
+below `Quoted` and above `Chapter located`.
+
+Why it exists: this is a pt-BR course, and an authorized Brazilian edition is a
+legitimate source for a Brazilian reader — but it is **the translator's words,
+not the author's**, and must never be presented as the author's.
+
+- **Never back-translate a translation into English** and present the result as
+  a quote. That fabricates a sentence the author never wrote.
+- **Proper names, numbers, and dates survive translation.** An *attribution*
+  read in an authorized translation ("Don Roberts", "1996", "13 of 15") is
+  verified at full tier; only the *wording* is translated.
+- When the English original is later obtained, upgrade the quote and keep the
+  translation as the corroborating locator.
+
 ## Standing rules
 
 - **No guessed locators.** If a table of contents could not be fetched, omit the
