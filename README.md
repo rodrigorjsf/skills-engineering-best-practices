@@ -40,7 +40,7 @@ Three standing rules:
 - **No smoothing.** An unverified claim is never rewritten into confident prose.
 - **Coinages are labelled as coinages,** and attributed to whoever actually coined them.
 
-A fourth marker, `[our analogy]`, separates what a source says from what we are inferring by analogy. The research corpus currently carries **212 explicit `[unverified]` marks** across fifteen files — that count is a feature. It is the difference between a document that knows what it doesn't know and one that reads confidently everywhere.
+A fourth marker, `[our analogy]`, separates what a source says from what we are inferring by analogy. The research corpus currently carries **216 explicit `[unverified]` marks** across sixteen files — that count is a feature. It is the difference between a document that knows what it doesn't know and one that reads confidently everywhere.
 
 ### What that discipline has already caught
 
@@ -63,7 +63,7 @@ A fourth marker, `[our analogy]`, separates what a source says from what we are 
 | `lessons/` | Self-contained HTML lessons. **6 of 22 built.** |
 | `checkpoints/` | One per closed track. Measures what landed; teaches nothing. **1 built** (Track I). |
 | `reference/` | Compressed documents built to be revisited and printed. **3 built** — the glossary is binding, plus the stateful flow and the Java patterns. |
-| `docs/research/` | The research corpus — 15 files, ~11,400 lines, cited. |
+| `docs/research/` | The research corpus — 16 files, ~11,500 lines, cited. |
 | `code/` | Java examples that compile and run. |
 | `learning-records/` | What was actually learned, and what it changes. |
 
@@ -86,6 +86,7 @@ Produced by delegated agents, every claim cited:
 - **`13-library-sweep.md`** — all 61 URLs the finding-aid library references, tiered; then the gap-touching ones fetched. Resolves the origin of the "40%" figure and demotes the `harness engineering` coinage to no located coiner.
 - **`14-martin-books-and-the-volatility-gate.md`** — Martin's own books read from the reader's copies. Closes who coined `SOLID` and whether he qualifies DIP, and dates the volatility gate to 2003 rather than 2018.
 - **`15-shelf-provenance.md`** — every book on the shelf triaged before use. Two method corrections, one unauthorised retype refused, and what each book actually unlocks, by lesson.
+- **`16-gap-closures.md`** — four gaps closed from artifacts already in hand: the tracer-bullet text, Agans' nine rules, both arXiv bodies, and one gap that was never open.
 
 ### Curriculum
 
