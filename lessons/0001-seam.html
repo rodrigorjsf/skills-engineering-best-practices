@@ -170,6 +170,7 @@ B. NightGuard — dependency accepted at a seam
 
 Rule verified end to end: YES
 <span class="hl">Rule source lines changed to get there: 0</span></code></pre>
+  <p>As três primeiras linhas da seção A <strong>variam com o relógio de parede</strong> — esta captura foi de dia. Rodando de madrugada elas viram <code>night</code>, <code>false</code> e <code>night only</code>, e o contador continua <code>1 of 2</code>: é exatamente esse o defeito que a seção A demonstra. Todo o resto do output é determinístico e é idêntico em qualquer execução.</p>
 </div>
 
 <p>Essa é a evidência inteira da lição, em três números:</p>
@@ -242,8 +243,11 @@ Rule verified end to end: YES
   <span class="callout-title">O exemplo do próprio Feathers é o nosso exemplo — e ele diz a frase que faltava</span>
   <p>Feathers monta exatamente o mesmo par que montamos na seção 3, em Java. Primeiro o caso sem seam, onde o objeto é criado dentro do método:</p>
 <pre><code><span class="k">public</span> <span class="t">Spreadsheet</span> buildMartSheet() {
+    <span class="c">...</span>
     <span class="t">Cell</span> cell = <span class="k">new</span> <span class="t">FormulaCell</span>(<span class="k">this</span>, <span class="s">"A1"</span>, <span class="s">"=A2+A3"</span>);
+    <span class="c">...</span>
     cell.Recalculate();
+    <span class="c">...</span>
 }</code></pre>
   <blockquote class="source" style="margin:0.8rem 0">
     <p>Is the call to <code>Recalculate</code> an object seam? <strong>No. There is no enabling point.</strong> We can't change which <code>Recalculate</code> method is called because the choice depends on the class of the cell. The class of the cell is decided when the object is created, and we can't change it without modifying the method.</p>
@@ -251,7 +255,9 @@ Rule verified end to end: YES
   </blockquote>
   <p>E então a versão que recebe a dependência em vez de criá-la:</p>
 <pre><code><span class="k">public</span> <span class="t">Spreadsheet</span> buildMartSheet(<span class="hl"><span class="t">Cell</span> cell</span>) {
+    <span class="c">...</span>
     cell.Recalculate();
+    <span class="c">...</span>
 }</code></pre>
   <blockquote class="source" style="margin:0.8rem 0">
     <p>Is the call to <code>cell.Recalculate</code> in <code>buildMartSheet</code> a seam now? <strong>Yes.</strong> … Where is the enabling point? In this example, <strong>the enabling point is the argument list of <code>buildMartSheet</code></strong>.</p>
@@ -262,14 +268,14 @@ Rule verified end to end: YES
 
 <h3>Os três tipos de seam</h3>
 
-<p>Feathers deriva a taxonomia de um lugar não óbvio: <em>"look at all of the steps involved in turning the text of a program into running code on a machine. Each identifiable step exposes different kinds of seams."</em> Cada etapa do build vira uma oportunidade de troca.</p>
+<p>Feathers deriva a taxonomia de um lugar não óbvio: <em>"…look at all of the steps involved in turning the text of a program into running code on a machine. Each identifiable step exposes different kinds of seams."</em> <span class="caption" style="border:0;padding:0;display:inline">— Feathers, Cap. 4, p. 33</span> Cada etapa do build vira uma oportunidade de troca.</p>
 
 <div class="table-wrap">
 <table>
   <thead><tr><th>Tipo</th><th>Etapa do build</th><th>Onde fica o enabling point</th></tr></thead>
   <tbody>
     <tr><td><strong>Preprocessing seam</strong></td><td>Antes do compilador (só C/C++)</td><td>Um <code>#define</code> — no exemplo dele, <code>TESTING</code></td></tr>
-    <tr><td><strong>Link seam</strong></td><td>Ligação dos objetos compilados</td><td><em>"always outside the program text"</em> — makefile, script de build, IDE</td></tr>
+    <tr><td><strong>Link seam</strong></td><td>Ligação dos objetos compilados</td><td><em>"always outside the program text"</em> (p. 40) — makefile, script de build ou IDE (p. 44)</td></tr>
     <tr><td><strong>Object seam</strong></td><td>Runtime, via despacho dinâmico</td><td>Lista de argumentos, construtor, ou onde o objeto é criado</td></tr>
   </tbody>
 </table>
@@ -311,7 +317,7 @@ ou onde o objeto é criado`"]
   <cite>Feathers, Cap. 4, p. 44 <span class="flag cited">verbatim</span></cite>
 </blockquote>
 
-<p class="sidenote">Repare que <code>link seam</code> tem o enabling point <em>fora do texto do programa</em> — e Feathers avisa: <em>"This makes the use of link seams somewhat hard to notice."</em> É a mesma razão pela qual configuração escondida em script de build é difícil de auditar, com ou sem teste.</p>
+<p class="sidenote">Repare que <code>link seam</code> tem o enabling point <em>fora do texto do programa</em> — e Feathers avisa: <em>"This makes the use of link seams somewhat hard to notice."</em> <span class="caption" style="border:0;padding:0;display:inline">— Cap. 4, p. 40</span> É a mesma razão pela qual configuração escondida em script de build é difícil de auditar, com ou sem teste.</p>
 
 <div class="callout evidence">
   <span class="callout-title">Leia isto a seguir</span>
@@ -419,7 +425,7 @@ ou onde o objeto é criado`"]
 <div class="sources">
   <h4>Fontes desta lição</h4>
   <ol>
-    <li>Michael C. Feathers, <em>Working Effectively with Legacy Code</em>, Prentice Hall PTR (Pearson), 2005 — Cap. 4 "The Seam Model", pp. 29–44. Citações desta lição: definição de <em>seam</em> p. 31; <em>Enabling Point</em> e "source code should be the same" p. 36; exemplo sem enabling point p. 41; "the enabling point is the argument list" p. 42; escolha do tipo de seam p. 44. <span class="flag cited">texto conferido</span></li>
+    <li>Michael C. Feathers, <em>Working Effectively with Legacy Code</em>, Prentice Hall PTR (Pearson), 2005 — Cap. 4 "The Seam Model", pp. 29–44. Citações desta lição, em ordem de página: definição de <em>seam</em> p. 31 (caixa; repetida na p. 36); a derivação da taxonomia a partir das etapas do build p. 33; <em>Enabling Point</em> e "source code should be the same" p. 36; enabling point do <code>link seam</code> — "always outside the program text" e "hard to notice" — p. 40; exemplo sem enabling point p. 41; "the enabling point is the argument list" p. 42; escolha do tipo de seam, e makefile/IDE como enabling point do link seam, p. 44. <span class="flag cited">texto conferido</span></li>
     <li>Martin Fowler, <a href="https://martinfowler.com/bliki/LegacySeam.html">bliki: LegacySeam</a>, 4 jan 2024 — confrontado com o livro: a renderização dele da definição está <strong>exata</strong>. <span class="flag cited">verbatim</span></li>
     <li>Matt Pocock, <a href="https://github.com/mattpocock/skills">mattpocock/skills</a> — <code>codebase-design/SKILL.md:22,64,65</code>; <code>tdd/SKILL.md:20,22</code>; <code>codebase-design/DEEPENING.md:29</code>. Docs publicados em <code>https://aihero.dev/skills-codebase-design</code> e <code>https://aihero.dev/skills-tdd</code>. <span class="flag cited">verbatim</span></li>
     <li>Anthropic Engineering, "Writing effective tools for agents" e "Effective context engineering for AI agents" — citados no bloco do paralelo. <span class="flag cited">verbatim</span></li>
