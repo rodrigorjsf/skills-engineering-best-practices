@@ -458,6 +458,50 @@ pre code {
 
 .caption b { color: var(--ink-soft); }
 
+/* --- Mermaid ------------------------------------------------------------
+   Authored as <pre class="mermaid">. Rendered natively by Artifacts, or by a
+   vendored assets/mermaid.min.js locally. When no renderer is present,
+   `lesson.js` adds .mermaid-unrendered and we show the source legibly rather
+   than an empty frame. */
+
+pre.mermaid {
+  background: none;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  overflow-x: auto;
+  text-align: center;
+  line-height: normal;
+}
+
+pre.mermaid svg { max-width: 100%; height: auto; }
+
+pre.mermaid.mermaid-unrendered {
+  text-align: left;
+  white-space: pre;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+  background: var(--paper-sunk);
+  border: 1px dashed var(--rule);
+  border-radius: 4px;
+  padding: 1rem 1.1rem 1.1rem;
+}
+
+pre.mermaid.mermaid-unrendered::before {
+  content: "diagrama Mermaid — renderizador não carregado; fonte abaixo";
+  display: block;
+  font-family: var(--font-sans);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--warn);
+  margin-bottom: 0.7rem;
+  white-space: normal;
+}
+
 /* Text diagrams (the ASCII boxes the skills themselves use). */
 .ascii {
   font-family: var(--font-mono);

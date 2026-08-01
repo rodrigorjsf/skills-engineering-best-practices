@@ -59,6 +59,60 @@
     });
   }
 
+  /* --- Mermaid ---------------------------------------------------------- */
+
+  /* Diagrams are authored as <pre class="mermaid">…</pre>.
+   *
+   * Published Artifacts render that natively. Locally, lessons open over
+   * file://, where nothing renders it unless assets/mermaid.min.js has been
+   * vendored alongside this file. A CDN is deliberately NOT an option: the
+   * Artifact CSP blocks external hosts, so a CDN link would work locally and
+   * fail silently once published.
+   *
+   * With no renderer available we leave the source visible and legible rather
+   * than pretending a diagram is there — an empty box teaches nothing, and a
+   * reader can still follow `A --> B`. */
+
+  function mermaidBlocks() {
+    return Array.prototype.slice.call(document.querySelectorAll("pre.mermaid"));
+  }
+
+  function renderMermaid() {
+    var blocks = mermaidBlocks();
+    if (!blocks.length) return;
+
+    // Keep the original source so a theme change can re-render from it;
+    // mermaid replaces the element's content with SVG on first run.
+    blocks.forEach(function (b) {
+      if (!b.dataset.src) b.dataset.src = b.textContent;
+    });
+
+    if (!window.mermaid) {
+      blocks.forEach(function (b) { b.classList.add("mermaid-unrendered"); });
+      return;
+    }
+
+    blocks.forEach(function (b) {
+      b.classList.remove("mermaid-unrendered");
+      b.removeAttribute("data-processed");
+      b.textContent = b.dataset.src;
+    });
+
+    try {
+      window.mermaid.initialize({
+        startOnLoad: false,
+        securityLevel: "strict",
+        theme: currentTheme() === "dark" ? "dark" : "default",
+        fontFamily: getComputedStyle(document.body)
+          .getPropertyValue("--font-sans") || "sans-serif"
+      });
+      window.mermaid.run({ nodes: blocks });
+    } catch (e) {
+      // A malformed diagram must not take the rest of the lesson down.
+      blocks.forEach(function (b) { b.classList.add("mermaid-unrendered"); });
+    }
+  }
+
   /* --- Theme ------------------------------------------------------------ */
 
   var STORAGE_KEY = "teach-theme";
@@ -111,6 +165,9 @@
       applyTheme(next);
       try { localStorage.setItem(STORAGE_KEY, next); } catch (e) { /* file:// */ }
       btn.textContent = next === "dark" ? "☀" : "☾";
+      // Mermaid bakes theme colours into the generated SVG, so a CSS variable
+      // swap alone would leave diagrams in the previous theme.
+      renderMermaid();
     });
 
     document.body.appendChild(btn);
@@ -150,6 +207,7 @@
     Array.prototype.forEach.call(document.querySelectorAll(".quiz"), wireQuiz);
     mountThemeToggle();
     mountProgressBar();
+    renderMermaid();
   }
 
   if (document.readyState === "loading") {

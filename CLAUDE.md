@@ -12,8 +12,43 @@ The reader is one person — Rodrigo — with four stated goals: apply these pra
 
 Docs are living, not write-once.
 
-* `README.md` and `docs/ROADMAP.md` must stay in sync with the repository progress. Update them in the **same commit** that changes behavior, scope, or run steps — never let them drift.
-* Use **Mermaid diagrams** whenever they make a flow, architecture, or state clearer. Apply colors (`classDef`/`style`) and animated edges (`e1@{ animate: true }`) where the renderer supports them; colors are the baseline, animation is best-effort.
+* `README.md` and `docs/curriculum.md` must stay in sync with the repository's actual progress. Update them in the **same commit** that changes behavior, scope, or run steps — never let them drift. `docs/curriculum.md` is the roadmap: when a lesson ships, when a track is re-ordered, or when a lesson's subject changes, it changes there too.
+* Counts stated in prose (`N of 20 lessons`, term counts, citation counts) are **derived, not remembered**. Re-measure before writing one down.
+
+### Diagrams
+
+**Use a diagram whenever structure, flow, sequence, or state is easier to see than to read.** This applies to Markdown docs *and* to lesson HTML — a lesson that explains a process in three paragraphs where one diagram would do has chosen the harder medium.
+
+**Mermaid is the default.** Reach for hand-authored inline SVG only when you need precise spatial control that Mermaid cannot express — for example lesson 0001's seam figure, where the *position* of a dashed vertical line between a caller and two adapters is the whole point. When the message is the structure rather than the layout, Mermaid wins: it stays editable, diffs as text, and cannot drift from its own caption.
+
+**Pick the type by the teaching job, not by habit:**
+
+| The thing being taught | Type |
+|---|---|
+| A process or decision path — red→green, the diagnosis loop, "where does the seam go" | `flowchart` |
+| An exchange over time — a grilling session, skill handoffs, caller → module → adapter | `sequenceDiagram` |
+| Something with states and legal transitions — triage roles, a `Transfer` lifecycle | `stateDiagram-v2` |
+| Structure and relationships — module/interface/adapter, a Java class shape | `classDiagram` |
+| Domain entities and cardinality — `Account` 1..N `Transfer` | `erDiagram` |
+| Work over branches and time — vertical vs horizontal slicing, tracer bullets | `gitGraph` |
+| A taxonomy or decomposition — the glossary map, the four tracks | `mindmap` |
+| Intellectual genealogy — Parnas 1972 → Feathers 2005 → Ousterhout 2021 | `timeline` |
+| Two-axis positioning — deep/shallow against interface size | `quadrantChart` |
+| **Measured data** — the context-rot curve, the lost-in-the-middle U-curve | `xychart-beta` |
+
+That last row matters disproportionately here: this course argues from evidence, and a plotted curve of real published numbers is worth more than a sentence describing it. Plot the data, cite the source in the caption.
+
+**Rules:**
+
+- **A diagram must carry information the prose does not.** If it restates the paragraph above it, delete it — it costs attention and teaches nothing.
+- **Every diagram gets a caption** that states what to notice, not what it is. `.figure` + `<figcaption>` in HTML.
+- **Colors are the baseline; animation is best-effort.** Use `classDef`/`style`, and `e1@{ animate: true }` on edges where the renderer supports it. Never encode meaning in animation alone.
+- **Colors follow the workspace semantics** (see the callout table below) — `seam` teal for structure and interfaces, `evidence` blue for data and sources, `warn` amber for anti-patterns, `ai` purple for the agent parallel. A diagram that invents its own palette breaks the visual language the lessons rely on.
+- **Wide diagrams scroll in their own container.** The page body must never scroll horizontally.
+
+**Rendering contract — read before adding the first Mermaid block to a lesson.** Embed as `<pre class="mermaid">…</pre>`. Published Artifacts render that natively. Locally, lessons are opened over `file://`, where nothing renders it without a library — so `assets/mermaid.min.js` must be **vendored** and initialised by `assets/lesson.js`. A CDN link is not an option: the Artifact CSP blocks external hosts, so a CDN would work locally and silently fail once published, which is the worst of both.
+
+> **Current state:** `lesson.js` already initialises Mermaid when `window.mermaid` is present, and falls back to leaving the block as readable indented text when it is not. **`assets/mermaid.min.js` is not vendored yet** — `npm` on this machine is broken (`npm-cli.js` missing), so it has to be fetched another way. Until it lands, a Mermaid block in a lesson renders in Artifacts but shows as plain text locally. Vendor it before leaning on Mermaid for a lesson's central figure.
 
 ## Paths — read this before touching a file
 
@@ -158,6 +193,22 @@ Callouts — **the colour is the meaning**. Keep these consistent across every l
 | `.callout.ai`       | The agent/LLM parallel            |
 
 Also available: `details.recall` (free-recall before reveal), `.code-block.good` / `.code-block.bad` with `.code-label`, `.split` (side-by-side), `.figure` + `.caption`, `.table-wrap` (all wide content scrolls in its own container — the page body must never scroll horizontally).
+
+Mermaid — always inside a `.figure`, always with a caption that says what to notice:
+
+```html
+<figure class="figure">
+<pre class="mermaid">
+flowchart LR
+  A[caller] --> B{seam}
+  B --> C[production adapter]
+  B --> D[test adapter]
+</pre>
+<figcaption><b>What to notice.</b> …</figcaption>
+</figure>
+```
+
+`lesson.js` initialises Mermaid when `window.mermaid` exists, re-renders on theme toggle (Mermaid bakes colours into the SVG, so a CSS variable swap alone would leave the diagram in the old theme), and otherwise adds `.mermaid-unrendered` so the source stays readable instead of showing an empty frame.
 
 **Sidenotes — the one contract that breaks the layout if you get it wrong.** A `.sidenote` is a **sibling** of the prose blocks, a direct child of `.page`:
 
