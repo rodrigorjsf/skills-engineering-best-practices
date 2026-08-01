@@ -1,0 +1,376 @@
+<title>Fluxo com estado — Engineering Skills</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/mermaid.min.js" defer></script>
+<script src="../assets/lesson.js" defer></script>
+
+<div class="page">
+
+<p class="kicker">Referência 0002 · mapa de execução</p>
+<h1>O fluxo com estado</h1>
+<p class="lede">Se eu estou <em>aqui</em>, o que já existe e o que eu produzo? Esta página responde a essa pergunta sem que você precise reabrir o repositório.</p>
+
+<p class="meta">
+Repositório: <a href="https://github.com/mattpocock/skills">github.com/mattpocock/skills</a> ·
+Snapshot fixado: <code>2ab9580</code> ·
+Cada referência <code>arquivo:linha</code> é um link para o blob nesse commit — a linha é a evidência ·
+Complemento de <a href="0001-glossary.html">Referência 0001 — Glossário</a>, que é vinculante para todo termo aqui
+</p>
+
+<div class="callout evidence">
+  <span class="callout-title">Como usar esta página</span>
+  <p>Duas coisas diferentes estão mapeadas aqui e não devem ser confundidas. O <strong>grafo</strong> mostra <em>controle</em>: quem chama quem, e por qual porta você entra. A <strong>matriz</strong> mostra <em>estado</em>: qual arquivo cada skill escreve e quais skills o leem. Uma skill pode aparecer no grafo sem escrever nada, e um artefato pode sobreviver a todas as sessões que o produziram.</p>
+</div>
+
+<hr>
+
+<h2>1 · A cadeia canônica esconde o aninhamento</h2>
+
+<p>O repositório publica uma única string de cadeia, <strong>idêntica em seis páginas de docs</strong>:</p>
+
+<blockquote class="source">
+  <p>grill-with-docs → to-spec → to-tickets → implement → code-review</p>
+  <cite>
+    <a href="https://github.com/mattpocock/skills/blob/2ab9580/docs/engineering/grill-with-docs.md#L47">docs/engineering/grill-with-docs.md:47</a> ·
+    <a href="https://github.com/mattpocock/skills/blob/2ab9580/docs/engineering/to-spec.md#L56">to-spec.md:56</a> ·
+    <a href="https://github.com/mattpocock/skills/blob/2ab9580/docs/engineering/to-tickets.md#L53">to-tickets.md:53</a> ·
+    <a href="https://github.com/mattpocock/skills/blob/2ab9580/docs/engineering/implement.md#L36">implement.md:36</a> ·
+    <a href="https://github.com/mattpocock/skills/blob/2ab9580/docs/engineering/tdd.md#L44">tdd.md:44</a> ·
+    <a href="https://github.com/mattpocock/skills/blob/2ab9580/docs/engineering/code-review.md#L44">code-review.md:44</a>
+    <span class="flag cited">verbatim</span>
+  </cite>
+</blockquote>
+
+<p><strong>Essa string achata duas chamadas aninhadas.</strong> O roteador do próprio repositório é mais preciso:</p>
+
+<blockquote class="source">
+  <p>Either way, <strong>/implement</strong> builds each issue by driving <strong>/tdd</strong> internally — one red-green slice at a time — then closes out by running <strong>/code-review</strong>, a two-axis review (Standards + Spec) of the diff, before committing.</p>
+  <cite><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L26">ask-matt/SKILL.md:26</a> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p class="sidenote">A página de docs do <code>tdd</code> confirma pelo outro lado, com a frase mais econômica do corpus inteiro sobre o assunto: <em>"so <code>tdd</code> is the engine inside that step rather than a step of its own"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/docs/engineering/tdd.md#L47">docs/engineering/tdd.md:47</a>).</p>
+
+<p>Ou seja: <code>tdd</code> e <code>code-review</code> não são <em>etapas</em> da cadeia — são o <strong>motor dentro</strong> da etapa <code>implement</code>. A topologia real é <strong>um main flow, três on-ramps, um ciclo, uma camada de vocabulário por baixo e uma pré-condição executada uma vez</strong>. Os termos <span class="en">main flow</span> e <span class="en">on-ramp</span> são do próprio repositório: <em>"A <strong>flow</strong> is a path through the skills. Most paths run along one <strong>main flow</strong>, and two <strong>on-ramps</strong> merge onto it."</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L11">ask-matt/SKILL.md:11</a>).</p>
+
+<p class="sidenote"><strong>Anomalia interna.</strong> O texto diz <em>two</em> on-ramps, mas a seção "On-ramps" lista <strong>três</strong>: <code>triage</code>, <code>diagnosing-bugs</code> e <code>wayfinder</code> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L38">:38</a>, <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L42">:42</a>, <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L44">:44</a>). Contamos três.</p>
+
+<hr>
+
+<h2>2 · O grafo, em duas vistas</h2>
+
+<p>Duas figuras, não uma: o main flow tem uma forma linear e as entradas têm forma de estrela, e sobrepor as duas produz um emaranhado ilegível. A primeira responde <em>"o que acontece se eu seguir em frente"</em>; a segunda, <em>"por onde eu entro e por onde eu saio"</em>.</p>
+
+<figure class="figure">
+<pre class="mermaid">
+flowchart TB
+  SETUP["`/setup-matt-pocock-skills
+precondicao, uma vez por repo`"]
+  GWD["/grill-with-docs"]
+  HO1["/handoff"]
+  PROTO["/prototype"]
+  HO2["/handoff"]
+  SPEC["/to-spec"]
+  TIX["/to-tickets"]
+  IMPL["/implement"]
+
+  subgraph ENGINE[" dentro de cada run de /implement "]
+    direction TB
+    TDD["/tdd"]
+    CR["/code-review"]
+  end
+
+  DONE(["commit na branch atual"])
+
+  SETUP -->|"escreve docs/agents/*.md"| GWD
+  GWD -->|"precisa de resposta executavel"| HO1
+  HO1 --> PROTO
+  PROTO --> HO2
+  HO2 -->|"volta referenciada na thread"| GWD
+  GWD -->|"multi-sessao"| SPEC
+  SPEC --> TIX
+  TIX -->|"um run por ticket, contexto limpo"| IMPL
+  GWD -->|"sessao unica, mesmo contexto"| IMPL
+  IMPL -->|"uma vertical slice por vez"| TDD
+  TDD -->|"green"| IMPL
+  IMPL -->|"fecha rodando"| CR
+  CR --> DONE
+
+  classDef stage fill:#f2efe8,stroke:#57534a,stroke-width:1.5px,color:#26241f
+  classDef seam  fill:#1f6f6b,stroke:#0f4d4a,stroke-width:2px,color:#ffffff
+
+  class SETUP,GWD,HO1,PROTO,HO2,SPEC,TIX,IMPL,DONE stage
+  class TDD,CR seam
+
+  linkStyle 9,10,11 stroke:#1f6f6b,stroke-width:2.5px
+  linkStyle 1,2,3,4 stroke:#8a5a12,stroke-width:1.5px
+</pre>
+<figcaption><b>O que notar.</b> As três arestas <strong>teal</strong> são o aninhamento que a string canônica achata: <code>implement</code> chama <code>tdd</code> uma vez por slice e <em>fecha</em> chamando <code>code-review</code> — nenhum dos dois é uma etapa da cadeia, e é por isso que a caixa tracejada existe. O desvio <strong>âmbar</strong> é o único uso de <code>/handoff</code> como ponte <em>bidirecional</em> em todo o corpus: sai e volta. E o ramo "sessão única" pula <code>to-spec</code> e <code>to-tickets</code> inteiros.</figcaption>
+</figure>
+
+<figure class="figure">
+<pre class="mermaid">
+flowchart TB
+  DIAG["/diagnosing-bugs"]
+  TRIAGE["/triage"]
+  WAY["/wayfinder"]
+  ICA["/improve-codebase-architecture"]
+
+  GWD(["/grill-with-docs"])
+  SPEC(["/to-spec"])
+  TIX(["/to-tickets"])
+  IMPL(["/implement"])
+
+  DIAG -->|"post-mortem: nao ha seam correto"| ICA
+  ICA -->|"deepening opportunity vira ideia"| GWD
+  GWD --> SPEC
+  SPEC --> TIX
+  TIX --> IMPL
+  WAY -->|"mapa limpo: colapsa as decisoes"| SPEC
+  TRIAGE -->|"agent-ready issues"| IMPL
+  WAY -. "atalho proibido: joga fora o detalhe linkado" .-x IMPL
+  TIX -. "ja sao agent-ready: nao triar" .-x TRIAGE
+
+  classDef stage fill:#f2efe8,stroke:#57534a,stroke-width:1.5px,color:#26241f
+  classDef seam  fill:#1f6f6b,stroke:#0f4d4a,stroke-width:2px,color:#ffffff
+
+  class GWD,SPEC,TIX,IMPL stage
+  class DIAG,TRIAGE,WAY,ICA seam
+
+  linkStyle 7,8 stroke:#8a5a12,stroke-width:2px
+</pre>
+<figcaption><b>O que notar.</b> Nas duas figuras vale a mesma regra de cor: <strong>pálido é etapa do main flow, sólido é tudo que não é etapa</strong>. Repare em <em>onde</em> cada entrada encosta — <code>triage</code> em <code>implement</code>, <code>wayfinder</code> em <code>to-spec</code>, e <code>diagnosing-bugs</code> em ponto nenhum do main flow: ele só chega lá <em>através</em> de <code>improve-codebase-architecture</code>, dois saltos depois. As duas arestas <strong>âmbar terminadas em ✕</strong> são proibições escritas explicitamente, não caminhos legais. E a única aresta que volta para a <em>cabeça</em> do fluxo é <code>improve-codebase-architecture → grill-with-docs</code>: é o único ciclo do corpus.</figcaption>
+</figure>
+
+<hr>
+
+<h2>3 · Percurso, passo a passo</h2>
+
+<h3 id="passo-0">Passo 0 — a pré-condição</h3>
+<p><code>/setup-matt-pocock-skills</code> roda <strong>uma vez por repo</strong> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L78">ask-matt/SKILL.md:78</a>). Ele escreve três arquivos sob <code>docs/agents/</code> e um bloco <code>## Agent skills</code> em <code>CLAUDE.md</code> <em>ou</em> <code>AGENTS.md</code> — nunca cria o segundo se o primeiro existe (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/SKILL.md#L80">setup/SKILL.md:80</a>).</p>
+<p><strong>Tudo a jusante resolve o issue tracker por esse ponteiro, nunca por um caminho hardcoded.</strong> Essa indireção foi ela mesma a correção de um bug: o <code>wayfinder</code> fixava literalmente <code>docs/agents/issue-tracker.md</code> e <em>"silently fell back to the local-markdown tracker — even one whose <code>CLAUDE.md</code> clearly declares GitHub issues"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/CHANGELOG.md#L63">CHANGELOG.md:63</a>).</p>
+
+<h3 id="passo-1">Passo 1 — grill</h3>
+<p><code>/grill-with-docs</code> é uma skill de <strong>uma linha de corpo</strong>: <em>"Run a <code>/grilling</code> session, using the <code>/domain-modeling</code> skill."</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/grill-with-docs/SKILL.md#L7">grill-with-docs/SKILL.md:7</a>). O que a torna a cabeça do fluxo é o rastro de papel: ela é <em>stateful</em> — <code>CONTEXT.md</code> e ADRs. Sua irmã <code>/grill-me</code> é a mesma primitiva sem artefato nenhum: <em>"Stateless: it saves nothing locally, builds no <code>CONTEXT.md</code>"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L70">ask-matt/SKILL.md:70</a>).</p>
+
+<h3 id="passo-2">Passo 2 — o desvio do prototype</h3>
+<p>Se uma pergunta <em>"needs a runnable answer (state, business logic, a UI you have to see)"</em>, o fluxo desvia por <code>/prototype</code> — <strong>com <code>/handoff</code> nas duas direções</strong> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L18">ask-matt/SKILL.md:18-21</a>). É o único lugar do corpus onde uma skill é usada explicitamente como ponte <em>bidirecional</em>.</p>
+
+<h3 id="passo-3">Passo 3 — o ramo multi-sessão</h3>
+<p>Multi-sessão → <code>/to-spec</code> e depois <code>/to-tickets</code>; sessão única → <code>/implement</code> aqui mesmo (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L22">ask-matt/SKILL.md:22-24</a>). Os tickets são <span class="en">tracer bullet</span> <span class="en">vertical slices</span>, cada um declarando suas <span class="en">blocking edges</span> — os tickets que precisam terminar antes que ele possa começar (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-tickets/SKILL.md#L38">to-tickets/SKILL.md:38</a>). Ver <a href="0001-glossary.html#vertical-slice">glossário — vertical slice</a>.</p>
+
+<div class="callout seam">
+  <span class="callout-title">Higiene de contexto — a regra que amarra os passos 1 a 3</span>
+  <p><em>"Keep steps 1–3 in <strong>one unbroken context window</strong> — don't compact or clear until after <code>/to-tickets</code> […] Each <code>/implement</code> then starts fresh, working from the ticket."</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L30">ask-matt/SKILL.md:30</a>). O limite é a <a href="0001-glossary.html#smart-zone">smart zone</a>: <em>"the window (~120k tokens on state-of-the-art models) within which the model still reasons sharply"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L32">:32</a>).</p>
+  <p><span class="flag unverified">tensão de número</span> Esse <strong>~120k</strong> é o número que <em>esta</em> skill declara. O número que Pocock dá no <em>Dictionary of AI Coding</em>, registrado no glossário, é <em>"around 125K-150K tokens — though this is debated"</em>. São dois números do mesmo autor em dois lugares. <strong>Não os fundimos nem tiramos média</strong> — cite a fonte junto com o número.</p>
+</div>
+
+<h3 id="passo-4">Passo 4 — implement</h3>
+<p><code>/implement</code> tem <strong>nove linhas de corpo</strong>. Ele lê a spec ou os tickets (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/implement/SKILL.md#L7">implement/SKILL.md:7</a>), dirige <code>/tdd</code> em <span class="en">pre-agreed seams</span> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/implement/SKILL.md#L9">:9</a>), roda typecheck e arquivos de teste isolados continuamente e a suíte inteira <em>uma vez ao final</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/implement/SKILL.md#L11">:11</a>), chama <code>/code-review</code> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/implement/SKILL.md#L13">:13</a>) e commita (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/implement/SKILL.md#L15">:15</a>). Ver <a href="0001-glossary.html#pre-agreed-seams">glossário — pre-agreed seams</a>.</p>
+
+<h3 id="on-ramps">As três on-ramps</h3>
+<p><strong>A — <code>/triage</code>.</strong> Move issues por uma máquina de estados de cinco <em>state roles</em> e produz <em>agent-ready issues</em> que <code>/implement</code> pega depois (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L38">ask-matt/SKILL.md:38</a>). A exclusão é explícita e vale a pena decorar: <em>"Triage is only for issues <strong>you didn't create</strong> […] Tickets that <code>/to-tickets</code> produced are already agent-ready, so <strong>don't triage them</strong>."</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L40">:40</a>).</p>
+<p><strong>B — <code>/diagnosing-bugs</code>.</strong> Entrada autônoma para qualquer coisa quebrada. O post-mortem tem uma saída arquitetural: <em>"If the answer involves architectural change (no good test seam, tangled callers, hidden coupling) hand off to the <code>/improve-codebase-architecture</code> skill"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/diagnosing-bugs/SKILL.md#L134">diagnosing-bugs/SKILL.md:134</a>). O gatilho é a ausência de <a href="0001-glossary.html#seam">seam</a> correto: <em>"If no correct seam exists, that itself is the finding."</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/diagnosing-bugs/SKILL.md#L114">:114</a>).</p>
+<p><strong>C — <code>/wayfinder</code>.</strong> Para o esforço grande demais para uma sessão. O ponto de entrega é <strong>deliberadamente <code>to-spec</code>, não <code>implement</code></strong>: <em>"Looping the map straight into <code>/implement</code> skips that collapse and throws the linked detail away"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L46">ask-matt/SKILL.md:46</a>).</p>
+
+<p class="sidenote"><strong>Vocabulário do wayfinder que o glossário ainda não carrega</strong> — definido aqui, sem link porque não há âncora. <strong>Destination</strong>: <em>"what reaching the end of this map looks like"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L34">wayfinder/SKILL.md:34</a>). <strong>Frontier</strong>: <em>"the open, unblocked, unclaimed children — the edge of the known"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L69">:69</a>). <strong>Fog of war</strong>: <em>"the dim view of decisions and investigations you can tell are coming but can't yet pin down"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L84">:84</a>).</p>
+
+<h3 id="ciclo">O ciclo</h3>
+<p><code>/improve-codebase-architecture</code> é a <strong>única</strong> skill que realimenta a cabeça do fluxo: <em>"It surfaces <strong>deepening opportunities</strong>; picking one <em>generates an idea</em> you can take into the main flow at <code>/grill-with-docs</code>. It's the survey that finds the candidates; <strong>/codebase-design</strong> (below) is the bench you design the chosen one on."</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L52">ask-matt/SKILL.md:52</a>). Ver <a href="0001-glossary.html#deepening-opportunity">glossário — deepening opportunity</a>.</p>
+
+<h3 id="vocabulario">A camada de vocabulário</h3>
+<p>Duas referências <em>model-invoked</em> rodam <strong>por baixo</strong> de todas as outras: <em>"each the single source of truth for its vocabulary. Reach for them directly when the <strong>words</strong>, not the process, are the problem"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L56">ask-matt/SKILL.md:56</a>). São <code>/domain-modeling</code> (a linguagem do <em>domínio</em>) e <code>/codebase-design</code> (a linguagem da <em>forma</em> do módulo). Na prática o <code>/grilling</code> é a terceira: é a primitiva de entrevista, e é ela que <code>grill-with-docs</code> significa quando diz "run a grilling session".</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Referência</th><th>Invocada por, nominalmente</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>/grilling</code><br><a href="0001-glossary.html#grilling">glossário</a></td>
+      <td><code>grill-with-docs</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/grill-with-docs/SKILL.md#L7">:7</a> · <code>triage</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/SKILL.md#L76">:76</a> · <code>wayfinder</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L111">:111</a>, <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L124">:124</a> · <code>improve-codebase-architecture</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/improve-codebase-architecture/SKILL.md#L64">:64</a></td>
+    </tr>
+    <tr>
+      <td><code>/domain-modeling</code></td>
+      <td><code>grill-with-docs</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/grill-with-docs/SKILL.md#L7">:7</a> · <code>triage</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/SKILL.md#L76">:76</a> · <code>wayfinder</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L111">:111</a>, <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L124">:124</a> · <code>improve-codebase-architecture</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/improve-codebase-architecture/SKILL.md#L66">:66</a></td>
+    </tr>
+    <tr>
+      <td><code>/codebase-design</code><br><a href="0001-glossary.html#module">glossário §1</a></td>
+      <td><code>improve-codebase-architecture</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/improve-codebase-architecture/SKILL.md#L13">:13</a>, <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/improve-codebase-architecture/SKILL.md#L71">:71</a> · <code>tdd</code> — <strong>afirmado pelo roteador, não pelo <code>SKILL.md</code> do <code>tdd</code></strong>: <em>"<code>/tdd</code> and <code>/improve-codebase-architecture</code> both speak it"</em> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L59">ask-matt:59</a>, <a href="https://github.com/mattpocock/skills/blob/2ab9580/docs/engineering/tdd.md#L47">docs/engineering/tdd.md:47</a></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<p><strong>Os dois hubs são <code>grilling</code> e <code>domain-modeling</code>, com quatro chamadores cada</strong> — e sempre <em>juntos</em>, nunca isolados. Onde uma skill entrevista o humano, ela mantém o glossário na mesma passada.</p>
+
+<div class="callout trap">
+  <span class="callout-title">A distinção que decide se você escreve ou só lê</span>
+  <p>Ler <code>CONTEXT.md</code> <strong>não é</strong> a skill <code>domain-modeling</code>. O repositório separa isso de forma explícita: <em>"Merely <em>reading</em> <code>CONTEXT.md</code> for vocabulary is a one-line prose pointer, not the <code>domain-modeling</code> skill. Only the active build/sharpen discipline (challenge terms, edge-case scenarios, write ADRs, update <code>CONTEXT.md</code> inline) is <code>domain-modeling</code>."</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/.agents/invocation.md#L20">.agents/invocation.md:20</a>).</p>
+  <p><strong>É por isso que a coluna "Escreve" da matriz abaixo tem <code>domain-modeling</code> sozinho em três linhas</strong>, enquanto a coluna "Lê" tem seis skills. Passivo é habito; ativo é skill.</p>
+</div>
+
+<hr>
+
+<h2>4 · Matriz de escrita e leitura de artefatos</h2>
+
+<p>Cada célula aponta para a linha upstream onde a escrita ou a leitura está <em>declarada</em>. Onde uma skill escreve por meio de outra (<code>grill-with-docs</code> escreve <code>CONTEXT.md</code> <em>rodando</em> <code>domain-modeling</code>), o escritor listado é quem tem a instrução de escrita.</p>
+
+<div class="table-wrap wide">
+<table>
+  <thead><tr><th>Artefato</th><th>Escreve</th><th>Lê</th></tr></thead>
+  <tbody>
+    <tr>
+      <td><code>CONTEXT.md</code><br><a href="0001-glossary.html#context-md">glossário</a></td>
+      <td><code>domain-modeling</code> — único escritor ativo<br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/domain-modeling/SKILL.md#L60-L64">SKILL.md:60-64</a></td>
+      <td><code>tdd</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/tdd/SKILL.md#L10">:10</a> · <code>diagnosing-bugs</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/diagnosing-bugs/SKILL.md#L10">:10</a> · <code>to-spec</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-spec/SKILL.md#L13">:13</a> · <code>to-tickets</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-tickets/SKILL.md#L21">:21</a> · <code>triage</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/SKILL.md#L70">:70</a> · <code>improve-codebase-architecture</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/improve-codebase-architecture/SKILL.md#L25">:25</a></td>
+    </tr>
+    <tr>
+      <td><code>CONTEXT-MAP.md</code><br>só em repos multi-contexto</td>
+      <td><code>domain-modeling</code><br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/domain-modeling/CONTEXT-FORMAT.md#L36-L52">CONTEXT-FORMAT.md:36-52</a></td>
+      <td><code>domain-modeling</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/domain-modeling/SKILL.md#L24">:24</a> · <code>setup-matt-pocock-skills</code> (etapa explore) <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/SKILL.md#L25">:25</a> · qualquer skill, via <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/domain.md#L8">domain.md:8</a></td>
+    </tr>
+    <tr>
+      <td><code>docs/adr/NNNN-slug.md</code><br><a href="0001-glossary.html#adr">glossário</a></td>
+      <td><code>domain-modeling</code> — só se os três testes passarem<br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/domain-modeling/SKILL.md#L68-L74">SKILL.md:68-74</a> · formato <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/domain-modeling/ADR-FORMAT.md#L3-L15">ADR-FORMAT.md:3-15</a></td>
+      <td>como <strong>restrição a não re-litigar</strong>: <code>to-spec</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-spec/SKILL.md#L13">:13</a> · <code>to-tickets</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-tickets/SKILL.md#L21">:21</a> · <code>tdd</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/tdd/SKILL.md#L10">:10</a> · <code>diagnosing-bugs</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/diagnosing-bugs/SKILL.md#L10">:10</a> · <code>triage</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/SKILL.md#L70">:70</a> · <code>improve-codebase-architecture</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/improve-codebase-architecture/SKILL.md#L14">:14</a>, <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/improve-codebase-architecture/SKILL.md#L56">:56</a></td>
+    </tr>
+    <tr>
+      <td>bloco <code>## Agent skills</code> em <code>CLAUDE.md</code>/<code>AGENTS.md</code><br>o ponteiro-raiz</td>
+      <td><code>setup-matt-pocock-skills</code> — <strong>só</strong> ele<br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/SKILL.md#L86-L100">SKILL.md:86-100</a></td>
+      <td>toda skill que precisa achar o tracker; é a indireção que substituiu o caminho hardcoded <a href="https://github.com/mattpocock/skills/blob/2ab9580/CHANGELOG.md#L63">CHANGELOG.md:63</a></td>
+    </tr>
+    <tr>
+      <td><code>docs/agents/issue-tracker.md</code></td>
+      <td><code>setup-matt-pocock-skills</code><br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/SKILL.md#L49">:49</a> · templates <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/SKILL.md#L104-L112">:104-112</a></td>
+      <td><code>to-spec</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-spec/SKILL.md#L9">:9</a> · <code>to-tickets</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-tickets/SKILL.md#L11">:11</a> · <code>triage</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/SKILL.md#L43">:43</a> · <code>wayfinder</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L25">:25</a> · <code>code-review</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/code-review/SKILL.md#L13">:13, :29</a></td>
+    </tr>
+    <tr>
+      <td><code>docs/agents/triage-labels.md</code><br>só se <code>triage</code> instalado</td>
+      <td><code>setup-matt-pocock-skills</code><br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/SKILL.md#L51-L57">:51-57</a>, <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/SKILL.md#L102">:102</a> · template <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/triage-labels.md#L5-L11">triage-labels.md:5-11</a></td>
+      <td><code>triage</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/SKILL.md#L43">:43</a> · <code>to-spec</code> (aplica <code>ready-for-agent</code>) <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-spec/SKILL.md#L19">:19</a> · <code>to-tickets</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-tickets/SKILL.md#L63">:63</a></td>
+    </tr>
+    <tr>
+      <td><code>docs/agents/domain.md</code><br>as regras de consumo</td>
+      <td><code>setup-matt-pocock-skills</code><br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/SKILL.md#L110">:110</a> · conteúdo <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/domain.md#L5-L11">domain.md:5-11</a></td>
+      <td>toda skill de engenharia, antes de explorar. Inclui a regra do silêncio: <em>"If any of these files don't exist, <strong>proceed silently</strong>."</em> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/domain.md#L11">domain.md:11</a></td>
+    </tr>
+    <tr>
+      <td>Spec (issue no tracker, ou <code>.scratch/&lt;feature&gt;/spec.md</code>)</td>
+      <td><code>to-spec</code> — publica e aplica <code>ready-for-agent</code><br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-spec/SKILL.md#L19">:19</a> · caminho local <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/issue-tracker-local.md#L8">issue-tracker-local.md:8</a></td>
+      <td><code>to-tickets</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-tickets/SKILL.md#L17">:17</a> · <code>implement</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/implement/SKILL.md#L7">:7</a> · <code>code-review</code>, no eixo Spec <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/code-review/SKILL.md#L27-L32">:27-32</a></td>
+    </tr>
+    <tr>
+      <td>Tickets (issues, ou <code>.scratch/&lt;feature&gt;/issues/NN-slug.md</code>)</td>
+      <td><code>to-tickets</code><br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-tickets/SKILL.md#L62-L63">:62-63</a> · templates <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-tickets/SKILL.md#L69-L103">:69-103</a></td>
+      <td><code>implement</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/implement/SKILL.md#L7">:7</a> · <strong><code>triage</code> nunca</strong> — exclusão explícita <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L40">ask-matt:40</a></td>
+    </tr>
+    <tr>
+      <td>Blocking edges (link nativo do tracker, ou linha <code>Blocked by:</code>)</td>
+      <td><code>to-tickets</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-tickets/SKILL.md#L38">:38</a> · <code>wayfinder</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L69">:69</a></td>
+      <td>quem trabalha a <span class="en">frontier</span>. Receita GitHub <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/issue-tracker-github.md#L42">issue-tracker-github.md:42</a> · receita local <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/issue-tracker-local.md#L27">issue-tracker-local.md:27</a></td>
+    </tr>
+    <tr>
+      <td>Triage role labels (1 categoria + 1 estado por issue)</td>
+      <td><code>triage</code> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/SKILL.md#L78-L86">:78-86</a> · <code>to-spec</code> e <code>to-tickets</code> aplicam <code>ready-for-agent</code> direto</td>
+      <td><code>triage</code> (buckets e transições) <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/SKILL.md#L45">:45</a> · humanos · agentes <a href="0001-glossary.html#hitl-afk">AFK</a></td>
+    </tr>
+    <tr>
+      <td>Agent brief — comentário na issue</td>
+      <td><code>triage</code>, ao mover para <code>ready-for-agent</code><br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/SKILL.md#L79">:79</a></td>
+      <td>o agente AFK / <code>implement</code>. É <em>"the authoritative specification that an AFK agent will work from"</em> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/AGENT-BRIEF.md#L3">AGENT-BRIEF.md:3</a></td>
+    </tr>
+    <tr>
+      <td><code>.out-of-scope/&lt;conceito&gt;.md</code></td>
+      <td><code>triage</code> — <strong>só</strong> enhancement <em>rejeitado</em><br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/SKILL.md#L85">:85</a> · <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/OUT-OF-SCOPE.md#L84-L96">OUT-OF-SCOPE.md:84-96</a></td>
+      <td><code>triage</code> na etapa gather-context — um autoloop <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/SKILL.md#L70">:70</a>, <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/OUT-OF-SCOPE.md#L70-L76">OUT-OF-SCOPE.md:70-76</a></td>
+    </tr>
+    <tr>
+      <td>Issue <code>wayfinder:map</code> + decision tickets filhos</td>
+      <td><code>wayfinder</code>, na fase de charting<br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L111-L116">:111-116</a> · corpo do mapa <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L31-L53">:31-53</a></td>
+      <td>sessões <code>wayfinder</code> seguintes <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L122">:122</a> · sessões concorrentes <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L128">:128</a> · o time humano</td>
+    </tr>
+    <tr>
+      <td>Resolution comment + ponteiro em <em>Decisions so far</em></td>
+      <td><code>wayfinder</code>, ao resolver um ticket<br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L125">:125</a></td>
+      <td>a próxima sessão. O mapa é <em>"an <strong>index</strong>, not a store"</em> — a decisão mora só no ticket <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L23">:23</a></td>
+    </tr>
+    <tr>
+      <td>Arquivo Markdown de research, citado, dentro do repo</td>
+      <td><code>research</code>, via background agent<br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/research/SKILL.md#L10-L12">:10-12</a></td>
+      <td>quem o leva para <code>/grill-with-docs</code>: <em>"research feeds the thinking, it doesn't replace it"</em> <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L72">ask-matt:72</a></td>
+    </tr>
+    <tr>
+      <td>Branch descartável <code>research/&lt;name&gt;</code></td>
+      <td>subagentes de research do <code>wayfinder</code><br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L115">:115</a></td>
+      <td>linkada do ticket por um context pointer; o corpo do ticket nunca cola o ativo <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L71">:71</a></td>
+    </tr>
+    <tr>
+      <td>Branch descartável do prototype + context pointer na issue</td>
+      <td><code>prototype</code>, ao terminar<br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/prototype/SKILL.md#L26">:26</a></td>
+      <td>quem quiser reexecutar a exploração: <em>"the raw exploration stays one click away"</em> <a href="https://github.com/mattpocock/skills/blob/2ab9580/docs/engineering/prototype.md#L38">docs/engineering/prototype.md:38</a></td>
+    </tr>
+    <tr>
+      <td>Handoff doc — <strong>temp do SO, não o workspace</strong></td>
+      <td><code>handoff</code><br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/productivity/handoff/SKILL.md#L8">:8</a></td>
+      <td>a próxima sessão, aberta contra o arquivo <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/ask-matt/SKILL.md#L63">ask-matt:63</a>. Não duplica o que já está em spec/ADR/issue — referencia por path ou URL <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/productivity/handoff/SKILL.md#L12">:12</a></td>
+    </tr>
+    <tr>
+      <td>Relatório HTML de arquitetura — <strong>temp do SO, não o repo</strong></td>
+      <td><code>improve-codebase-architecture</code><br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/improve-codebase-architecture/SKILL.md#L39">:39</a> · scaffold <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/improve-codebase-architecture/HTML-REPORT.md#L3">HTML-REPORT.md:3</a></td>
+      <td>o humano, no navegador — a skill abre o arquivo e informa o caminho absoluto <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/improve-codebase-architecture/SKILL.md#L39">:39</a></td>
+    </tr>
+    <tr>
+      <td>Workspace de ensino (<code>MISSION.md</code>, <code>RESOURCES.md</code>, <code>lessons/</code>, <code>reference/</code>, <code>learning-records/</code>, <code>assets/</code>, <code>NOTES.md</code>)</td>
+      <td><code>teach</code><br><a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/productivity/teach/SKILL.md#L12-L20">:12-20</a></td>
+      <td><code>teach</code>, em sessões seguintes — é o único artefato desta tabela que fica fora do fluxo de engenharia. <strong>É esta página.</strong></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+
+<hr>
+
+<h2>5 · Durabilidade — o que sobrevive a quê</h2>
+
+<p>Ordenado por quanto tempo o artefato dura depois que a sessão que o criou morre.</p>
+
+<ol>
+  <li><strong><code>CONTEXT.md</code> + <code>docs/adr/</code></strong> — permanentes, commitados, o substrato de vocabulário. Criados <em>lazily</em>: <em>"Create files lazily — only when you have something to write."</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/domain-modeling/SKILL.md#L40">domain-modeling/SKILL.md:40</a>).</li>
+  <li><strong><code>docs/agents/*.md</code> + o bloco <code>## Agent skills</code></strong> — configuração permanente, escrita uma vez, lida por tudo.</li>
+  <li><strong>O issue tracker</strong> (specs, tickets, agent briefs, mapas de wayfinder, labels) — o meio compartilhado entre múltiplos agentes e múltiplos humanos. É o único artefato que suporta concorrência: <em>"expect other sessions to be editing the tracker concurrently"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L128">wayfinder/SKILL.md:128</a>).</li>
+  <li><strong><code>.out-of-scope/*.md</code></strong> — memória institucional de <em>rejeições</em>, com uma guarda explícita: nada de já-implementado entra ali, <em>"recording it would poison the dedup checks with false rejections"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/triage/OUT-OF-SCOPE.md#L88">OUT-OF-SCOPE.md:88</a>).</li>
+  <li><strong>Branches descartáveis</strong> (<code>research/&lt;name&gt;</code>, prototype) — evidência retida, fora da main, nunca mergeada.</li>
+  <li><strong>Handoff doc e relatório HTML</strong> — deliberadamente efêmeros, no temp do SO.</li>
+</ol>
+
+<div class="callout seam">
+  <span class="callout-title">Duas skills escolhem o temp do SO de forma independente</span>
+  <p><code>handoff</code>: <em>"Save to the temporary directory of the user's OS - not the current workspace"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/productivity/handoff/SKILL.md#L8">handoff/SKILL.md:8</a>). <code>improve-codebase-architecture</code>: <em>"Write a self-contained HTML file to the OS temp directory so nothing lands in the repo"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/improve-codebase-architecture/SKILL.md#L39">:39</a>).</p>
+  <p><strong>A regra que as duas expressam:</strong> um artefato transitório não vira estado do repositório. Se ele não é lido por outra skill, ele não pertence ao repo.</p>
+</div>
+
+<hr>
+
+<h2>6 · Achados que só aparecem lendo o upstream</h2>
+
+<p><strong>Uma referência morta.</strong> O explicador de issue tracker do setup ainda lista <code>qa</code> como consumidor do tracker — <em>"Skills like <code>to-tickets</code>, <code>triage</code>, <code>to-spec</code>, and <code>qa</code> read from and write to it"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/setup-matt-pocock-skills/SKILL.md#L40">setup/SKILL.md:40</a>) — mas <code>qa</code> vive em <a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/deprecated/qa/SKILL.md"><code>skills/deprecated/qa/</code></a>. É uma inconsistência interna do upstream no snapshot <code>2ab9580</code>, não um erro nosso.</p>
+
+<p><strong>Dependências são invocação em prosa, nunca link entre pastas.</strong> <em>"Dependencies are expressed as <code>/skill</code>-style prose invocation ('Run the <code>/grilling</code> skill'), not deep <code>../other-skill/FILE.md</code> cross-references."</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/.agents/invocation.md#L16">.agents/invocation.md:16</a>). É por isso que o grafo acima não pode ser derivado de imports — ele só existe em prosa, e é exatamente por isso que vale desenhá-lo.</p>
+
+<p><strong>O eixo de invocação é a única taxonomia.</strong> <code>disable-model-invocation: true</code> no frontmatter ⇒ user-invoked; ausente ⇒ model-invoked (<a href="https://github.com/mattpocock/skills/blob/2ab9580/.agents/invocation.md#L5">.agents/invocation.md:5-6</a>). Uma consequência dura: <em>"A user-invoked skill may invoke model-invoked skills, but it can never reach another user-invoked skill."</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/.agents/invocation.md#L8">:8</a>). Isso explica a forma do desvio do passo 2: <code>grill-with-docs</code> e <code>handoff</code> são <strong>ambas</strong> user-invoked, então uma não pode chamar a outra — a ponte só existe porque o <em>humano</em> digita <code>/handoff</code>. <code>prototype</code>, model-invoked, é a única das três que uma skill consegue alcançar sozinha.</p>
+
+<p class="sidenote">Confira você mesmo: <code>prototype</code> foi <strong>promovida</strong> a model-invoked — <em>"Make the <code>prototype</code> skill model-invoked, so the agent can reach for it autonomously (and other skills can too)"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/CHANGELOG.md#L21">CHANGELOG.md:21</a>). No snapshot atual ela não tem <code>disable-model-invocation</code>, mas <code>handoff</code> e <code>grill-with-docs</code> têm.</p>
+
+<p><strong>O <span class="en">frontier</span> aparece duas vezes com sentidos vizinhos.</strong> Em <code>to-tickets</code> é <em>"any ticket whose blockers are all done"</em> (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/to-tickets/SKILL.md#L65">to-tickets:65</a>). Em <code>wayfinder</code> ganha uma terceira condição — <em>unclaimed</em> — porque ali há concorrência real (<a href="https://github.com/mattpocock/skills/blob/2ab9580/skills/engineering/wayfinder/SKILL.md#L69">wayfinder:69</a>). Mesma palavra, um grau a mais de rigor onde vários agentes disputam.</p>
+
+<hr>
+
+<div class="ask-teacher">
+  <p><strong>Uma célula desta matriz parece errada?</strong> Toda linha aponta para o blob upstream fixado em <code>2ab9580</code> — abra o link e confira. Se a linha não disser o que a célula afirma, isso é um defeito desta página; me aponte e eu corrijo. E se você quiser esta mesma matriz para o seu próprio conjunto de skills, é só pedir.</p>
+</div>
+
+<div class="nav">
+  <a href="../index.html">↑ Índice do curso</a>
+  <a href="0001-glossary.html">← Referência 0001 — Glossário</a>
+  <a href="../lessons/0006-dependency-inversion.html">Lição 0006 — Dependency inversion →</a>
+</div>
+
+</div>

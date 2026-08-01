@@ -1,0 +1,561 @@
+<title>Padrões Java — Engineering Skills</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/mermaid.min.js" defer></script>
+<script src="../assets/lesson.js" defer></script>
+
+<div class="page">
+
+<p class="kicker">Referência 0003 · catálogo</p>
+<h1>Padrões Java do curso</h1>
+<p class="lede">Os oito movimentos em Java que as lições 0001–0006 realmente ensinaram, reunidos num lugar só. Cada um traz o código, o número que a JVM mediu e a lição de origem. Nada aqui é novo: se um padrão não aparece numa lição e num programa que roda, ele não entra.</p>
+
+<p class="meta">
+Domínio: <code>Account</code> · <code>Transfer</code> · <code>Balance</code> · <code>Ledger</code> ·
+Java 25, modo single-file — <code>cd code/000N-slug &amp;&amp; java Arquivo.java</code>, sem passo de compilação ·
+Vocabulário vinculante: <a href="0001-glossary.html">referência 0001 — glossário</a>
+</p>
+
+<div class="callout evidence">
+  <span class="callout-title">Como ler este catálogo</span>
+  <p>Cada entrada tem sempre a mesma forma: <strong>o movimento</strong> em uma frase, <strong>o código</strong> antes e depois, <strong>o que foi medido</strong> — saída capturada do programa da lição, não texto escrito para parecer saída — e <strong>onde ler mais</strong>.</p>
+  <p>Todo bloco monoespaçado marcado como saída foi produzido rodando o programa nesta sessão. Onde uma linha foi omitida, é porque ela varia entre execuções, e isso está dito.</p>
+</div>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>#</th><th>Padrão</th><th>A alavanca</th><th>Lição</th></tr></thead>
+  <tbody>
+    <tr><td>1</td><td><a href="#seam-construtor">Seam no parâmetro de construtor</a></td><td>a lista de argumentos</td><td>0001</td></tr>
+    <tr><td>2</td><td><a href="#private-alavanca">Sequência para dentro, com <code>private</code></a></td><td>a palavra <code>private</code></td><td>0002</td></tr>
+    <tr><td>3</td><td><a href="#ordem-no-tipo">Ordem obrigatória vira tipo</a></td><td>o tipo de retorno</td><td>0003</td></tr>
+    <tr><td>4</td><td><a href="#port-dois-adapters">Port com dois adapters</a></td><td>a interface no seam</td><td>0004</td></tr>
+    <tr><td>5</td><td><a href="#seam-interno">Seam interno por fábrica não-pública</a></td><td>o modificador ausente</td><td>0004</td></tr>
+    <tr><td>6</td><td><a href="#pass-through">Detecção de pass-through</a></td><td>o corpo do método</td><td>0005</td></tr>
+    <tr><td>7</td><td><a href="#detector-indirecao">Detector de seam de um adapter</a></td><td><code>isAssignableFrom</code></td><td>0004 · 0006</td></tr>
+    <tr><td>8</td><td><a href="#port-invertido">Port declarado pela política</a></td><td>onde a interface mora</td><td>0006</td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout seam">
+  <span class="callout-title">A ordem em que perguntar — rode de cima para baixo numa classe sua</span>
+  <p>A tabela lista os padrões; esta lista carrega o que ela não carrega. Cada pergunta é de sim ou não, e um <em>sim</em> te entrega o padrão e encerra a triagem.</p>
+  <ol>
+    <li>A dependência nasce dentro do método? → <a href="#seam-construtor">1</a></li>
+    <li>Só o teste troca essa dependência? → <a href="#seam-interno">5</a></li>
+    <li>O caller repete uma sequência em ordem fixa? → <a href="#private-alavanca">2</a></li>
+    <li>A ordem é obrigatória e invisível no tipo? → <a href="#ordem-no-tipo">3</a></li>
+    <li>O teste precisa de outro backend inteiro? → <a href="#port-dois-adapters">4</a></li>
+    <li>Algum método público só repassa? → <a href="#pass-through">6</a></li>
+    <li>Alguma interface tem um implementador só? → <a href="#detector-indirecao">7</a></li>
+    <li>Um tipo do fornecedor aparece na sua abstração? → <a href="#port-invertido">8</a></li>
+  </ol>
+  <p>As duas primeiras decidem <strong>onde</strong> a dependência entra; a terceira e a quarta, <strong>quanto</strong> o caller carrega; as quatro últimas são auditoria de código que já existe. Nenhuma se responde olhando para a classe — todas se respondem olhando para quem a chama.</p>
+</div>
+
+<hr>
+
+<h2 id="seam-construtor">1 · Seam no parâmetro de construtor</h2>
+
+<p><strong>O movimento.</strong> A dependência deixa de ser <em>construída</em> dentro do método e passa a ser <em>recebida</em>. O <span class="en">seam</span> não é o <code>Clock</code> — é o lugar onde a interface <code>Clock</code> fica, e o <a href="0001-glossary.html#enabling-point">enabling point</a> é a lista de argumentos.</p>
+
+<div class="code-block bad">
+  <div class="code-label"><span>SeamDemo.java</span><span class="verdict">sem seam</span></div>
+<pre><code><span class="k">static final class</span> <span class="t">NightGuardNoSeam</span> {
+
+    <span class="k">boolean</span> allows(<span class="t">BigDecimal</span> amount) {
+        <span class="t">LocalTime</span> now = <span class="t">LocalTime</span>.now(ZONE);   <span class="c">// &lt;-- hard-wired. No seam.</span>
+        <span class="k">return</span> !(isNight(now) &amp;&amp; amount.compareTo(LIMIT) &gt; <span class="s">0</span>);
+    }
+}</code></pre>
+</div>
+
+<div class="code-block good">
+  <div class="code-label"><span>SeamDemo.java</span><span class="verdict">com seam</span></div>
+<pre><code><span class="k">static final class</span> <span class="t">NightGuard</span> {
+
+    <span class="k">private final</span> <span class="t">Clock</span> clock;
+
+    <span class="hl"><span class="t">NightGuard</span>(<span class="t">Clock</span> clock) {
+        <span class="k">this</span>.clock = clock;
+    }</span>
+
+    <span class="k">boolean</span> allows(<span class="t">BigDecimal</span> amount) {
+        <span class="t">LocalTime</span> now = <span class="t">LocalTime</span>.now(clock);  <span class="c">// &lt;-- observed through the seam.</span>
+        <span class="k">return</span> !(isNight(now) &amp;&amp; amount.compareTo(LIMIT) &gt; <span class="s">0</span>);
+    }
+}</code></pre>
+</div>
+
+<p>Os dois <a href="0001-glossary.html#adapter">adapters</a> que atravessam esse seam já vêm no JDK. O de teste é uma linha:</p>
+
+<pre><code><span class="k">static</span> <span class="t">Clock</span> at(<span class="t">String</span> isoLocalDateTime) {
+    <span class="k">return</span> <span class="t">Clock</span>.fixed(
+            <span class="t">Instant</span>.parse(isoLocalDateTime),
+            ZONE);
+}</code></pre>
+
+<p class="sidenote"><code>java.time.Clock</code> foi acrescentado ao JDK exatamente para isto. Prefira sempre o seam que a plataforma já colocou lá antes de esculpir o seu — é evidência mais forte que uma interface inventada.</p>
+
+<p><strong>Medido.</strong> As três primeiras linhas da seção A variam com o relógio de parede e por isso foram omitidas; o contador de branches é literal e não varia:</p>
+
+<pre><code>A. NightGuardNoSeam — dependency created inside
+   BRANCHES COVERED .............. 1 of 2
+   the other branch is unreachable until the wall clock moves.
+
+B. NightGuard — dependency accepted at a seam
+   allows(25000) at 23:30 local .. false   (expected false)
+   allows(25000) at 10:00 local .. true    (expected true)
+   BRANCHES COVERED .............. 2 of 2
+
+Rule verified end to end: YES
+Rule source lines changed to get there: 0
+What changed: where the dependency comes from, not what the rule says.</code></pre>
+
+<p><strong>O que não mudou:</strong> a regra. Mesmo limite, mesma janela, mesma comparação — <code>0</code> linhas alteradas. A cobertura foi de um branch para dois. <a href="../lessons/0001-seam.html">Lição 0001 →</a></p>
+
+<hr>
+
+<h2 id="private-alavanca">2 · A sequência vai para dentro, e <code>private</code> é a alavanca</h2>
+
+<p><strong>O movimento.</strong> As cinco instruções que o caller escrevia viram o corpo de <code>post(Transfer)</code>, sem uma vírgula alterada, e os cinco métodos que elas chamavam ganham <code>private</code>. <a href="0001-glossary.html#depth">Depth</a> é propriedade da <a href="0001-glossary.html#interface">interface</a>, não da implementação: aqui a implementação é literalmente a mesma dos dois lados.</p>
+
+<div class="code-block bad">
+  <div class="code-label"><span>o caller do ShallowLedger</span><span class="verdict">6 métodos · 1 ordem · 1 invariante</span></div>
+<pre><code><span class="t">ShallowLedger</span> ledger = <span class="k">new</span> <span class="t">ShallowLedger</span>(clock);
+
+ledger.open();
+ledger.debit(t.from(), t.amount().add(t.fee()));
+ledger.credit(t.to(), t.amount());
+ledger.credit(FEES, t.fee());
+<span class="k">if</span> (!ledger.balanced()) <span class="k">throw</span> <span class="k">new</span> <span class="t">IllegalStateException</span>(<span class="s">"unbalanced"</span>);
+ledger.commit();</code></pre>
+</div>
+
+<div class="code-block good">
+  <div class="code-label"><span>o caller do DeepLedger</span><span class="verdict">1 método</span></div>
+<pre><code><span class="t">DeepLedger</span> ledger = <span class="k">new</span> <span class="t">DeepLedger</span>(clock);
+
+<span class="hl">ledger.post(t);</span></code></pre>
+</div>
+
+<p>E o <a href="0001-glossary.html#module">module</a>, com o diff inteiro visível: cinco <code>private</code>, mais <code>post</code>.</p>
+
+<pre><code><span class="k">public void</span> post(<span class="t">Transfer</span> t) {
+<span class="hl">    open();
+    debit(t.from(), t.amount().add(t.fee()));
+    credit(t.to(), t.amount());
+    credit(FEES, t.fee());
+    <span class="k">if</span> (!balanced()) <span class="k">throw</span> <span class="k">new</span> <span class="t">IllegalStateException</span>(...);
+    commit();</span>
+}
+
+<span class="k">private void</span>    open()     { ... }   <span class="c">// corpos byte-a-byte idênticos</span>
+<span class="k">private void</span>    debit(…)   { ... }   <span class="c">// aos do ShallowLedger</span>
+<span class="k">private void</span>    credit(…)  { ... }
+<span class="k">private boolean</span> balanced() { ... }
+<span class="k">private void</span>    commit()   { ... }</code></pre>
+
+<p><strong>Medido.</strong> A contagem de métodos públicos sai de <code>getDeclaredMethods()</code>, não de leitura:</p>
+
+<pre><code>A. ShallowLedger — sequence and invariant are the caller's job
+   public methods to learn ............. 6
+   calls to post one transfer .......... 5, in a required order
+   ordering rules absent from types .... 1
+   invariants the caller maintains ..... 1
+
+   wrong sequences that compile ........ 3 of 4
+
+B. DeepLedger — the same five statements, moved inside
+   public methods to learn ............. 2  (post, total)
+   calls to post one transfer .......... 1
+   ordering rules absent from types .... 0
+   invariants the caller maintains ..... 0  (enforced inside)
+   wrong sequences that compile ........ 0 of 4  (five are private)</code></pre>
+
+<div class="callout trap">
+  <span class="callout-title">A armadilha que anda junto — inchar não aprofunda</span>
+  <p>O mesmo programa carrega um <code>PaddedLedger</code>: <strong>mesma interface pública, mesmo comportamento</strong>, corpo escrito da forma mais longa possível. A métrica folclórica <em>linhas-de-implementação ÷ métodos-públicos</em> o promove sem que nada tenha sido ganho.</p>
+<pre><code>C. What "impl-lines / interface-lines" would score
+   ShallowLedger .......................  5 impl / 6 public =  0.8
+   DeepLedger .......................... 13 impl / 2 public =  6.5
+   PaddedLedger ........................ 32 impl / 2 public = 16.0
+   metric ranks Deep above Shallow ..... true   (it gets this right)
+   PaddedLedger scored ................. 2.5x deeper than Deep
+   same public interface as Deep ....... true
+   same behaviour (totals equal) ....... true
+   behaviour gained by the padding ..... none</code></pre>
+  <p>Repare na quarta linha: a métrica <em>acerta</em> o caso principal, e é por isso que ela circula. O defeito não é errar — é ser de graça.</p>
+</div>
+
+<p><a href="../lessons/0002-deep-module.html">Lição 0002 →</a></p>
+
+<hr>
+
+<h2 id="ordem-no-tipo">3 · A ordem obrigatória vira um tipo</h2>
+
+<p><strong>O movimento.</strong> Uma <span class="en">ordering constraint</span> que vivia em prosa — <em>chame <code>reconcile()</code> antes de <code>total()</code></em> — passa a ser expressa pelo tipo de retorno: <code>total()</code> não existe no tipo aberto, e o único produtor do tipo fechado é <code>reconcile()</code>.</p>
+
+<div class="code-block bad">
+  <div class="code-label"><span>InterfaceDemo.java</span><span class="verdict">a ordem mora em prosa</span></div>
+<pre><code><span class="k">public interface</span> <span class="t">Ledger</span> {
+    <span class="k">void</span> post(<span class="t">Transfer</span> t);
+    <span class="k">void</span> reconcile();
+    <span class="t">BigDecimal</span> total();
+}</code></pre>
+</div>
+
+<div class="code-block good">
+  <div class="code-label"><span>InterfaceDemo.java</span><span class="verdict">a ordem mora no tipo</span></div>
+<pre><code><span class="k">public static final class</span> <span class="t">OpenBooks</span> {
+
+    <span class="k">public</span> <span class="t">OpenBooks</span> post(<span class="t">Transfer</span> t) {
+        ...
+        <span class="k">return this</span>;
+    }
+
+    <span class="hl"><span class="k">public</span> <span class="t">SettledBooks</span> reconcile() {</span>
+        ...
+        <span class="k">return new</span> <span class="t">SettledBooks</span>(<span class="t">List</span>.copyOf(book));
+    }
+}
+
+<span class="k">public static final class</span> <span class="t">SettledBooks</span> {
+    <span class="k">private final</span> <span class="t">List</span>&lt;<span class="t">Entry</span>&gt; book;
+    <span class="t">SettledBooks</span>(<span class="t">List</span>&lt;<span class="t">Entry</span>&gt; book) { <span class="k">this</span>.book = book; }
+    <span class="k">public</span> <span class="t">BigDecimal</span> total() { <span class="k">return</span> sum(book); }
+}</code></pre>
+</div>
+
+<p><strong>Medido, antes.</strong> Duas classes com assinaturas idênticas, um caller só, resultados diferentes — e nenhuma exceção:</p>
+
+<pre><code>   naive caller  post, post, total()
+   against EagerLedger ...............      0.00   OK
+   against StrictLedger ..............     -5.00   MONEY DESTROYED</code></pre>
+
+<p><strong>Medido, depois.</strong> E o veredito não é afirmado: o programa chama o <code>javac</code> de verdade, em tempo de execução, contra um caller que pede <code>total()</code> cedo demais.</p>
+
+<pre><code>B. The one change — ordering moved into the type
+   post, post, reconcile, total() ....      0.00   OK
+   total() declared on OpenBooks ..... false
+   post() declared on SettledBooks ... false
+   only producer of SettledBooks ..... OpenBooks.reconcile()
+
+C. Does the wrong order compile? Ask javac.
+   caller asks total() too early ..... REJECTED
+
+   WrongOrder.java:6: error: cannot find symbol
+           return books.total();
+                       ^
+     symbol:   method total()
+     location: variable books of type OpenBooks
+   1 error</code></pre>
+
+<p class="sidenote">O placar honesto: mover a ordem para o tipo leva o compilador de <strong>2 de 6</strong> para <strong>3 de 6</strong> categorias de interface — <code>score after section B ... 3 of 6</code>. Modos de erro, invariantes e performance continuam em prosa. Uma lição que dissesse "seis" estaria vendendo o próprio truque melhor do que ele é.</p>
+
+<p><a href="../lessons/0003-interface.html">Lição 0003 →</a></p>
+
+<hr>
+
+<h2 id="port-dois-adapters">4 · Um port, dois adapters — o real e o in-memory</h2>
+
+<p><strong>O movimento.</strong> Um <span class="en">port</span> de dois métodos, satisfeito por dois <span class="en">adapters</span> que não têm nada em comum por dentro. O mesmo teste roda contra os dois sem uma linha de diferença. <a href="0001-glossary.html#adapter">Adapter</a> nomeia o <em>papel</em>, não a substância.</p>
+
+<pre><code><span class="k">public interface</span> <span class="t">AccountRepository</span> {
+    <span class="t">Optional</span>&lt;<span class="t">Balance</span>&gt; find(<span class="t">String</span> account);
+    <span class="k">void</span> save(<span class="t">Balance</span> balance);
+}</code></pre>
+
+<div class="code-block">
+  <div class="code-label"><span>FileAccountRepository</span><span class="verdict">disco</span></div>
+<pre><code><span class="a">@Override</span> <span class="k">public</span> <span class="t">Optional</span>&lt;<span class="t">Balance</span>&gt; find(<span class="t">String</span> account) {
+    <span class="t">Path</span> f = dir.resolve(account + <span class="s">".txt"</span>);
+    <span class="k">if</span> (!<span class="t">Files</span>.exists(f)) <span class="k">return</span> <span class="t">Optional</span>.empty();
+    <span class="k">try</span> {
+        <span class="k">return</span> <span class="t">Optional</span>.of(<span class="k">new</span> <span class="t">Balance</span>(account,
+                <span class="k">new</span> <span class="t">BigDecimal</span>(<span class="t">Files</span>.readString(f).trim())));
+    } <span class="k">catch</span> (<span class="t">IOException</span> e) {
+        <span class="k">throw new</span> <span class="t">UncheckedIOException</span>(e);
+    }
+}</code></pre>
+</div>
+
+<div class="code-block">
+  <div class="code-label"><span>InMemoryAccountRepository</span><span class="verdict">mapa</span></div>
+<pre><code><span class="a">@Override</span> <span class="k">public</span> <span class="t">Optional</span>&lt;<span class="t">Balance</span>&gt; find(<span class="t">String</span> account) {
+    <span class="k">return</span> <span class="t">Optional</span>.ofNullable(store.get(account));
+}
+
+<span class="a">@Override</span> <span class="k">public void</span> save(<span class="t">Balance</span> balance) {
+    store.put(balance.account(), balance);
+}</code></pre>
+</div>
+
+<p><strong>Medido.</strong> As contagens de linha saem do próprio arquivo-fonte, lido em runtime entre marcadores:</p>
+
+<pre><code>A. One port, two adapters, nothing alike inside
+   methods on AccountRepository ...... 2
+   FileAccountRepository lines ....... 17
+   InMemoryAccountRepository lines ... 6
+   substance behind the file one ..... java.nio, the disk
+   substance behind the memory one ... a HashMap
+
+   same test, file adapter ...........      0.00   balanced
+   same test, memory adapter .........      0.00   balanced
+   results identical ................. true
+   test lines changed between them ... 0
+
+   ACC-1 via a NEW file adapter ......    297.50
+   ACC-1 via a NEW memory adapter ....      0.00
+   where the substance actually is ... outside / inside</code></pre>
+
+<p>As três últimas linhas são a demonstração inteira. Um <strong>novo</strong> adapter de arquivo, criado do zero sobre o mesmo diretório, encontra R$&nbsp;297,50 esperando. Um <strong>novo</strong> adapter in-memory encontra zero: quando o objeto morreu, o dinheiro morreu junto.</p>
+
+<div class="callout trap">
+  <span class="callout-title">O contra-dado — não meça "adapter pequeno" com régua</span>
+  <p>O glossário registra a distinção do repositório: <em>small adapter with a large implementation</em> (o repo Postgres) contra <em>large adapter with a small implementation</em> (o fake in-memory). As linhas medidas dizem o contrário — <strong>17 contra 6</strong>. Não é contradição: "grande" e "pequeno" ali são proporções entre o shim e o que está atrás dele, não contagens. Aplicada com régua, a frase dá errado.</p>
+</div>
+
+<p><a href="../lessons/0004-adapter.html">Lição 0004 →</a></p>
+
+<hr>
+
+<h2 id="seam-interno">5 · Seam interno por fábrica não-pública</h2>
+
+<p><strong>O movimento.</strong> A dependência é aceita — mas não pelo construtor público. Uma fábrica <em>package-private</em> dá ao teste o mesmo poder de substituição sem que nenhum caller precise aprender que a dependência existe. É a distinção <a href="0001-glossary.html#internal-external-seam">internal seam × external seam</a> escrita em modificadores de acesso.</p>
+
+<p class="sidenote">O critério não é <em>se</em> algo varia — é <strong>quem</strong> varia. <code>Clock</code> tem um caller de produção que o escolhe: um job de replay. <code>FeePolicy</code> não tem nenhum. Os dois passam na regra dos dois adapters; só um pertence à porta da frente.</p>
+
+<div class="code-block good">
+  <div class="code-label"><span>AdapterDemo.java</span><span class="verdict">a porta pública e o seam interno</span></div>
+<pre><code><span class="c">/** The public way in. Two things a caller must learn: repo, clock. */</span>
+<span class="k">public</span> <span class="t">TransferService</span>(<span class="t">AccountRepository</span> repo, <span class="t">Clock</span> clock) {
+    <span class="k">this</span>(repo, clock, STANDARD);
+}
+
+<span class="c">/** The internal seam. Not public — tests use it, callers can't see it. */</span>
+<span class="hl"><span class="k">static</span> <span class="t">TransferService</span> withPolicy(<span class="t">AccountRepository</span> repo,
+                                    <span class="t">Clock</span> clock,
+                                    <span class="t">FeePolicy</span> fees) {</span>
+    <span class="k">return new</span> <span class="t">TransferService</span>(repo, clock, fees);
+}
+
+<span class="k">private</span> <span class="t">TransferService</span>(<span class="t">AccountRepository</span> repo, <span class="t">Clock</span> clock, <span class="t">FeePolicy</span> fees) {
+    <span class="k">this</span>.repo = repo; <span class="k">this</span>.clock = clock; <span class="k">this</span>.fees = fees;
+}</code></pre>
+</div>
+
+<p><strong>Medido.</strong> Quem confirma que a interface pública não cresceu é a JVM, por reflexão sobre os construtores declarados:</p>
+
+<pre><code>B. Two dependencies. Only one belongs in the constructor.
+   public constructors ............... 1
+   things a caller must supply ....... 2  (repo, clock)
+   FeePolicy in the public surface ... false
+   withPolicy is public .............. false
+
+   fee under the standard policy .....      2.50
+   fee the test substituted ..........      0.00
+   callers who had to learn it ....... 0</code></pre>
+
+<p>E o preço do desenho alternativo, com a <code>FeePolicy</code> içada para o construtor público, contado em vez de descrito:</p>
+
+<pre><code>D. The two designs, interfaces counted
+   design A — caller must supply ..... 2
+   design B — caller must supply ..... 3
+   difference ........................ 1  (FeePolicy)
+   same fee out of both designs ...... true
+   verdict ........................... more interface, same behaviour</code></pre>
+
+<p>Parâmetro de construtor <strong>é</strong> interface — <span class="en">required configuration</span>, a categoria 4 do padrão 3. Mais interface e mesmo comportamento é a definição de <span class="en">shallow</span>, cobrada em parâmetro. <a href="../lessons/0004-adapter.html">Lição 0004 →</a></p>
+
+<hr>
+
+<h2 id="pass-through">6 · Detecção de pass-through</h2>
+
+<p><strong>O movimento.</strong> Um método <span class="en">pass-through</span> é aquele cujo corpo não faz nada além de repassar para um método de mesmo nome. Em vez de julgar no olho, o programa lê o próprio arquivo-fonte, isola cada método público casando chaves, achata o corpo e testa a forma. O <a href="0001-glossary.html#deletion-test">deletion test</a> deixa de ser imaginado e passa a ser executado: dois conjuntos de callers reais, um com o module e outro sem.</p>
+
+<div class="code-block bad">
+  <div class="code-label"><span>TransferFacade</span><span class="verdict">três métodos, três repasses</span></div>
+<pre><code><span class="k">public void</span> post(<span class="t">Transfer</span> t)  { ledger.post(t); }
+
+<span class="k">public</span> <span class="t">BigDecimal</span> total()   { <span class="k">return</span> ledger.total(); }
+
+<span class="k">public</span> <span class="t">Instant</span> now()       { <span class="k">return</span> ledger.now(); }</code></pre>
+</div>
+
+<pre><code><span class="k">static final</span> <span class="t">Pattern</span> DECL =
+        <span class="t">Pattern</span>.compile(<span class="s">"public\\s+[\\w.&lt;&gt;\\[\\]]+\\s+(\\w+)\\s*\\("</span>);
+
+<span class="c">// ...corpo achatado, chaves casadas, e então:</span>
+<span class="k">if</span> (flat.matches(<span class="s">"(return )?\\w+\\."</span> + name + <span class="s">"\\([^)]*\\);"</span>)) forwarding++;</code></pre>
+
+<p><strong>Medido.</strong> Três aplicações do mesmo teste, e a terceira é a que importa:</p>
+
+<pre><code>A. TransferFacade — delete it and see what comes back
+   public methods ................... 3
+   pure pass-throughs ............... 3 of 3
+   caller lines with the module ..... 3
+   caller lines without it .......... 2
+   lines that reappeared ............ -1
+   behaviour identical .............. true
+   verdict .......................... delete it
+
+B. Ledger.post — delete it and see what comes back
+   statements inside post ........... 5
+   call sites in this program ....... 3
+   caller lines with the module ..... 4
+   caller lines without it .......... 19
+   lines that reappeared ............ +15
+   behaviour identical .............. true
+   verdict .......................... earning its keep</code></pre>
+
+<p>O <strong>−1</strong> do caso A não é arredondamento: apagar a fachada saiu com lucro, porque a linha <code>new TransferFacade(ledger)</code> some junto. Já o <strong>+15</strong> do caso B importa menos pelo número do que pelos <strong>três lugares</strong> em que essas linhas foram parar — <a href="0001-glossary.html#locality">locality</a> destruída em tempo real.</p>
+
+<div class="callout trap">
+  <span class="callout-title">O contra-dado — a técnica é binária e o defeito é proporcional</span>
+<pre><code>C. AuditFacade — where the test answers badly
+   public methods ................... 4
+   pure pass-throughs ............... 3 of 4
+   lines that reappeared ............ +3
+   naive verdict .................... something reappeared: keep
+   what actually reappeared ......... only receipt()
+   share of interface that earned ... 1 of 4
+   verdict .......................... neither keep nor delete</code></pre>
+  <p>Ao pé da letra o teste <em>aprova</em> a <code>AuditFacade</code> — alguma complexidade reapareceu. E a resposta está errada: três dos quatro métodos não ganharam nada. Basta uma parte trabalhar para o teste devolver "keep". <strong>Aplique por método, não por classe</strong>, e quando a resposta sai misturada o movimento certo não é apagar nem manter: é redistribuir ou fundir.</p>
+</div>
+
+<p><a href="../lessons/0005-deletion-test.html">Lição 0005 →</a></p>
+
+<hr>
+
+<h2 id="detector-indirecao">7 · O detector de seam de um adapter só</h2>
+
+<p><strong>O movimento.</strong> Sete linhas de reflexão que contam, para cada interface declarada, quantas classes a implementam. Um implementador é indireção; dois é um seam. É a regra de justificação transformada em contador que você pode apontar para um pacote Java de verdade.</p>
+
+<pre><code><span class="k">static</span> <span class="t">List</span>&lt;<span class="t">Class</span>&lt;?&gt;&gt; adaptersOf(<span class="t">Class</span>&lt;?&gt; port) {
+    <span class="k">return</span> <span class="t">Arrays</span>.stream(nested())
+            .filter(port::isAssignableFrom)
+            .filter(c -&gt; !c.equals(port))
+            .filter(c -&gt; !c.isInterface())
+            .collect(<span class="t">Collectors</span>.toList());
+}</code></pre>
+
+<p><strong>Medido.</strong> O mesmo detector, nos dois programas em que ele aparece:</p>
+
+<pre><code>C. Adapters per port, counted from the class file
+   AccountRepository adapters ........ 2
+   NotificationPort adapters ......... 1
+   NotificationPort methods .......... 1
+   seam justified per SKILL.md:65 .... false</code></pre>
+
+<pre><code>C. The single-adapter detector.
+   FeeCalculator adapters ................ 1   just indirection
+   LeakyPaymentPort adapters ............. 1   just indirection
+   PaymentPort adapters .................. 2   real seam</code></pre>
+
+<div class="callout trap">
+  <span class="callout-title">O contra-dado — a contagem sozinha não é freio</span>
+  <p>A regra dos <a href="0001-glossary.html#two-adapters">dois adapters</a> traz o parêntese <em>"(typically production + test)"</em>, que homologa um test double como o segundo adapter. Logo, qualquer dependência para a qual você aceite escrever um fake passa — que são quase todas. O que segura de verdade é a <a href="0001-glossary.html#dependency-categories">taxonomia de categorias de dependência</a>, e os dois portões discordam:</p>
+<pre><code>D. Two gates. They do not agree.
+   feeCalculator [in-process] ............ rule yes  gate no
+   ledgerStore [local-substitutable] ..... rule yes  gate no
+   notifier [remote-but-owned] ........... rule yes  gate yes
+   paymentGateway [true-external] ........ rule yes  gate yes
+   dependencies given .................... 4   given
+   pass the two-adapter rule ............. 4   derived
+   pass rule AND category gate ........... 2   derived
+   ports the rule alone invents .......... 2   derived</code></pre>
+  <p>Quatro passam na contagem, duas passam na taxonomia. As outras duas são o <em>shadow codebase</em> que Dan North descreve em <a href="0001-glossary.html#option-inversion">option inversion</a>. A categoria de cada dependência é <code>given</code> — classificação de projeto, não algo que a reflexão descubra; os vereditos e as somas são derivados.</p>
+</div>
+
+<p><a href="../lessons/0004-adapter.html">Lição 0004 →</a> · <a href="../lessons/0006-dependency-inversion.html">Lição 0006 →</a></p>
+
+<hr>
+
+<h2 id="port-invertido">8 · O port é declarado pela política</h2>
+
+<p><strong>O movimento.</strong> A interface passa a morar ao lado de <em>quem chama</em>, com nome de quem chama, e o fornecedor a implementa. Aceitar a dependência é <a href="0001-glossary.html#dependency-injection">injeção</a>; decidir que a abstração pertence à política é <a href="0001-glossary.html#dip">inversão</a>. Os dois serviços abaixo aceitam; só um inverte.</p>
+
+<div class="code-block bad">
+  <div class="code-label"><span>InversionDemo.java</span><span class="verdict">injeção sem inversão</span></div>
+<pre><code><span class="k">public static final class</span> <span class="t">NaiveTransferService</span> {
+    <span class="k">private final</span> <span class="t">StripeGateway</span> gateway;
+    <span class="k">public</span> <span class="t">NaiveTransferService</span>(<span class="t">StripeGateway</span> gateway) {
+        <span class="k">this</span>.gateway = gateway;
+    }
+    <span class="k">public</span> <span class="t">Receipt</span> transfer(<span class="t">Money</span> amount) { <span class="k">return</span> gateway.charge(amount); }
+}</code></pre>
+</div>
+
+<div class="code-block good">
+  <div class="code-label"><span>InversionDemo.java</span><span class="verdict">injeção com inversão</span></div>
+<pre><code><span class="k">public interface</span> <span class="t">PaymentPort</span> {          <span class="c">// declarado aqui, ao lado da política</span>
+    <span class="t">Receipt</span> charge(<span class="t">Money</span> amount);
+}
+
+<span class="k">public static final class</span> <span class="t">TransferService</span> {
+    <span class="k">private final</span> <span class="hl"><span class="t">PaymentPort</span></span> gateway;
+    <span class="k">public</span> <span class="t">TransferService</span>(<span class="hl"><span class="t">PaymentPort</span></span> gateway) { <span class="k">this</span>.gateway = gateway; }
+    <span class="k">public</span> <span class="t">Receipt</span> transfer(<span class="t">Money</span> amount) { <span class="k">return</span> gateway.charge(amount); }
+}</code></pre>
+</div>
+
+<p>E a falha que "só use uma interface" não pega — a abstração que nomeia um <span class="en">detail</span> do fornecedor na própria assinatura:</p>
+
+<div class="code-block bad">
+  <div class="code-label"><span>InversionDemo.java</span><span class="verdict">a parte B falha</span></div>
+<pre><code><span class="k">public interface</span> <span class="t">LeakyPaymentPort</span> {
+    <span class="hl"><span class="t">Stripe</span>.<span class="t">Response</span></span> charge(<span class="t">Money</span> amount);
+}</code></pre>
+</div>
+
+<p><strong>Medido.</strong> O teste da parte B é derivado, não afirmado: um <em>detail</em> é definido estruturalmente como um tipo cuja classe envolvente é o namespace do fornecedor, e a reflexão varre as assinaturas de cada port atrás deles.</p>
+
+<pre><code>A. Both accept the dependency. Only one inverts it.
+   naive result .......................... 100.00
+   inverted result ....................... 100.00
+   same behaviour ........................ true
+
+   NaiveTransferService takes ............ StripeGateway
+     ...and that is an abstraction ....... false
+   TransferService takes ................. PaymentPort
+     ...and that is an abstraction ....... true
+   swap the vendor without editing ....... TransferService
+
+B. Part B: abstractions must not name details.
+   PaymentPort leaks ..................... nothing
+   LeakyPaymentPort leaks ................ Stripe.Response</code></pre>
+
+<p>Mesmo comportamento, mesmo resultado, mesma testabilidade — e um dos dois precisa ser editado quando a Stripe vira Adyen. O <code>LeakyPaymentPort</code> tem interface, tem injeção e tem um adapter, e ainda assim é inútil: qualquer segundo fornecedor teria que devolver um <code>Stripe.Response</code>. <a href="../lessons/0006-dependency-inversion.html">Lição 0006 →</a></p>
+
+<hr>
+
+<h2 id="verificacao">Como estes programas provam o que afirmam</h2>
+
+<p>Três técnicas se repetem nos seis arquivos, e valem por si — elas são o motivo de nenhum número deste catálogo ser digitado à mão.</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th>Técnica</th><th>Como</th><th>Onde</th></tr></thead>
+  <tbody>
+    <tr><td>Chamar o compilador em runtime</td><td><code>ToolProvider.findFirst("javac")</code> sobre um caller escrito num diretório temporário; o diagnóstico impresso é o do <code>javac</code></td><td>0003</td></tr>
+    <tr><td>Perguntar à JVM</td><td><code>getDeclaredMethods</code>, <code>getDeclaredConstructors</code>, <code>getDeclaredClasses</code>, <code>isAssignableFrom</code></td><td>0002 · 0003 · 0004 · 0006</td></tr>
+    <tr><td>Ler o próprio fonte</td><td>contagem de linhas não-vazias entre marcadores <code>&lt;marker&gt;</code> no arquivo, lido em runtime</td><td>0004 · 0005</td></tr>
+  </tbody>
+</table>
+</div>
+
+<p>O que <em>não</em> é derivado vem rotulado <code>given</code> na própria saída — a categoria de uma dependência, a existência de um test double, o fato de que uma assinatura de tipo sempre existe. Um número sem rótulo é um número medido.</p>
+
+<div class="ask-teacher">
+  <p><strong>Faltando um padrão?</strong> Se você lembra de um movimento em Java que uma lição ensinou e que não está aqui, isso é defeito deste catálogo — me aponte e eu acrescento com o código e a saída medida. E se algum número desta página não bater com o que sai na sua máquina, isso é ainda mais importante: me diga qual.</p>
+</div>
+
+<div class="nav">
+  <a href="../index.html">↑ Índice do curso</a>
+  <a href="0001-glossary.html">Glossário</a>
+  <a href="../lessons/0001-seam.html">Lição 0001 — Seam</a>
+  <a href="../lessons/0006-dependency-inversion.html">Lição 0006 — Dependency inversion</a>
+</div>
+
+</div>
