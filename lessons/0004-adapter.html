@@ -90,7 +90,7 @@ Glossário: <a href="../reference/0001-glossary.html#adapter">adapter</a>, <a hr
   <span class="callout-title">Duas frases do mesmo repositório, puxando para lados opostos</span>
   <p><strong>Uma:</strong> <em>"Accept dependencies, don't create them."</em> <span class="caption" style="border:0;padding:0;display:inline">— codebase-design/SKILL.md:71</span> Foi a lição 0001 inteira.</p>
   <p><strong>Outra:</strong> <em>"Don't expose internal seams through the interface just because tests use them."</em> <span class="caption" style="border:0;padding:0;display:inline">— DEEPENING.md:30</span></p>
-  <p>Se você aceita <em>toda</em> dependência pelo construtor, cada uma delas vira <span class="en">required configuration</span> — categoria 4 da <a href="0003-interface.html">lição 0003</a> — e a interface engorda. Se você não aceita nenhuma, volta ao <code>new SwiftGateway()</code> da 0001 e perde o seam.</p>
+  <p>Se você aceita <em>toda</em> dependência pelo construtor, cada uma delas vira <span class="en">required configuration</span> — categoria 4 da <a href="0003-interface.html">lição 0003</a> — e a interface engorda. Se você não aceita nenhuma, volta ao <code>LocalTime.now(ZONE)</code> dentro do <code>NightGuardNoSeam</code> da 0001 e perde o seam.</p>
   <p><strong>A resolução, que é nossa e não do repositório</strong> <span class="flag ours">nossa síntese</span><strong>:</strong> aceite a dependência, mas decida <em>por onde</em> ela entra. Um seam interno é uma dependência aceita que não sobe até a interface pública.</p>
 </div>
 
@@ -250,11 +250,11 @@ D. The two designs, interfaces counted
   <cite>Alistair Cockburn, <em>The Hexagonal (Ports &amp; Adapters) Architecture</em>, HaT Technical Report 2005.02, 2005-09-04, v 0.9 <span class="flag cited">verbatim, página conferida</span></cite>
 </blockquote>
 
-<p>Repare no objeto: <em>the application</em>. Para Cockburn, um <span class="en">port</span> fica na fronteira externa da aplicação. Ele diz explicitamente quantos espera encontrar: <em>"the presence of a defined number of different ports - two, three, or four (four is most I have encountered to date)"</em>. <span class="flag cited">verbatim</span></p>
+<p>Repare no objeto: <em>the application</em>. Para Cockburn, um <span class="en">port</span> fica na fronteira externa da aplicação. Ele diz explicitamente quantos já encontrou: <em>"the presence of a defined number of different ports - two, three, or four (four is most I have encountered to date)"</em>. <span class="flag cited">verbatim</span></p>
 
 <div class="callout trap">
   <span class="callout-title">O hexágono não tem porta por dentro</span>
-  <p>Um <strong>seam interno</strong> — um seam dentro da implementação, usado pelos testes do próprio module e invisível para os callers — <strong>não tem lugar no modelo do Cockburn</strong>. Não é que ele proíba; é que o padrão dele não fala dessa escala. Ele fala de fronteira de aplicação, e o repositório fala de qualquer module, <em>"a function, class, package, or tier-spanning slice"</em>.</p>
+  <p>Um <strong>seam interno</strong> — um seam dentro da implementação, usado pelos testes do próprio module e invisível para os callers — <strong>não tem lugar no modelo do Cockburn</strong>. Não é que ele proíba; é que o padrão dele não fala dessa escala. Ele fala de fronteira de aplicação, e o repositório fala de qualquer module, <em>"a function, class, package, or tier-spanning slice"</em> <span class="caption" style="border:0;padding:0;display:inline">— codebase-design/SKILL.md:14</span>.</p>
   <p>Então a parte B da seção 3 não é ports-and-adapters. É outra coisa, que usa o mesmo vocabulário. Chamar as duas de "arquitetura hexagonal" seria o mesmo tipo de erro que a <a href="0002-deep-module.html">lição 0002</a> documentou.</p>
 </div>
 
@@ -295,14 +295,14 @@ D. The two designs, interfaces counted
   <cite>mesma fonte <span class="flag cited">verbatim</span></cite>
 </blockquote>
 
-<p>Isso é literalmente <em>"the interface is the test surface"</em> aplicado a um agente: o pai só enxerga o que atravessa a interface. Se o relatório não mencionou, para o pai não aconteceu.</p>
+<p>Isso é literalmente <em>"the interface is the test surface"</em> <span class="caption" style="border:0;padding:0;display:inline">— codebase-design/SKILL.md:64</span> aplicado a um agente: o pai só enxerga o que atravessa a interface. Se o relatório não mencionou, para o pai não aconteceu.</p>
 
 <div class="callout evidence">
   <span class="callout-title">E a regra dos dois adapters, medida em tokens</span>
   <p>A Anthropic mediu os dois lados do trade. O ganho: <em>"multi-agent system with Claude Opus 4 as the lead agent and Claude Sonnet 4 subagents <strong>outperformed single-agent Claude Opus 4 by 90.2%</strong>"</em> na avaliação interna de pesquisa deles.</p>
   <p>O preço: <em>"agents typically use about 4× more tokens than chat interactions"</em> e <em>"multi-agent systems use about <strong>15× more tokens</strong> than chats."</em></p>
   <p>E o modo de falha, nas palavras deles, das versões iniciais do sistema: agentes <em>"spawning 50 subagents for simple queries"</em>. <span class="caption" style="border:0;padding:0;display:inline">— Anthropic Engineering, <a href="https://www.anthropic.com/engineering/multi-agent-research-system">"How we built our multi-agent research system"</a>, 13 jun 2025 <span class="flag cited">verbatim</span></span></p>
-  <p><strong>Cinquenta seams hipotéticos, a 15× o preço.</strong> "One adapter means a hypothetical seam" é uma regra de arquitetura de código de 2025 que descreve exatamente esse bug — e ali ela tem fatura.</p>
+  <p><strong>Cinquenta seams hipotéticos, a 15× o preço.</strong> "One adapter means a hypothetical seam" (<code>codebase-design/SKILL.md:65</code>) é uma regra escrita no repositório de skills que descreve exatamente esse bug — e ali ela tem fatura.</p>
 </div>
 
 <div class="callout ai">
@@ -378,7 +378,7 @@ D. The two designs, interfaces counted
 <div class="callout seam">
   <span class="callout-title">Adendo — por que os dois passaram na regra</span>
   <p>Esta lição achou empiricamente algo que só tem explicação na <a href="0006-dependency-inversion.html">lição 0006</a>: <code>Clock</code> e <code>FeePolicy</code> passaram <strong>as duas</strong> na regra dos dois adapters, e só uma pertencia ao construtor público.</p>
-  <p>A causa está no parêntese da própria regra — <em>"(typically production + test)"</em>, <code>DEEPENING.md:29</code>. Ele <strong>homologa um test double como o segundo adapter</strong>, então qualquer dependência para a qual você aceite escrever um fake passa. A regra não é o freio; a <a href="../reference/0001-glossary.html#dependency-categories">taxonomia de categorias de dependência</a> é.</p>
+  <p>A causa está no parêntese da própria regra — <em>"(typically production + test)"</em>, <code>DEEPENING.md:29</code>. Ele <strong>homologa um test double como o segundo adapter</strong>, então qualquer dependência para a qual você aceite escrever um fake passa. A regra não é o freio; a <a href="../reference/0001-glossary.html#dependency-categories">taxonomia de categorias de dependência</a> é <span class="flag ours">nossa síntese</span> — a <a href="0006-dependency-inversion.html">lição 0006</a> a monta e a marca como tal.</p>
   <p>E a distinção que faltava ao vocabulário aqui: aceitar a dependência é <a href="../reference/0001-glossary.html#dependency-injection">injeção</a>; decidir que a interface pertence a quem chama é <a href="../reference/0001-glossary.html#dip">inversão</a>. Esta lição fez a primeira o tempo todo e a segunda só no <code>AccountRepository</code>.</p>
 </div>
 
@@ -390,7 +390,7 @@ D. The two designs, interfaces counted
   <h4>Fontes desta lição</h4>
   <ol>
     <li><strong>Leia esta.</strong> Alistair Cockburn, <em>The Hexagonal (Ports &amp; Adapters) Architecture</em> — HaT Technical Report 2005.02, datado <strong>2005-09-04</strong>, v 0.9, em <a href="https://alistair.cockburn.us/hexagonal-architecture/">alistair.cockburn.us/hexagonal-architecture</a>. <span class="flag cited">página baixada e conferida</span> É curto, é o original, e o autor está vivo e ainda escrevendo sobre ele.</li>
-    <li>Matt Pocock, <a href="https://github.com/mattpocock/skills">mattpocock/skills</a> — <code>codebase-design/SKILL.md:18,24,62,65,71</code>; <code>codebase-design/DEEPENING.md:29,30</code>. E <a href="https://github.com/mattpocock/dictionary-of-ai-coding">dictionary-of-ai-coding</a>, <code>dictionary/Subagent.md</code>. <span class="flag cited">verbatim</span></li>
+    <li>Matt Pocock, <a href="https://github.com/mattpocock/skills">mattpocock/skills</a> — <code>codebase-design/SKILL.md:14,18,24,62,64,65,71</code>; <code>codebase-design/DEEPENING.md:29,30</code>. E <a href="https://github.com/mattpocock/dictionary-of-ai-coding">dictionary-of-ai-coding</a>, <code>dictionary/Subagent.md</code>. <span class="flag cited">verbatim</span></li>
     <li>Jeremy Hadfield, Barry Zhang, Kenneth Lien, Florian Scholz, Jeremy Fox, Daniel Ford, <a href="https://www.anthropic.com/engineering/multi-agent-research-system">"How we built our multi-agent research system"</a>, Anthropic Engineering, 13 jun 2025 — os 90,2%, os 15× e os cinquenta sub-agents. <span class="flag cited">verbatim</span></li>
     <li>O dossiê, com a comparação completa entre ports-and-adapters e os seams do repositório: <code>docs/research/02-se-literature.md</code>. Os números de sub-agents e os modos de falha: <code>docs/research/03-agent-engineering.md</code> §9.</li>
   </ol>
