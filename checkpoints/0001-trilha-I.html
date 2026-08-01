@@ -32,17 +32,17 @@
 
 <div class="callout child">
   <span class="callout-title">A1 — seam, e o que ele <em>não</em> decide</span>
-  <p>Em duas ou três frases: <strong>o que é um seam</strong>, e por que o fato de um seam ser real <strong>não decide onde ele mora</strong>. Use <code>Clock</code> e <code>FeePolicy</code> se ajudar.</p>
+  <p>Em duas ou três frases: <strong>o que é um <a href="../reference/0001-glossary.html#seam">seam</a></strong>, e por que o fato de um seam ser real <strong>não decide onde ele mora</strong> (<a href="../reference/0001-glossary.html#internal-external-seam">seam interno vs externo</a>). Use <code>Clock</code> e <code>FeePolicy</code> se ajudar.</p>
 </div>
 
 <div class="callout child">
   <span class="callout-title">A2 — o procedimento, não a definição</span>
-  <p>Você abre uma classe Java de 400 linhas num código que não é seu. Descreva o <strong>procedimento</strong> que você seguiria para decidir se ela é <span class="en">deep</span> ou <span class="en">shallow</span> — os passos, na ordem. Depois diga qual medida você <strong>recusaria</strong> usar, e por quê.</p>
+  <p>Você abre uma classe Java de 400 linhas num código que não é seu. Descreva o <strong>procedimento</strong> que você seguiria para decidir se ela é <a href="../reference/0001-glossary.html#depth"><span class="en">deep</span> ou <span class="en">shallow</span></a> — os passos, na ordem. Depois diga qual medida você <strong>recusaria</strong> usar, e por quê.</p>
 </div>
 
 <div class="callout child">
   <span class="callout-title">A3 — explique para quem nunca ouviu falar</span>
-  <p>Sem jargão e sem citar ninguém: <strong>qual a diferença entre injetar e inverter uma dependência?</strong> Depois dê um exemplo concreto de código em que a injeção acontece e a inversão <strong>não</strong>.</p>
+  <p>Sem jargão e sem citar ninguém: <strong>qual a diferença entre <a href="../reference/0001-glossary.html#dependency-injection">injetar</a> e <a href="../reference/0001-glossary.html#dip">inverter</a> uma dependência?</strong> Depois dê um exemplo concreto de código em que a injeção acontece e a inversão <strong>não</strong>.</p>
 </div>
 
 <div class="callout child">
@@ -96,7 +96,7 @@ inversão`"]
     <li><button class="quiz-opt">Reduz, porque a razão entre linhas de implementação e de interface caiu</button></li>
   </ul>
   <div class="quiz-feedback">
-    <p>As duas lições se encaixam exatamente aqui. A 0003 diz que <strong>ordering constraint é interface</strong>, escrito ou não; a 0002 diz que depth é <strong>comportamento por unidade de interface aprendida</strong>. A regra de ordem engorda o denominador e deixa o numerador parado — logo, raso. E note a opção 3: a razão entre linhas é justamente a métrica que a 0002 <em>rejeitou</em>, e que não é do Ousterhout (<code>ratio</code>, zero ocorrências em 188 páginas).</p>
+    <p>As duas lições se encaixam exatamente aqui. A 0003 diz que <strong>ordering constraint é interface</strong>, escrito ou não; a 0002 diz que depth é <strong>comportamento por unidade de interface aprendida</strong>. A regra de ordem engorda o denominador e deixa o numerador parado — logo, raso. E note a opção 4: a razão entre linhas é justamente a métrica que a 0002 <em>rejeitou</em>, e que não é do Ousterhout (<code>ratio</code>, zero ocorrências em 188 páginas).</p>
   </div>
 </div>
 
@@ -158,7 +158,7 @@ inversão`"]
 
 <div class="quiz" data-answer="0" data-qid="Q6" data-cross="0005x0006">
   <div class="quiz-head">Q6 · 0005 × 0006</div>
-  <p class="quiz-q">A 0005 concluiu que o <span class="en">deletion test</span> <strong>errou</strong> no caso C: <code>+3</code> linhas, veredito "mantenha", e mesmo assim 3 dos 4 métodos eram repasse. A 0006 concluiu que a regra dos dois adapters quase não freia nada. Qual defeito os dois instrumentos têm em comum?</p>
+  <p class="quiz-q">A 0005 concluiu que o <a href="../reference/0001-glossary.html#deletion-test"><span class="en">deletion test</span></a> <strong>errou</strong> no caso C: <code>+3</code> linhas, veredito "mantenha", e mesmo assim 3 dos 4 métodos eram repasse. A 0006 concluiu que a <a href="../reference/0001-glossary.html#two-adapters">regra dos dois adapters</a> quase não freia nada. Qual defeito os dois instrumentos têm em comum?</p>
   <ul class="quiz-options">
     <li><button class="quiz-opt">Os dois dão um veredito binário sobre um defeito que é proporcional</button></li>
     <li><button class="quiz-opt">Os dois foram escritos para TypeScript e não sobrevivem à tipagem nominal</button></li>
@@ -190,6 +190,7 @@ inversão`"]
 <div class="nav">
   <a href="../lessons/0005-deletion-test.html">← 0005 — O deletion test</a>
   <a href="../lessons/0006-dependency-inversion.html">0006 — Dependency inversion</a>
+  <a href="../reference/0001-glossary.html">Glossário</a>
   <a href="../index.html">Índice do curso ↑</a>
 </div>
 

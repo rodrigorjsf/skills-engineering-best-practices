@@ -16,7 +16,8 @@ known before a lesson is composed, not after. This file is the detail.
 measures it: no six beats, no opening spaced-retrieval question, no primary-source
 recommendation, no Java section. Everything else here binds — quiz word-count
 uniformity, the sidenote contract, no hard-coded `px`, `.wide` as explicit opt-in,
-`.ask-teacher` and `.nav`. Two rules are specific to them:
+`.ask-teacher`, `.nav`, and **the glossary**: a checkpoint links its terms by
+anchor exactly as a lesson does. Two rules are specific to them:
 
 - **Free recall comes before multiple choice.** Reading the options replaces
   production with recognition, and only production measures storage strength.
