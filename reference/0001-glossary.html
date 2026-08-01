@@ -480,7 +480,7 @@ Citações no formato <code>arquivo:linha</code> apontam para o repo upstream
 <h3 id="dip">Dependency Inversion Principle (DIP) <span class="flag cited">Robert C. Martin</span> <span class="flag unverified">ausente do repositório</span></h3>
 <blockquote class="source">
   <p><strong>A.</strong> High level modules should not depend upon low level modules. Both should depend upon abstractions. <strong>B.</strong> Abstractions should not depend upon details. Details should depend upon abstractions.</p>
-  <cite>Martin, <em>The Dependency Inversion Principle</em>, <em>The C++ Report</em>, p. 6 — <a href="https://web.archive.org/web/2015/http://www.objectmentor.com/resources/articles/dip.pdf">PDF arquivado</a> <span class="flag cited">verbatim</span></cite>
+  <cite>Martin, <em>The Dependency Inversion Principle</em>, <em>The C++ Report</em>, p. 6 — <a href="https://web.archive.org/web/20151204043748/http://www.objectmentor.com/resources/articles/dip.pdf">PDF arquivado</a> <span class="flag cited">verbatim</span></cite>
 </blockquote>
 <p><strong>A parte B é a que carrega o princípio</strong>, e é a que as recontagens populares perdem. "High level não depende de low level" descreve um diagrama; "abstractions should not depend upon details" decide <em>quem declara a interface</em>. No exemplo <code>Button</code>/<code>Lamp</code> do próprio artigo, é o <code>Button</code> — a política de alto nível — que declara <code>ButtonClient</code>, e a <code>Lamp</code> que o implementa. <strong>A interface pertence a quem chama.</strong></p>
 <p class="sidenote">Datação: o artigo se identifica como "the third of my Engineering Notebook columns for The C++ Report" e diz "My last article (Mar, 96) talked about the Liskov Substitution Principle". Logo: posterior a março de 1996 <span class="flag cited">verbatim</span>. A data "maio de 1996" que circula <strong>não aparece em nenhum artefato</strong> e fica <span class="flag unverified">unverified</span>.</p>
@@ -507,7 +507,7 @@ Citações no formato <code>arquivo:linha</code> apontam para o repo upstream
 <h3 id="option-inversion">Option inversion <span class="flag cited">Dan North</span></h3>
 <blockquote class="source">
   <p>Most dependencies don't need inverting, because most dependencies aren't options, they are just the way we are going to do it this time.</p>
-  <cite>North, <a href="https://dannorth.net/blog/cupid-the-back-story/">CUPID — the back story</a> <span class="flag cited">verbatim</span></cite>
+  <cite>North, <a href="https://dannorth.net/blog/cupid-the-back-story/">CUPID: the back story</a>, 16 mar 2021 <span class="flag cited">verbatim</span></cite>
 </blockquote>
 <p>E o diagnóstico da patologia <code>1 interface : 1 adapter</code>, por uma fonte nomeada em vez de folclore:</p>
 <blockquote class="source">

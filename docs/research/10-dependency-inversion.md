@@ -32,7 +32,7 @@ visibly unverified.
 
 **Artifact fetched.** `dip.pdf`, 12 PDF pages, retrieved from the Internet Archive's capture of
 Object Mentor's article library:
-<https://web.archive.org/web/2015/http://www.objectmentor.com/resources/articles/dip.pdf>
+<https://web.archive.org/web/20151204043748/http://www.objectmentor.com/resources/articles/dip.pdf>
 (original URL `http://www.objectmentor.com/resources/articles/dip.pdf`).
 
 **Title, verbatim from page 1 of the PDF: "The Dependency Inversion Principle".** **Quoted.**
@@ -842,28 +842,28 @@ Ten verbatim lines, each with a URL, ordered by usefulness.
    > "A. High level modules should not depend upon low level modules. Both should depend upon
    > abstractions. B. Abstractions should not depend upon details. Details should depend upon
    > abstractions."
-   <https://web.archive.org/web/2015/http://www.objectmentor.com/resources/articles/dip.pdf>
+   <https://web.archive.org/web/20151204043748/http://www.objectmentor.com/resources/articles/dip.pdf>
 
 2. **Why "inversion"** — same, p. 6:
    > "…the dependency structure of a well designed object oriented program is 'inverted' with respect
    > to the dependency structure that normally results from traditional procedural methods."
-   <https://web.archive.org/web/2015/http://www.objectmentor.com/resources/articles/dip.pdf>
+   <https://web.archive.org/web/20151204043748/http://www.objectmentor.com/resources/articles/dip.pdf>
 
 3. **The three diseases** — same, p. 2:
    > "It is hard to change because every change affects too many other parts of the system.
    > (Rigidity) … When you make a change, unexpected parts of the system break. (Fragility) … It is
    > hard to reuse in another application because it cannot be disentangled from the current
    > application. (Immobility)"
-   <https://web.archive.org/web/2015/http://www.objectmentor.com/resources/articles/dip.pdf>
+   <https://web.archive.org/web/20151204043748/http://www.objectmentor.com/resources/articles/dip.pdf>
 
 4. **The unconditional scope — the line North attacks** — same, p. 8:
    > "Dependency Inversion can be applied wherever one class sends a message to another."
-   <https://web.archive.org/web/2015/http://www.objectmentor.com/resources/articles/dip.pdf>
+   <https://web.archive.org/web/20151204043748/http://www.objectmentor.com/resources/articles/dip.pdf>
 
 5. **The abstraction is what does not vary** — same, p. 10:
    > "What is the high level policy? It is the abstractions that underlie the application, the truths
    > that do not vary when the details are changed."
-   <https://web.archive.org/web/2015/http://www.objectmentor.com/resources/articles/dip.pdf>
+   <https://web.archive.org/web/20151204043748/http://www.objectmentor.com/resources/articles/dip.pdf>
 
 6. **Fowler names DI, and why** — <https://martinfowler.com/articles/injection.html>:
    > "Inversion of Control is too generic a term, and thus people find it confusing. As a result with

@@ -47,8 +47,10 @@
 <blockquote class="source">
   <p><strong>A.</strong> High level modules should not depend upon low level modules. Both should depend upon abstractions.</p>
   <p><strong>B.</strong> Abstractions should not depend upon details. Details should depend upon abstractions.</p>
-  <cite>Robert C. Martin, <em>The Dependency Inversion Principle</em>, <em>The C++ Report</em>, p. 6 — <a href="https://web.archive.org/web/2015/http://www.objectmentor.com/resources/articles/dip.pdf">PDF arquivado</a> <span class="flag cited">verbatim</span></cite>
+  <cite>Robert C. Martin, <em>The Dependency Inversion Principle</em>, <em>The C++ Report</em>, p. 6 — <a href="https://web.archive.org/web/20151204043748/http://www.objectmentor.com/resources/articles/dip.pdf">PDF arquivado</a> <span class="flag cited">verbatim</span></cite>
 </blockquote>
+
+<p class="sidenote">Nota de fidelidade: no original o enunciado está em <strong>versalete</strong> — <span style="font-variant:small-caps">high level modules should not depend upon low level modules</span>. As palavras acima são exatamente as dele; só a caixa foi normalizada. Conferido na captura de 2015-12-04 do Wayback, 12 páginas, p. 6.</p>
 
 <p>A parte A descreve um diagrama: nenhuma seta sai da política para o detalhe. A parte B decide <strong>quem escreve a interface</strong>. No exemplo <code>Button</code>/<code>Lamp</code> do próprio artigo, é o <code>Button</code> — a política — que declara <code>ButtonClient</code>, e a <code>Lamp</code> que o implementa. A interface mora do lado de quem chama, com nome de quem chama.</p>
 
@@ -78,7 +80,7 @@ detalhe de fornecedor`"] -.-> A2
   class D2 stage
   class A2 seam
 </pre>
-<figcaption><b>O que reparar.</b> A seta do <code>StripeGateway</code> <strong>mudou de sentido</strong>. Não foi adicionada uma camada — a dependência foi virada. É daí que vem a palavra "inversion", e é isso que uma interface a mais, sozinha, não faz.</figcaption>
+<figcaption><b>O que reparar.</b> A caixa nova não é o ponto — uma interface a mais, sozinha, não inverteria nada. O ponto é que o <code>StripeGateway</code> <strong>deixou de ser alvo e virou origem</strong>: à esquerda a política aponta para o fornecedor, à direita as duas apontam para o contrato que a política declarou. É daí que vem a palavra "inversion".</figcaption>
 </figure>
 
 
@@ -227,7 +229,7 @@ function processPayment(order, paymentClient) {
    pass rule AND category gate ........... 2   derived
    ports the rule alone invents .......... 2   derived</code></pre>
 
-<p><strong>Quatro passam na contagem. Duas passam na taxonomia. As outras duas são o seu "shadow codebase".</strong> A categoria é <code>given</code> — é uma classificação de projeto, não algo que a reflexão possa descobrir. Os vereditos são derivados dela.</p>
+<p><strong>Quatro passam na contagem. Duas passam na taxonomia. As outras duas são o seu "shadow codebase".</strong> Duas coisas aqui são <code>given</code>, e as duas estão na mesma lista de quatro linhas do fonte: a <strong>categoria</strong> de cada dependência, que é uma classificação de projeto e não algo que a reflexão descubra, e o fato de que <strong>todas as quatro têm um test double</strong> — que é a premissa da seção, não uma medição. Os vereditos e as três somas são derivados dessas duas entradas.</p>
 
 <div class="callout seam">
   <span class="callout-title">A composição é nossa <span class="flag ours">nossa analogia</span></span>
@@ -250,7 +252,7 @@ function processPayment(order, paymentClient) {
 
 <blockquote class="source">
   <p>In the wild, there are entire shadow codebases where each class is backed by exactly one interface, which only exists to satisfy a wiring framework or to inject a mock or stub for automated testing theatre.</p>
-  <cite>Dan North, <a href="https://dannorth.net/blog/cupid-the-back-story/">CUPID — the back story</a> <span class="flag cited">verbatim</span></cite>
+  <cite>Dan North, <a href="https://dannorth.net/blog/cupid-the-back-story/">CUPID: the back story</a>, 16 mar 2021 <span class="flag cited">verbatim</span></cite>
 </blockquote>
 
 <p>E a cura, que North enuncia como princípio:</p>
@@ -275,7 +277,7 @@ function processPayment(order, paymentClient) {
 
 <div class="callout evidence">
   <span class="callout-title">Leia esta, se for ler uma só</span>
-  <p><strong>Robert C. Martin, <em>The Dependency Inversion Principle</em></strong> — <a href="https://web.archive.org/web/2015/http://www.objectmentor.com/resources/articles/dip.pdf">objectmentor.com/resources/articles/dip.pdf</a>, via Wayback Machine. Doze páginas, os dois exemplos (<code>Copy</code>/<code>Reader</code>/<code>Writer</code> e <code>Button</code>/<code>Lamp</code>), e a definição em primeira mão. Ler o original custa vinte minutos e imuniza contra a metade das recontagens.</p>
+  <p><strong>Robert C. Martin, <em>The Dependency Inversion Principle</em></strong> — <a href="https://web.archive.org/web/20151204043748/http://www.objectmentor.com/resources/articles/dip.pdf">objectmentor.com/resources/articles/dip.pdf</a>, via Wayback Machine. Doze páginas, os dois exemplos (<code>Copy</code>/<code>Reader</code>/<code>Writer</code> e <code>Button</code>/<code>Lamp</code>), e a definição em primeira mão. Ler o original custa vinte minutos e imuniza contra a metade das recontagens.</p>
   <p>Depois: <a href="https://dannorth.net/blog/cupid-the-back-story/">CUPID — the back story</a>, do North, que é o melhor argumento publicado <em>contra</em> aplicar isso indiscriminadamente. <span class="flag unverified">nota</span> a objeção dele a DIP está em <em>the back story</em>, não em "CUPID — for joyful coding", que não menciona DIP.</p>
 </div>
 

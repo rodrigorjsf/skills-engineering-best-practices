@@ -109,4 +109,4 @@ scaling up is not a silent decision.
   title located, body text not fetched. Not paraphrased from memory.
 - **The reader still has not answered a single quiz.** Lesson 0006's opening
   retrieval question was calibrated blind, like the three before it. See
-  [[0002-four-attribution-corrections-and-what-they-changed]].
+  [record 0002](0002-four-attribution-corrections-and-what-they-changed.md).
