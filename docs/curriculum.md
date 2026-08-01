@@ -41,7 +41,7 @@ The working technique from `improve-codebase-architecture`: scanning a codebase 
 ## Track II — Process: how you move
 
 **0006 — Vertical slice, tracer bullet, walking skeleton**
-Three related and frequently confused ideas, separated precisely. The repo's anti-pattern of **horizontal slicing** — "bulk tests verify *imagined* behavior" — and why writing all tests first is a distinct failure from writing no tests. Java: one slice of `transfer` end-to-end versus a shelf of speculative tests.
+Three related and frequently confused ideas, separated precisely — led by Cockburn's own sentence naming the neighbours and hedging them as *"similar sorts of ideas"*, and corroborated by a second, independent voice: **Clint Shank, axiom #60 of *97 Things Every Software Architect Should Know* (O'Reilly, 2009), "what Alistair Cockburn calls a Walking Skeleton"** — valuable precisely because it is not Cockburn talking about himself. `vertical slice` still has **no located coiner** and must not be assigned one. The repo's anti-pattern of **horizontal slicing** — "bulk tests verify *imagined* behavior" — and why writing all tests first is a distinct failure from writing no tests. Java: one slice of `transfer` end-to-end versus a shelf of speculative tests.
 
 **0007 — Red-green-refactor, and the rule that refactoring is not in the loop**
 Beck's loop, plus the repo's sharp deviation: *"Refactoring is not part of the loop. It belongs to the review stage."* Why that deviation exists in an agent context. The empirical record on TDD reported honestly — including the replications that found no effect.
