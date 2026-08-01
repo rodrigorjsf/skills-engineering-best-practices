@@ -1,11 +1,18 @@
+import java.io.IOException;
 import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Lesson 0002 — Deep vs shallow module.
@@ -292,9 +299,12 @@ public class DepthDemo {
         line("behaviour gained by the padding", "none");
 
         System.out.println();
+        System.out.println("D. The byte-identity claim, checked against the source file");
+        boolean identityHolds = reportIdentity();
+
+        System.out.println();
         System.out.println("-".repeat(62));
-        System.out.println("Method bodies of ShallowLedger and DeepLedger: byte-identical.");
-        System.out.println("Delta between them: 5 `private` keywords, plus post().");
+        System.out.println("Delta between the two ledgers: 5 `private` keywords, plus post().");
         System.out.println("What changed: which side of the interface the sequence sits on.");
         System.out.println("-".repeat(62));
 
@@ -303,10 +313,105 @@ public class DepthDemo {
                 && a3.total().signum() != 0
                 && anyNullTimestamp(a4.entries())
                 && b.total().signum() == 0
-                && sameBehaviour;
+                && sameBehaviour
+                && identityHolds;
         if (!claimHolds) {
             throw new AssertionError("the demonstration did not hold");
         }
+    }
+
+    // ==================================================================
+    // The byte-identity check.
+    //
+    // The lesson's central claim is that ShallowLedger and DeepLedger have
+    // identical method bodies, so the only thing separating a shallow module
+    // from a deep one is which side of the interface the sequence sits on.
+    // Printing that claim would be asserting it. This reads the source file
+    // and compares the two classes method by method.
+    // ==================================================================
+
+    static List<String> source() {
+        try {
+            return Files.readAllLines(Path.of("DepthDemo.java"));
+        } catch (IOException e) {
+            return List.of();
+        }
+    }
+
+    /** The source lines inside one class declaration, to its matching brace. */
+    static List<String> classBody(String name) {
+        List<String> out = new ArrayList<>();
+        int depth = 0;
+        boolean in = false;
+        for (String l : source()) {
+            if (!in) {
+                if (l.contains("class " + name + " {")) { in = true; depth = 1; }
+                continue;
+            }
+            depth += count(l, '{') - count(l, '}');
+            if (depth <= 0) break;
+            out.add(l);
+        }
+        return out;
+    }
+
+    static final Pattern METHOD =
+            Pattern.compile("^\\s*(?:public |private )?(?:static )?[\\w<>,\\[\\] .]+?\\s+(\\w+)\\(.*?\\)\\s*\\{");
+
+    /**
+     * Every method of a class, keyed by name, as source text — with the access
+     * modifier and trailing line comments removed, since neither is part of the
+     * body. Nothing else is normalised: the comparison below is byte for byte.
+     */
+    static Map<String, String> methodsOf(String className) {
+        Map<String, String> out = new LinkedHashMap<>();
+        List<String> body = classBody(className);
+        for (int i = 0; i < body.size(); i++) {
+            Matcher m = METHOD.matcher(body.get(i));
+            if (!m.find()) continue;
+            if (m.group(1).equals(className)) continue;   // the constructor, not a method
+            StringBuilder text = new StringBuilder();
+            int depth = 0;
+            for (int j = i; j < body.size(); j++) {
+                String l = body.get(j).replaceFirst("\\s*//.*$", "").strip();
+                text.append(l).append('\n');
+                depth += count(body.get(j), '{') - count(body.get(j), '}');
+                if (depth == 0) { i = j; break; }
+            }
+            out.put(m.group(1), text.toString().replaceFirst("^(public|private) ", ""));
+        }
+        return out;
+    }
+
+    static boolean reportIdentity() {
+        Map<String, String> shallow = methodsOf("ShallowLedger");
+        Map<String, String> deep = methodsOf("DeepLedger");
+        if (shallow.isEmpty() || deep.isEmpty()) {
+            line("source file readable", "no — run from code/0002-deep-module/");
+            return false;
+        }
+        List<String> both = new ArrayList<>(), same = new ArrayList<>(), differ = new ArrayList<>();
+        for (var e : shallow.entrySet()) {
+            if (!deep.containsKey(e.getKey())) continue;
+            both.add(e.getKey());
+            (e.getValue().equals(deep.get(e.getKey())) ? same : differ).add(e.getKey());
+        }
+        List<String> onlyDeep = new ArrayList<>(deep.keySet());
+        onlyDeep.removeAll(shallow.keySet());
+
+        line("methods in both", String.valueOf(both.size()));
+        line("byte-identical body", same.size() + " of " + both.size());
+        line("differing", differ.isEmpty() ? "(none)" : String.join(" ", differ));
+        line("only in DeepLedger", String.join(" ", onlyDeep));
+        line("ignored when comparing", "access modifier, line comment");
+        System.out.println("   compared: " + String.join(" ", both));
+        return differ.isEmpty() && both.size() == shallow.size() && onlyDeep.equals(List.of("post"));
+    }
+
+    static int count(String s, char c) {
+        int n = 0;
+        for (int i = 0; i < s.length(); i++) if (s.charAt(i) == c) n++;
+        return n;
     }
 
     static void report(String label, BigDecimal total, List<Entry> entries) {

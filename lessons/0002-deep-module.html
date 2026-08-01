@@ -190,10 +190,14 @@ ledger.commit();</code></pre>
 
 <div class="callout evidence">
   <span class="callout-title">A verificação, e não a promessa</span>
-<pre><code>methods in both ......... open debit credit balanced commit total entries
-<span class="hl">byte-identical body ..... open debit credit balanced commit total entries</span>
-differing ............... (none)
-only in DeepLedger ...... post</code></pre>
+<pre><code>D. The byte-identity claim, checked against the source file
+   methods in both ..................... 7
+   <span class="hl">byte-identical body ................. 7 of 7</span>
+   differing ........................... (none)
+   only in DeepLedger .................. post
+   ignored when comparing .............. access modifier, line comment
+   compared: open debit credit balanced commit total entries</code></pre>
+  <p>Este bloco é a seção D do <code>DepthDemo.java</code>: o programa abre o próprio arquivo-fonte, recorta cada método das duas classes e compara o texto <strong>byte a byte</strong>. Só duas coisas são normalizadas antes, e ele diz quais — o modificador de acesso (que é justamente o <em>delta</em> que a lição está medindo) e um comentário de fim de linha, que não é corpo. Se qualquer corpo divergir, o nome sai de <code>byte-identical body</code>, aparece em <code>differing</code>, e o programa <strong>aborta com <code>AssertionError</code></strong> em vez de imprimir a afirmação assim mesmo.</p>
 </div>
 
 <p>Se a implementação é a mesma e o comportamento é o mesmo, <strong>tudo que mudou foi de que lado da interface a sequência mora</strong>. É exatamente a afirmação de <code>SKILL.md:62</code>, agora como fato observável e não como slogan.</p>

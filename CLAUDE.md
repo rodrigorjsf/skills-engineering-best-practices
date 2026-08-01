@@ -111,3 +111,5 @@ When something fails repeatedly, when User has to re-explain, or when a workarou
 - `--virtual-time-budget` freezes CSS transitions mid-flight; set `data-theme` pre-paint.
 - Scanned PDF: `tesseract` locates the page, then read the 300dpi image to quote.
 - A book's CIP block predates its copyright line by a year; cite the copyright line.
+- Lessons cite each other from memory; grep the target lesson before claiming it.
+- A block styled as stdout must come from the program; make it print, not assert.
