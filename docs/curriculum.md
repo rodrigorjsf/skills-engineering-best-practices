@@ -15,6 +15,8 @@ Every lesson follows the same six-beat structure, which is how the mission's "fi
 
 Terminology is bound by `reference/0001-glossary.html`. Once a term is defined there, no lesson redefines it differently.
 
+**Reference documents** sit outside the lesson sequence — compressed, revisited, printed rather than read once. Three are built: `0001-glossary.html` (binding), `0002-stateful-flow.html` (skill handoffs and the artifact write/read matrix, extracted from upstream at `2ab9580`), and `0003-java-patterns.html` (the eight moves the six lessons teach, with every shown output verified against captured stdout). Two more are planned and hand-authored rather than delegated, because they are curatorial rather than extractive: `0004-bibliography.html` (reading *order* and argumentative thread only — never ISBN, page, year or publisher, which live in `RESOURCES.md`) and `0005-grilling-protocol.html`.
+
 ---
 
 ## Track I — Structure: where you cut
