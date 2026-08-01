@@ -8,14 +8,21 @@ A **teaching workspace** (driven by the `teach` skill), not a software project. 
 
 The reader is one person — Rodrigo — with four stated goals: apply these practices in his own Java work, teach and evangelise them with real evidence, author his own skills on the same principles, and hold the full intellectual genealogy. Every artifact serves at least one of those. If it serves none, don't build it.
 
+## Documentation
+
+Docs are living, not write-once.
+
+* `README.md` and `docs/ROADMAP.md` must stay in sync with the repository progress. Update them in the **same commit** that changes behavior, scope, or run steps — never let them drift.
+* Use **Mermaid diagrams** whenever they make a flow, architecture, or state clearer. Apply colors (`classDef`/`style`) and animated edges (`e1@{ animate: true }`) where the renderer supports them; colors are the baseline, animation is best-effort.
+
 ## Paths — read this before touching a file
 
-| Path | What it is |
-|---|---|
+| Path                                                         | What it is                                                                     |
+| ------------------------------------------------------------ | ------------------------------------------------------------------------------ |
 | `/home/rodrigo/Workspace/skills-engineering-best-practices/` | Workspace root. Everything we author lives here, and this is its own git repo. |
-| `/home/rodrigo/Workspace/skills/` (i.e. `../skills`) | **The live upstream repo — the only source of truth. Read from this one.** |
-| `../skills/docs/` | **Never write here.** Matt's own published docs pages. Ours go to `./docs/`. |
-| `./docs/research/` | Our research corpus, written by delegated agents. |
+| `/home/rodrigo/Workspace/skills/` (i.e. `../skills`)         | **The live upstream repo — the only source of truth. Read from this one.**     |
+| `../skills/docs/`                                            | **Never write here.** Matt's own published docs pages. Ours go to `./docs/`.   |
+| `./docs/research/`                                           | Our research corpus, written by delegated agents.                              |
 
 Three rules that follow:
 
@@ -78,28 +85,29 @@ The reader explicitly asked for *evidências reais*. The bar is high and non-neg
 
 **Four tiers. Label every claim.**
 
-| Tier | Meaning |
-|---|---|
-| **Quoted** | Text was fetched; the quote is verbatim; a URL is given. |
-| **Metadata verified** | Title/author/publisher/year/ISBN from a publisher page, DOI, or the author's own site. |
-| **Chapter located** | A real table of contents or searchable excerpt was seen. Chapter numbers without this tag are not given. |
-| **`[unverified]`** | Everything else. Stays visibly unverified. |
+| Tier                  | Meaning                                                                                                  |
+| --------------------- | -------------------------------------------------------------------------------------------------------- |
+| **Quoted**            | Text was fetched; the quote is verbatim; a URL is given.                                                 |
+| **Metadata verified** | Title/author/publisher/year/ISBN from a publisher page, DOI, or the author's own site.                   |
+| **Chapter located**   | A real table of contents or searchable excerpt was seen. Chapter numbers without this tag are not given. |
+| **`[unverified]`**    | Everything else. Stays visibly unverified.                                                               |
 
 **Three standing rules:**
 
 1. **No guessed locators.** If a table of contents could not be fetched, omit the chapter number rather than invent it.
+
 2. **No smoothing.** An unverified claim is never rewritten into confident prose.
+
 3. **Coinages are labelled as coinages, and attributed to the right person.** Either quote the coiner defining it with a URL, or mark it `[unverified — not found in the author's public sources]`. **A confident fabricated definition of one of Matt Pocock's own terms is the single most visible failure available here — and mis-attributing someone else's term to him is the second.**
-
    Settled verdicts (from `docs/research/03` and `04`) — do not re-litigate these without new evidence:
-
-   | Term | Whose | Status |
-   |---|---|---|
-   | `dumb zone` / `smart zone` | **Defined by Pocock** in his *Dictionary of AI Coding*; coinage **open** | His figure is *"around 125K-150K tokens — though this is debated."* The circulating "~100K / 40% of window" figure is **not his**; the "coined by Dex Horthy" attribution **fails** — the phrase is absent from HumanLayer's own `ace-fca.md`. |
-   | `harness engineering` | **Mitchell Hashimoto**, self-identified, 5 Feb 2026 | **Not Pocock's — do not attribute it to him.** He defines `harness` (which he did not coin either; Anthropic's usage is the vendor standard). |
-   | `grilling` (named practice) | **Pocock's**, with ancestor acknowledged | He cites *rubber ducking* as the pre-AI ancestor himself. |
-   | `AFK` / `HITL` | Acronyms **not his**; the workflow classification **is** | He explicitly rejects "background agent" as the alternative name. |
-   | `wayfinder`, `deepening opportunity` | Likely his | Still to be confirmed against a definition he wrote. |
+   
+   | Term                                 | Whose                                                                    | Status                                                                                                                                                                                                                                         |
+   | ------------------------------------ | ------------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+   | `dumb zone` / `smart zone`           | **Defined by Pocock** in his *Dictionary of AI Coding*; coinage **open** | His figure is *"around 125K-150K tokens — though this is debated."* The circulating "~100K / 40% of window" figure is **not his**; the "coined by Dex Horthy" attribution **fails** — the phrase is absent from HumanLayer's own `ace-fca.md`. |
+   | `harness engineering`                | **Mitchell Hashimoto**, self-identified, 5 Feb 2026                      | **Not Pocock's — do not attribute it to him.** He defines `harness` (which he did not coin either; Anthropic's usage is the vendor standard).                                                                                                  |
+   | `grilling` (named practice)          | **Pocock's**, with ancestor acknowledged                                 | He cites *rubber ducking* as the pre-AI ancestor himself.                                                                                                                                                                                      |
+   | `AFK` / `HITL`                       | Acronyms **not his**; the workflow classification **is**                 | He explicitly rejects "background agent" as the alternative name.                                                                                                                                                                              |
+   | `wayfinder`, `deepening opportunity` | Likely his                                                               | Still to be confirmed against a definition he wrote.                                                                                                                                                                                           |
 
 Use the `<span class="flag cited|coinage|unverified|ours">` marks in HTML so the tier is visible to the reader, not just to us.
 
@@ -140,14 +148,14 @@ Quiz — `data-answer` is the zero-based index of the correct option:
 
 Callouts — **the colour is the meaning**. Keep these consistent across every lesson or the visual language stops teaching:
 
-| Class | Meaning |
-|---|---|
-| `.callout.child` | The five-year-old pass |
-| `.callout.phd` | The primary-source / deep pass |
-| `.callout.seam` | Structure, interfaces, seams |
+| Class               | Meaning                           |
+| ------------------- | --------------------------------- |
+| `.callout.child`    | The five-year-old pass            |
+| `.callout.phd`      | The primary-source / deep pass    |
+| `.callout.seam`     | Structure, interfaces, seams      |
 | `.callout.evidence` | Data, citations, measured results |
-| `.callout.trap` | Anti-patterns |
-| `.callout.ai` | The agent/LLM parallel |
+| `.callout.trap`     | Anti-patterns                     |
+| `.callout.ai`       | The agent/LLM parallel            |
 
 Also available: `details.recall` (free-recall before reveal), `.code-block.good` / `.code-block.bad` with `.code-label`, `.split` (side-by-side), `.figure` + `.caption`, `.table-wrap` (all wide content scrolls in its own container — the page body must never scroll horizontally).
 
@@ -177,13 +185,13 @@ The reader asked for investigative work to be delegated. Standing policy:
 
 ## File conventions
 
-| Location | Convention |
-|---|---|
-| `lessons/` | `NNNN-dash-case-name.html`, sequential |
-| `reference/` | `NNNN-dash-case-name.html`, sequential |
+| Location            | Convention                                                                                                                                                                  |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lessons/`          | `NNNN-dash-case-name.html`, sequential                                                                                                                                      |
+| `reference/`        | `NNNN-dash-case-name.html`, sequential                                                                                                                                      |
 | `learning-records/` | `NNNN-dash-case-name.md` — written only on *evidence* of understanding, disclosed prior knowledge, a corrected misconception, or a mission shift. Coverage is not learning. |
-| `docs/research/` | `NN-topic.md`, English, cited |
-| `code/` | `NNNN-slug/` matching the lesson number |
+| `docs/research/`    | `NN-topic.md`, English, cited                                                                                                                                               |
+| `code/`             | `NNNN-slug/` matching the lesson number                                                                                                                                     |
 
 `NOTES.md` holds stated preferences and working notes. `MISSION.md` is the compass — if it grows past a screen it has become a plan and needs cutting. Update it (with a learning record) when the goal actually moves; confirm with the reader first.
 
