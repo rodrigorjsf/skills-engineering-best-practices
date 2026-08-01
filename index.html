@@ -60,6 +60,12 @@
       <td>I — Estrutura</td>
       <td>Decidir não se o seam existe, mas se ele mora na interface pública ou dentro.</td>
     </tr>
+    <tr>
+      <td><a href="lessons/0005-deletion-test.html">0005</a></td>
+      <td><a href="lessons/0005-deletion-test.html">O deletion test</a></td>
+      <td>I — Estrutura</td>
+      <td>Varrer código alheio e medir, apagando de verdade, o que cobra sem entregar.</td>
+    </tr>
   </tbody>
 </table>
 </div>
@@ -89,6 +95,7 @@
   <li><code>code/0002-deep-module/DepthDemo.java</code> — o mesmo ledger com uma interface de seis métodos e com uma de um. Corpos de método byte-a-byte idênticos. Rode com <code>java DepthDemo.java</code>.</li>
   <li><code>code/0003-interface/InterfaceDemo.java</code> — dois ledgers com assinaturas idênticas, um deles destruindo dinheiro; e o <code>javac</code> chamado em tempo de execução para provar que a ordem errada não compila. Rode com <code>java InterfaceDemo.java</code>.</li>
   <li><code>code/0004-adapter/AdapterDemo.java</code> — um port com um adapter de disco e um de memória, e a JVM confirmando que a <code>FeePolicy</code> não subiu para a interface pública. Rode com <code>java AdapterDemo.java</code>.</li>
+  <li><code>code/0005-deletion-test/DeletionTestDemo.java</code> — o deletion test executado, não imaginado: dois conjuntos de callers por caso, os dois rodando, e o programa lendo o próprio fonte para contar o que reapareceu. Rode com <code>java DeletionTestDemo.java</code>.</li>
 </ul>
 
 <div class="ask-teacher">

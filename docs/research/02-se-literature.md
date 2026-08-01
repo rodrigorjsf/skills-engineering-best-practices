@@ -1044,8 +1044,35 @@ people skip — is what the repo's criterion 3 is really enforcing.
   Don Roberts), *Refactoring: Improving the Design of Existing Code*, Addison-Wesley, **1999**.
   Examples in **Java**. **`[unverified]`** — ISBN not fetched (the Pearson sample path
   `9780201485677` corroborates the ISBN-13 978-0-201-48567-7). Chapter 3, "Bad Smells in Code", is
-  co-authored with **Kent Beck** — a free copy of the 1st-edition chapter is at
-  <http://www.laputan.org/pub/patterns/fowler/smells.pdf>.
+  co-authored with **Kent Beck**.
+
+> **⚠️ Correction, 2026-08-01 — the free PDF is NOT the 1st-edition chapter.**
+> An earlier version of this line described
+> <http://www.laputan.org/pub/patterns/fowler/smells.pdf> as "a free copy of the 1st-edition
+> chapter." **It was downloaded and read, and it is a pre-publication draft.** Evidence, all observed
+> in the file itself (12 pages, internal pagination 83–94):
+>
+> - **17 smells, not 22.** In order: Duplicated code, Long method, Large Class, Long Parameter List,
+>   Divergent Change, Shotgun Surgery, Feature Envy, Data Clumps, Case Statements, Parallel
+>   Inheritance Hierarchies, Lazy Class, Similar subclasses, Temporary Field, Middle Man,
+>   Alternative classes with different interfaces, Comments.
+> - ***Speculative Generality* is absent entirely** — it is in the 2nd-edition list recorded below.
+> - The refactorings are named **Extract Component** (7 occurrences) and **Inline Component** (2).
+>   *Extract Class* and *Inline Class*, the published names, occur **zero** times.
+> - One smell is called ***Case Statements***, not *Switch Statements*.
+>
+> **Quotable from it, with the right locator** — cite as *pre-publication draft, p. 92*, never as
+> "1st ed., 1999, p. 92":
+>
+> > "**Lazy Class.** Each class you create costs money. If there is a class that isn't doing enough
+> > to pay for itself, it should be eliminated."
+>
+> > "**Middle Man.** … You look at a class's interface and find half the methods are delegating to
+> > this other class. After a while it's time to cut out the middle man and talk to the object that
+> > really knows what's going on."
+>
+> **Quoted** — draft pp. 92–93. Used in lesson 0005 as the second voice behind the deletion test,
+> with this provenance stated in the lesson itself.
 - **2nd edition:** Martin Fowler, *Refactoring: Improving the Design of Existing Code*,
   Addison-Wesley, **2018/2019**. Examples in **JavaScript**. ISBN-13 978-0-13-475759-9 /
   978-0-13-475770-4 appear in publisher paths. **`[unverified]`** for exact ISBN and year — the 2nd

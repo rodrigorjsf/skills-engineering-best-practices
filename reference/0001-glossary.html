@@ -175,6 +175,13 @@ Citações no formato <code>arquivo:linha</code> apontam para o repo upstream
   <p>Imagine deleting the module. If complexity vanishes, it was a pass-through. If complexity reappears across N callers, it was earning its keep.</p>
   <cite>codebase-design/SKILL.md:63 <span class="flag cited">verbatim</span></cite>
 </blockquote>
+<p>Forma operacional, para varrer um codebase inteiro: "Apply the <strong>deletion test</strong> to anything you suspect is shallow: would deleting it <strong>concentrate</strong> complexity, or just <strong>move</strong> it? A 'yes, concentrates' is the signal you want." <span class="caption" style="border:0;padding:0;display:inline">— improve-codebase-architecture/SKILL.md:35</span> <em>Concentra ou espalha</em> é a formulação mais precisa: um refactor pode reduzir linhas e ainda assim destruir <a href="#locality">locality</a>.</p>
+<div class="callout phd">
+  <span class="callout-title"><span class="en">Pass-through</span> é termo do Ousterhout — e ele não manda apagar</span>
+  <p>O repositório usa a palavra sem defini-la. Ela é o título de uma seção com caixa de alerta: <em>"<strong>Red Flag: Pass-Through Method.</strong> A pass-through method is one that does nothing except pass its arguments to another method, usually with the same API as the pass-through method."</em> <span class="caption" style="border:0;padding:0;display:inline">— <em>A Philosophy of Software Design</em>, 1ª ed. 2018, §7.1, ebook p. 57</span> <span class="flag cited">texto conferido</span> Não conseguimos mostrar um elo de citação entre os dois; o termo é dele, a atribuição no repositório não existe.</p>
+  <p>O porquê liga esta entrada a <a href="#depth">depth</a>: <em>"Pass-through methods make classes shallower: they increase the interface complexity of the class, which adds complexity, but they don't increase the total functionality of the system."</em> <span class="caption" style="border:0;padding:0;display:inline">— §7.1, ebook p. 58</span></p>
+  <p><strong>E o desfecho não é "apagar".</strong> A legenda da Figura 7.1 dá três saídas: expor a classe de baixo diretamente aos callers <em>(b)</em>, <strong>redistribuir</strong> a funcionalidade entre as duas <em>(c)</em>, ou <strong>fundir</strong> as classes <em>(d)</em>. E o limite: <em>"Having methods with the same signature is not always bad… Pass-through methods are bad because they contribute no new functionality."</em> <span class="caption" style="border:0;padding:0;display:inline">— §7.2, ebook p. 58</span> Ver <a href="../lessons/0005-deletion-test.html">lição 0005</a>.</p>
+</div>
 
 <h3 id="test-surface">The interface is the test surface</h3>
 <blockquote class="source">
