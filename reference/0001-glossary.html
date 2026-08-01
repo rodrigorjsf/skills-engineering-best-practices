@@ -134,6 +134,13 @@ Citações no formato <code>arquivo:linha</code> apontam para o repo upstream
   <p>Define a <strong>port</strong> (interface) at the seam. The deep module owns the logic; the transport is injected as an <strong>adapter</strong>. Tests use an in-memory adapter. Production uses an HTTP/gRPC/queue adapter.</p>
   <cite>codebase-design/DEEPENING.md:19 <span class="flag cited">verbatim</span></cite>
 </blockquote>
+<div class="callout phd">
+  <span class="callout-title">A fonte do padrão — e o único ponto onde o repositório sai dele</span>
+  <p>Alistair Cockburn, <em>The Hexagonal (Ports &amp; Adapters) Architecture</em>, <strong>HaT Technical Report 2005.02, 2005-09-04, v 0.9</strong>. <span class="flag cited">página baixada e conferida</span> <em>Intent</em>, verbatim: <em>"Allow an application to equally be driven by users, programs, automated test or batch scripts, and to be developed and tested in isolation from its eventual run-time devices and databases."</em></p>
+  <p>O exemplo dele é literalmente o do repositório: <em>"Additional adapters for the same port thus include an SQL adapter, a flat file adapter, and most importantly, an adapter to a 'mock' database, one that sits in memory and doesn't depend on the presence of the real database at all."</em></p>
+  <p><strong>A divergência:</strong> a regra do Cockburn é <em>"The asymmetry to exploit is not that between left and right sides of the application but <strong>between inside and outside of the application</strong>."</em> Um port dele fica na fronteira da <em>aplicação</em>. O <a href="#internal-external-seam">internal seam</a> do repositório — dentro da implementação, usado só pelos testes do próprio module — <strong>não existe no modelo hexagonal</strong>. Não é contradição; é escala diferente. Ver <a href="../lessons/0004-adapter.html">lição 0004</a>.</p>
+  <p class="caption" style="border:0;padding:0">E o mito: <em>"The hexagon is not a hexagon because the number six is important, but rather to allow the people doing the drawing to have room to insert ports and adapters as they need."</em> Não são seis camadas nem seis portas — é espaço em branco no desenho.</p>
+</div>
 
 <h3 id="depth">Depth · Deep module · Shallow module</h3>
 <blockquote class="source">

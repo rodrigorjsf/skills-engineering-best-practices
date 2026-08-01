@@ -59,7 +59,7 @@ A fourth marker, `[our analogy]`, separates what a source says from what we are 
 | [`CLAUDE.md`](./CLAUDE.md) | Operating rules — the lesson contract, evidence tiers, markup contracts, delegation policy. |
 | [`RESOURCES.md`](./RESOURCES.md) | Curated, verified sources with annotations, plus an explicit `Gaps` section. |
 | [`docs/curriculum.md`](./docs/curriculum.md) | The full map: 4 tracks, 20 lessons, in order. |
-| `lessons/` | Self-contained HTML lessons. **3 of 20 built.** |
+| `lessons/` | Self-contained HTML lessons. **4 of 20 built.** |
 | `reference/` | Compressed documents built to be revisited and printed. The glossary is binding. |
 | `docs/research/` | The research corpus — 9 files, ~7,800 lines, cited. |
 | `code/` | Java examples that compile and run. |
@@ -106,6 +106,7 @@ Java examples run without a compile step (Java 25, single-file source mode):
 cd code/0001-seam && java SeamDemo.java
 cd code/0002-deep-module && java DepthDemo.java
 cd code/0003-interface && java InterfaceDemo.java
+cd code/0004-adapter && java AdapterDemo.java
 ```
 
 ## Attribution and licensing

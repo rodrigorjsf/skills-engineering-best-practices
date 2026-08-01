@@ -1518,10 +1518,51 @@ HTTP/gRPC/queue adapter." (**Quoted**).
 1. **Cockburn's ports are about the application's outer boundary**; the repo's seams are
    **scale-agnostic** and explicitly include *internal* seams "private to its implementation, used by
    its own tests" (**Quoted**). Hexagonal architecture has no notion of an internal port.
-2. **Cockburn's symmetry claim** — that all ports are conceptually alike and the hexagon has no
-   inherent top or bottom — is *stronger* than the repo's. The repo's "one adapter means a
-   hypothetical seam, two means a real one" would forbid many of the ports a strict hexagonal design
-   would create.
+2. **Cockburn's symmetry claim** — that all ports are conceptually alike — is *stronger* than the
+   repo's. Verbatim: the pattern's purpose is *"to focus on the inside-outside asymmetry,
+   **pretending briefly that all external items are identical from the perspective of the
+   application**."* For the repo, an internal seam and an external seam are different *categories*,
+   and conflating them is the defect `DEEPENING.md:30` names.
+
+### Correction — re-read from the primary document, 2026-08-01
+
+The page was fetched and read in full while writing lesson 0004. Three additions and **one
+retraction**.
+
+**Retracted.** An earlier draft of this section claimed the repo's "one adapter means a hypothetical
+seam, two means a real one" *"would forbid many of the ports a strict hexagonal design would
+create."* **The primary text does not support that.** Cockburn expects each port to carry several
+adapters, and names the test double as one of them — so his ports pass the repo's rule rather than
+failing it. The claim was inference, not evidence, and is withdrawn.
+
+**Added, all Quoted from the document itself:**
+
+> "Additional adapters for the same port thus include an SQL adapter, a flat file adapter, and most
+> importantly, an adapter to a \"mock\" database, one that sits in memory and doesn't depend on the
+> presence of the real database at all."
+
+That is the repo's own `Implementation`/`Adapter` example — Postgres repo versus in-memory fake —
+written by Cockburn in 2005.
+
+> "The asymmetry to exploit is not that between left and right sides of the application but between
+> inside and outside of the application. The rule to obey is that code pertaining to the inside part
+> should not leak into the outside part."
+
+This is the load-bearing sentence for divergence #1: **the object is *the application*.** Hexagonal
+architecture has no notion of a port inside a class, which is exactly what the repo's *internal seam*
+is.
+
+> "The hexagon is not a hexagon because the number six is important, but rather to allow the people
+> doing the drawing to have room to insert ports and adapters as they need, not being constrained by
+> a one-dimensional layered drawing. The term hexagonal architecture comes from this visual effect."
+
+Useful for teaching: the six means nothing. Also his own scope note — *"the presence of a defined
+number of different ports - two, three, or four (four is most I have encountered to date)"* — is an
+**observation about what he has seen**, not a limit, and should not be quoted as one.
+
+**Header verbatim, for the locator:** *"The Hexagonal (Ports & Adapters) Architecture · HaT Technical
+Report 2005.02 · Date: 2005-09-04 (v 0.9 to be updated after reader comments) · Alistair Cockburn,
+acockburn@aol.com"*. It is an unpaginated web document — cite the section name, never a page number.
 
 Related-but-distinct: Robert C. Martin's **Clean Architecture** (Prentice Hall, 2017) and Jeffrey
 Palermo's **Onion Architecture** (2008 blog series). Convergent, not identical.

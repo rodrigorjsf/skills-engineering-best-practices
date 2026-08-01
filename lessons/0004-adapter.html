@@ -1,0 +1,396 @@
+<title>0004 — Adapter, e seams internos vs externos</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/mermaid.min.js" defer></script>
+<script src="../assets/lesson.js" defer></script>
+
+<div class="page">
+
+<p class="kicker">Lição 0004 · Trilha I — Estrutura</p>
+<h1>Adapter, e seams internos vs externos</h1>
+<p class="lede">A lição 0001 disse para aceitar dependências em vez de criá-las. A 0003 mediu o preço disso: parâmetro de construtor <em>é</em> interface. As duas estão certas, e juntas elas cobram uma decisão que ninguém te avisa que existe — <strong>não se o seam existe, mas onde ele mora</strong>.</p>
+
+<p class="meta">
+Tempo: ~20 min · Código: <code>code/0004-adapter/AdapterDemo.java</code> (roda com <code>java AdapterDemo.java</code>) ·
+Glossário: <a href="../reference/0001-glossary.html#adapter">adapter</a>, <a href="../reference/0001-glossary.html#port">port</a>, <a href="../reference/0001-glossary.html#internal-external-seam">internal · external seam</a>, <a href="../reference/0001-glossary.html#two-adapters">a regra de justificação</a>
+</p>
+
+<div class="quiz" data-answer="1">
+  <div class="quiz-head">Primeiro, de memória · lição 0001</div>
+  <p class="quiz-q">Sua <code>TransferService</code> calcula a taxa com uma <code>FeePolicy</code>. Em produção existe <strong>uma</strong> política, sempre; só o teste quer trocá-la por outra. Pela regra da lição 0001, esse seam é real ou hipotético?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Hipotético, porque nenhum caller de produção escolhe uma outra política</button></li>
+    <li><button class="quiz-opt">Real, porque produção mais teste já contam como dois adapters</button></li>
+    <li><button class="quiz-opt">Hipotético, porque uma política só nunca chega a justificar interface</button></li>
+    <li><button class="quiz-opt">Real, porque toda dependência injetada cria um seam de verdade</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>O teste é um <strong>caller de verdade</strong>, atravessando a mesma interface que a produção atravessa. Variação real, dois adapters, seam justificado — <em>"One adapter means a hypothetical seam. Two adapters means a real one."</em></p>
+    <p><strong>E agora repare no que isso deixa em aberto.</strong> A regra te disse que o seam existe. Ela não te disse <em>onde ele fica</em> — se na interface pública, à vista de todo caller, ou escondido dentro da implementação. Essa é a pergunta de hoje, e ela custa dinheiro na resposta errada.</p>
+  </div>
+</div>
+
+<h2>1 · A intuição</h2>
+
+<p>Uma tomada na parede. Nela você pluga o carregador do celular — do tamanho de uma caixa de fósforos — e nela você pluga uma máquina de solda industrial de quarenta quilos.</p>
+
+<p>As duas coisas são <strong>a mesma coisa</strong> do ponto de vista da tomada: são "o que está plugado". O carregador é praticamente só o plugue; a máquina de solda tem um transformador enorme atrás de um plugue idêntico. <strong>Nada disso muda a tomada.</strong></p>
+
+<div class="callout seam">
+  <span class="callout-title">Papel, não substância</span>
+  <p>"Adapter" responde <em>que buraco isto preenche</em>. Não responde <em>o que tem dentro</em>. Duas coisas incomparáveis em tamanho, peso e complexidade podem ser o mesmo adapter — porque adapter é um <strong>papel</strong>, e o papel é definido pela tomada, não pelo objeto.</p>
+</div>
+
+<p>Agora a segunda metade da lição, e ela também é física. Dentro da sua máquina de lavar existe um conector entre o motor e o tambor. O técnico da assistência usa esse conector: desconecta o motor, testa o tambor sozinho, reconecta.</p>
+
+<p>Esse conector é <strong>real</strong>, é <strong>útil</strong>, e alguém <strong>de fato varia coisas através dele</strong>. E ainda assim o fabricante <em>não</em> o colocou na parte de fora da máquina.</p>
+
+<div class="split">
+  <div class="callout trap">
+    <span class="callout-title">Se estivesse por fora</span>
+    <p>Toda pessoa que compra a máquina passa a ter mais uma tomada no painel — uma que ela não deve mexer, mas precisa saber que existe.</p>
+    <p>O manual ganha uma página. O suporte ganha um chamado por mês. E ninguém, nunca, plugou nada ali.</p>
+  </div>
+  <div class="callout seam">
+    <span class="callout-title">Por dentro, como está</span>
+    <p>O técnico abre a máquina e usa. O dono não sabe que existe, e não precisa.</p>
+    <p>O conector segue fazendo exatamente o mesmo trabalho — <strong>a diferença é quem tem que saber dele</strong>.</p>
+  </div>
+</div>
+
+<div class="callout child">
+  <span class="callout-title">Para uma criança de cinco anos</span>
+  <p>A geladeira tem uma porta na frente, para você pegar leite. E tem uns parafusos atrás, para o moço do conserto.</p>
+  <p>Os dois abrem a geladeira. Mas se os parafusos ficassem na frente, junto da porta, você ia ter que aprender quais deles <em>não</em> pode girar. É mais coisa para saber, e não serve para pegar leite.</p>
+</div>
+
+<h2>2 · O mecanismo</h2>
+
+<p>Três definições do repositório, e a terceira é a que quase ninguém aplica.</p>
+
+<blockquote class="source">
+  <p><strong>Adapter</strong> — a concrete thing that satisfies an interface at a seam. Describes <em>role</em> (what slot it fills), not substance (what's inside).</p>
+  <cite>codebase-design/SKILL.md:24 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<blockquote class="source">
+  <p><strong>Implementation</strong> — what's inside a module, its body of code. Distinct from <strong>Adapter</strong>: a thing can be a <strong>small adapter with a large implementation</strong> (a Postgres repo) or a <strong>large adapter with a small implementation</strong> (an in-memory fake). Reach for "adapter" when the seam is the topic; "implementation" otherwise.</p>
+  <cite>codebase-design/SKILL.md:18 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<blockquote class="source">
+  <p>A deep module can have <strong>internal seams</strong> (private to its implementation, used by its own tests) as well as the <strong>external seam</strong> at its interface. <strong>Don't expose internal seams through the interface just because tests use them.</strong></p>
+  <cite>codebase-design/DEEPENING.md:30 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p class="sidenote">Repare que a segunda definição usa "grande" e "pequeno" como <em>proporções</em>, não como contagens. Um repositório Postgres é um adapter pequeno porque quase tudo que ele faz acontece fora dele — no Postgres. O fake é um adapter grande porque ele <em>é</em> tudo que existe. A seção 3 mede isso, e o resultado bruto em linhas sai ao contrário do esperado.</p>
+
+<p>A tensão entre a lição 0001 e essa terceira definição é real, e vale enunciar em voz alta porque o repositório não a enuncia:</p>
+
+<div class="callout evidence">
+  <span class="callout-title">Duas frases do mesmo repositório, puxando para lados opostos</span>
+  <p><strong>Uma:</strong> <em>"Accept dependencies, don't create them."</em> <span class="caption" style="border:0;padding:0;display:inline">— codebase-design/SKILL.md:71</span> Foi a lição 0001 inteira.</p>
+  <p><strong>Outra:</strong> <em>"Don't expose internal seams through the interface just because tests use them."</em> <span class="caption" style="border:0;padding:0;display:inline">— DEEPENING.md:30</span></p>
+  <p>Se você aceita <em>toda</em> dependência pelo construtor, cada uma delas vira <span class="en">required configuration</span> — categoria 4 da <a href="0003-interface.html">lição 0003</a> — e a interface engorda. Se você não aceita nenhuma, volta ao <code>new SwiftGateway()</code> da 0001 e perde o seam.</p>
+  <p><strong>A resolução, que é nossa e não do repositório</strong> <span class="flag ours">nossa síntese</span><strong>:</strong> aceite a dependência, mas decida <em>por onde</em> ela entra. Um seam interno é uma dependência aceita que não sobe até a interface pública.</p>
+</div>
+
+<figure class="figure">
+<pre class="mermaid">
+flowchart TB
+  Q1{"`Alguma coisa varia
+  através daqui?`"}
+  Q1 -->|"não"| N["`Indireção.
+  Não crie o seam.`"]
+  Q1 -->|"sim"| Q2{"Quem varia?"}
+  Q2 -->|"só os testes do próprio module"| I["`Seam interno.
+  Fora da interface pública.`"]
+  Q2 -->|"algum caller de produção também"| E["`Seam externo.
+  Na interface pública.`"]
+
+  classDef stage    fill:#f2efe8,stroke:#57534a,stroke-width:1.5px,color:#26241f
+  classDef seam     fill:#1f6f6b,stroke:#0f4d4a,stroke-width:2px,color:#ffffff
+  classDef trap     fill:#8a5a12,stroke:#5c3c0c,stroke-width:2px,color:#ffffff
+  class N trap
+  class I stage
+  class E seam
+  class Q1,Q2 stage
+</pre>
+<figcaption><b>O que notar.</b> O primeiro losango é a regra da lição 0001 e quase todo mundo para nele. <strong>O segundo losango é esta lição</strong> — e é onde a decisão realmente cara acontece, porque os dois desfechos da direita são igualmente "corretos" pela regra de cima. <span class="flag ours">a árvore é nossa</span>: o repositório enuncia as duas regras separadamente e nunca as compõe.</figcaption>
+</figure>
+
+<h2>3 · Em Java</h2>
+
+<h3>A — o mesmo papel, substâncias incomparáveis</h3>
+
+<p>Um <span class="en">port</span> de dois métodos, e dois adapters que não têm nada em comum por dentro. Um grava em arquivo de verdade, com <code>java.nio</code>, diretório e <code>IOException</code>. O outro é um <code>HashMap</code>.</p>
+
+<div class="split">
+  <div class="code-block">
+    <div class="code-label">FileAccountRepository <span class="verdict">disco</span></div>
+<pre><code><span class="k">public</span> <span class="t">Optional</span>&lt;<span class="t">Balance</span>&gt; find(<span class="t">String</span> acc) {
+    <span class="t">Path</span> f = dir.resolve(acc + <span class="s">".txt"</span>);
+    <span class="k">if</span> (!<span class="t">Files</span>.exists(f)) <span class="k">return</span> <span class="t">Optional</span>.empty();
+    <span class="k">try</span> {
+        <span class="k">return</span> <span class="t">Optional</span>.of(<span class="k">new</span> <span class="t">Balance</span>(acc,
+            <span class="k">new</span> <span class="t">BigDecimal</span>(<span class="t">Files</span>.readString(f).trim())));
+    } <span class="k">catch</span> (<span class="t">IOException</span> e) {
+        <span class="k">throw new</span> <span class="t">UncheckedIOException</span>(e);
+    }
+}</code></pre>
+  </div>
+  <div class="code-block">
+    <div class="code-label">InMemoryAccountRepository <span class="verdict">mapa</span></div>
+<pre><code><span class="k">public</span> <span class="t">Optional</span>&lt;<span class="t">Balance</span>&gt; find(<span class="t">String</span> acc) {
+    <span class="k">return</span> <span class="t">Optional</span>.ofNullable(store.get(acc));
+}</code></pre>
+  </div>
+</div>
+
+<p>O mesmo teste roda contra os dois, sem uma linha de diferença:</p>
+
+<pre><code>A. One port, two adapters, nothing alike inside
+   methods on AccountRepository ...... 2
+   FileAccountRepository lines ....... 17
+   InMemoryAccountRepository lines ... 6
+   substance behind the file one ..... java.nio, the disk
+   substance behind the memory one ... a HashMap
+
+   same test, file adapter ...........      0.00   balanced
+   same test, memory adapter .........      0.00   balanced
+   results identical ................. true
+   test lines changed between them ... 0
+
+   ACC-1 via a NEW file adapter ......    297.50
+   ACC-1 via a NEW memory adapter ....      0.00
+   where the substance actually is ... outside / inside</code></pre>
+
+<p>As três últimas linhas são a demonstração. Um <strong>novo</strong> <code>FileAccountRepository</code>, criado do zero sobre o mesmo diretório, encontra R$&nbsp;297,50 esperando por ele. Um <strong>novo</strong> <code>InMemoryAccountRepository</code> encontra zero — porque quando o objeto morreu, o dinheiro morreu junto. A substância de um está fora dele; a do outro <em>é</em> ele.</p>
+
+<div class="callout trap">
+  <span class="callout-title">O contra-dado, e ele é contra nós</span>
+  <p>O repositório chama o repositório Postgres de <strong>adapter pequeno</strong> e o fake in-memory de <strong>adapter grande</strong>. As linhas medidas dizem o contrário: <strong>17 contra 6</strong>. O adapter de disco é quase três vezes mais longo.</p>
+  <p>Não é contradição — é a mesma armadilha da <a href="0002-deep-module.html">lição 0002</a> voltando de outro ângulo. "Grande" e "pequeno" aqui são <em>proporções entre o shim e o que está atrás dele</em>, não contagens de linha. Mas se você tentar aplicar a frase do repositório com uma régua, ela dá errado — e valia mais dizer isso do que escolher um exemplo em que o número fecharia.</p>
+</div>
+
+<h3>B — duas dependências, e só uma entra pelo construtor</h3>
+
+<p>A <code>TransferService</code> precisa de um <code>Clock</code> e de uma <code>FeePolicy</code>. Pelo quiz de abertura, <strong>as duas</strong> passam na regra dos dois adapters. E ainda assim só uma delas pertence à interface pública:</p>
+
+<div class="split">
+  <div class="callout seam">
+    <span class="callout-title">Clock — externo</span>
+    <p>Um job de <em>replay</em> reprocessa transferências antigas contra um relógio histórico. <strong>Um caller de produção escolhe o clock.</strong></p>
+    <p>Logo: interface pública.</p>
+  </div>
+  <div class="callout trap">
+    <span class="callout-title">FeePolicy — interno</span>
+    <p>Nenhum caller jamais escolheu uma política. Existe uma, e ela é do banco. <strong>Só o teste quer trocá-la.</strong></p>
+    <p>Logo: fábrica não-pública, dentro do module.</p>
+  </div>
+</div>
+
+<div class="code-block good">
+  <div class="code-label">A porta pública e o seam interno <span class="verdict">o mesmo module</span></div>
+<pre><code><span class="c">/** A porta pública. Duas coisas para o caller aprender. */</span>
+<span class="k">public</span> <span class="t">TransferService</span>(<span class="t">AccountRepository</span> repo, <span class="t">Clock</span> clock) {
+    <span class="k">this</span>(repo, clock, STANDARD);
+}
+
+<span class="c">/** O seam interno. Não é public — o teste usa, o caller não vê. */</span>
+<span class="k">static</span> <span class="t">TransferService</span> withPolicy(<span class="t">AccountRepository</span> repo,
+                                    <span class="t">Clock</span> clock,
+                                    <span class="t">FeePolicy</span> fees) {
+    <span class="k">return new</span> <span class="t">TransferService</span>(repo, clock, fees);
+}</code></pre>
+</div>
+
+<p>Quem confirma que a interface pública não cresceu não é a leitura do código — é a JVM, por reflexão:</p>
+
+<pre><code>B. Two dependencies. Only one belongs in the constructor.
+   public constructors ............... 1
+   things a caller must supply ....... 2  (repo, clock)
+   FeePolicy in the public surface ... false
+   withPolicy is public .............. false
+
+   fee under the standard policy .....      2.50
+   fee the test substituted ..........      0.00
+   callers who had to learn it ....... 0</code></pre>
+
+<p>A taxa foi substituída — de R$&nbsp;2,50 para R$&nbsp;0,00 — sem que a interface pública ganhasse um único parâmetro. <strong>Zero callers precisaram aprender que <code>FeePolicy</code> existe.</strong> O seam está lá, é real, e mora dentro.</p>
+
+<h3>C e D — o preço de um seam de um adapter só</h3>
+
+<p>E o caso que a regra da lição 0001 rejeita: um <code>NotificationPort</code> com exatamente um adapter e nenhum substituto.</p>
+
+<pre><code>C. What a one-adapter seam costs, counted
+   adapters that exist ............... 1  (ConsoleNotifications)
+   adapters justified by variation ... 0
+   types the seam adds ............... 1  (NotificationPort)
+   behaviour the seam adds ........... none
+   verdict per DEEPENING.md:29 ....... just indirection
+
+D. The audit, in lesson 0003's terms
+   design A — caller must supply ..... 2  (repo, clock)
+   design B — caller must supply ..... 3  (repo, clock, fees)
+   production variation in fees ...... none
+   so the third fact buys ............ nothing</code></pre>
+
+<p>O bloco D é a lição 0003 cobrando a fatura desta. Um parâmetro de construtor <strong>é</strong> interface — <span class="en">required configuration</span>, categoria 4, medida lá. O <em>design B</em> cobra três fatos de todo caller em vez de dois, e o terceiro não compra nada: em produção a política nunca varia. Isso não é estilo. É um item a mais na lista do que alguém precisa saber para usar o module sem errar.</p>
+
+<p class="sidenote">Vale notar o que <em>não</em> mudou: o comportamento. As duas versões cobram a mesma taxa, gravam as mesmas entradas e passam nos mesmos testes. É por isso que essa decisão passa despercebida em code review — ela não aparece em nenhum teste vermelho. Aparece dois anos depois, no tamanho do que um novato precisa ler antes de conseguir chamar a classe.</p>
+
+<h2>4 · A fonte primária</h2>
+
+<p>O padrão tem nome e autor, e o contra-dado vem primeiro: <strong>o que a seção 3 fez na parte B não existe no padrão original.</strong></p>
+
+<blockquote class="source">
+  <p>The asymmetry to exploit is not that between left and right sides of the application but <strong>between inside and outside of the application</strong>. The rule to obey is that code pertaining to the inside part should not leak into the outside part.</p>
+  <cite>Alistair Cockburn, <em>The Hexagonal (Ports &amp; Adapters) Architecture</em>, HaT Technical Report 2005.02, 2005-09-04, v 0.9 <span class="flag cited">verbatim, página conferida</span></cite>
+</blockquote>
+
+<p>Repare no objeto: <em>the application</em>. Para Cockburn, um <span class="en">port</span> fica na fronteira externa da aplicação. Ele diz explicitamente quantos espera encontrar: <em>"the presence of a defined number of different ports - two, three, or four (four is most I have encountered to date)"</em>. <span class="flag cited">verbatim</span></p>
+
+<div class="callout trap">
+  <span class="callout-title">O hexágono não tem porta por dentro</span>
+  <p>Um <strong>seam interno</strong> — um seam dentro da implementação, usado pelos testes do próprio module e invisível para os callers — <strong>não tem lugar no modelo do Cockburn</strong>. Não é que ele proíba; é que o padrão dele não fala dessa escala. Ele fala de fronteira de aplicação, e o repositório fala de qualquer module, <em>"a function, class, package, or tier-spanning slice"</em>.</p>
+  <p>Então a parte B da seção 3 não é ports-and-adapters. É outra coisa, que usa o mesmo vocabulário. Chamar as duas de "arquitetura hexagonal" seria o mesmo tipo de erro que a <a href="0002-deep-module.html">lição 0002</a> documentou.</p>
+</div>
+
+<p>Dito o contra-dado, a convergência é forte — e mais literal do que se esperaria. A parte A da seção 3, com um adapter de disco e um adapter in-memory atrás do mesmo port, é <strong>o exemplo do próprio Cockburn</strong>, escrito por ele em 2005:</p>
+
+<blockquote class="source">
+  <p>Additional adapters for the same port thus include an SQL adapter, a flat file adapter, and most importantly, an adapter to a <strong>"mock" database</strong>, one that sits in memory and doesn't depend on the presence of the real database at all.</p>
+  <cite>Cockburn, mesmo documento <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>E o <em>Intent</em> do padrão, que é a frase que o repositório inteiro está aplicando sem citar:</p>
+
+<blockquote class="source">
+  <p>Allow an application to equally be driven by users, programs, <strong>automated test</strong> or batch scripts, and to be developed and tested <strong>in isolation from its eventual run-time devices and databases</strong>.</p>
+  <cite>Cockburn, mesmo documento, seção "Intent" <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<div class="callout phd">
+  <span class="callout-title">Duas precisões sobre o hexágono</span>
+  <p><strong>1. O seis não quer dizer nada.</strong> Isto é dele, verbatim: <em>"The hexagon is not a hexagon because the number six is important, but rather to allow the people doing the drawing to have room to insert ports and adapters as they need, not being constrained by a one-dimensional layered drawing. The term hexagonal architecture comes from this visual effect."</em> Não são seis camadas, seis portas nem seis nada. É espaço em branco no desenho.</p>
+  <p><strong>2. A simetria dele é mais forte que a do repositório.</strong> Cockburn escreve que o propósito é <em>"to focus on the inside-outside asymmetry, pretending briefly that all external items are identical from the perspective of the application"</em>. Todo port é conceitualmente igual a todo outro port. O repositório não aceita isso: para ele um seam interno e um externo são <strong>categorias diferentes</strong>, e confundi-las é o defeito que a DEEPENING.md:30 nomeia.</p>
+  <p class="caption" style="border:0;padding:0"><strong>Localizador.</strong> Documento em <a href="https://alistair.cockburn.us/hexagonal-architecture/">alistair.cockburn.us/hexagonal-architecture</a>; cabeçalho do próprio arquivo: <em>"The Hexagonal (Ports &amp; Adapters) Architecture · HaT Technical Report 2005.02 · Date: 2005-09-04 (v 0.9 to be updated after reader comments) · Alistair Cockburn"</em>. Página baixada e lida em 2026-08-01. Sem números de página: é um documento web, não paginado.</p>
+</div>
+
+<h2>5 · O paralelo com IA</h2>
+
+<p>Um <span class="en">sub-agent</span> é a coisa mais parecida com um adapter que a arquitetura de agentes produziu — e a definição do próprio Matt Pocock diz por quê:</p>
+
+<blockquote class="source">
+  <p>An agent spawned by another agent via a tool call. Runs in its own session with its own context window, and reports a <strong>single tool result</strong> back… Cannot spawn further subagents — the tree is one level deep. <strong>Subagents exist to isolate context, not to compose hierarchies.</strong></p>
+  <cite>Matt Pocock, <em>Dictionary of AI Coding</em>, <code>dictionary/Subagent.md</code> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>"Reports a single tool result back" é a definição de um port com um método. E a frase seguinte dele é a mesma propriedade vista pelo lado do custo:</p>
+
+<blockquote class="source">
+  <p>The report is a <strong>secondary source</strong>: the parent gets the subagent's account of what it found, not the raw results, so <strong>anything the report leaves out is invisible to the parent</strong>.</p>
+  <cite>mesma fonte <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>Isso é literalmente <em>"the interface is the test surface"</em> aplicado a um agente: o pai só enxerga o que atravessa a interface. Se o relatório não mencionou, para o pai não aconteceu.</p>
+
+<div class="callout evidence">
+  <span class="callout-title">E a regra dos dois adapters, medida em tokens</span>
+  <p>A Anthropic mediu os dois lados do trade. O ganho: <em>"multi-agent system with Claude Opus 4 as the lead agent and Claude Sonnet 4 subagents <strong>outperformed single-agent Claude Opus 4 by 90.2%</strong>"</em> na avaliação interna de pesquisa deles.</p>
+  <p>O preço: <em>"agents typically use about 4× more tokens than chat interactions"</em> e <em>"multi-agent systems use about <strong>15× more tokens</strong> than chats."</em></p>
+  <p>E o modo de falha, nas palavras deles, das versões iniciais do sistema: agentes <em>"spawning 50 subagents for simple queries"</em>. <span class="caption" style="border:0;padding:0;display:inline">— Anthropic Engineering, <a href="https://www.anthropic.com/engineering/multi-agent-research-system">"How we built our multi-agent research system"</a>, 13 jun 2025 <span class="flag cited">verbatim</span></span></p>
+  <p><strong>Cinquenta seams hipotéticos, a 15× o preço.</strong> "One adapter means a hypothetical seam" é uma regra de arquitetura de código de 2025 que descreve exatamente esse bug — e ali ela tem fatura.</p>
+</div>
+
+<div class="callout ai">
+  <span class="callout-title">Onde este paralelo é nosso, e onde não é</span>
+  <p><strong>Verificado:</strong> as citações acima, verbatim, nas fontes dadas.</p>
+  <p><strong>Nossa <span class="flag ours">analogia</span>:</strong> o mapeamento <em>sub-agent ↔ adapter num seam</em>. Nem a Anthropic nem o dicionário usam <code>adapter</code>, <code>port</code> ou <code>seam</code> para descrever sub-agents; o vocabulário deles é <em>"separation of concerns"</em> e <em>"context isolation"</em>.</p>
+  <p><strong>E onde a analogia se desfaz, que importa mais:</strong> adapters são <strong>substituíveis e determinísticos</strong> — trocar o fake pelo real não muda a resposta, e a seção 3 mediu isso (<code>results identical ... true</code>). Sub-agents não são. Dois sub-agents com o mesmo prompt devolvem relatórios diferentes, e o relatório é lossy por construção. Isolamento de contexto, sim; substituibilidade, não. <strong>Metade da analogia sustenta; a outra metade não.</strong></p>
+</div>
+
+<h2>6 · Retrieval</h2>
+
+<p>De memória.</p>
+
+<div class="quiz" data-answer="3">
+  <div class="quiz-head">Pergunta 1 de 3</div>
+  <p class="quiz-q">O que a palavra <span class="en">adapter</span> te diz sobre uma classe?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Que ela é fina e delega o trabalho pesado adiante</button></li>
+    <li><button class="quiz-opt">Que ela traduz entre dois formatos de dados bem diferentes</button></li>
+    <li><button class="quiz-opt">Que ela existe apenas para permitir a substituição em testes</button></li>
+    <li><button class="quiz-opt">Que ela preenche um slot, e nada sobre seu conteúdo</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p><em>"Describes role (what slot it fills), not substance (what's inside)."</em> Foi medido: 17 linhas contra 6, uma guardando em disco e a outra num mapa — e os dois são adapters do mesmo port, com resultado idêntico pelo mesmo teste.</p>
+    <p>A primeira opção é a mais tentadora e é justamente a que o número desmente: o adapter "fino" acabou sendo o <strong>mais longo</strong> dos dois.</p>
+  </div>
+</div>
+
+<div class="quiz" data-answer="0">
+  <div class="quiz-head">Pergunta 2 de 3</div>
+  <p class="quiz-q">Um seam justificado pela regra dos dois adapters — o que ainda falta decidir sobre ele?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Se ele fica exposto na interface pública ou fica por dentro</button></li>
+    <li><button class="quiz-opt">Se ele merece um port próprio ou pega o port existente</button></li>
+    <li><button class="quiz-opt">Se o adapter usado no teste deve ser fake ou mock</button></li>
+    <li><button class="quiz-opt">Se a dependência entra pelo construtor ou por um setter público</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>Interno ou externo. E o critério é <strong>quem varia</strong>: se só o teste do próprio module varia, o seam desce para dentro — <em>"Don't expose internal seams through the interface just because tests use them."</em></p>
+    <p>Medido na seção 3: a política foi trocada de R$ 2,50 para R$ 0,00 com <code>callers who had to learn it ... 0</code>.</p>
+  </div>
+</div>
+
+<div class="quiz" data-answer="2">
+  <div class="quiz-head">Pergunta 3 de 3</div>
+  <p class="quiz-q">Por que a parte B da seção 3 <strong>não</strong> é arquitetura hexagonal?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Porque Cockburn exige no mínimo dois adapters por cada port</button></li>
+    <li><button class="quiz-opt">Porque a FeePolicy não é um recurso externo à aplicação</button></li>
+    <li><button class="quiz-opt">Porque os ports dele ficam na fronteira externa da aplicação</button></li>
+    <li><button class="quiz-opt">Porque o hexágono admite no máximo quatro ports bem distintos</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p><em>"The asymmetry to exploit is… between inside and outside of the application."</em> O modelo dele é de fronteira de aplicação; o do repositório é de module em qualquer escala, <em>"a function, class, package, or tier-spanning slice"</em>. Seam interno não existe no hexágono.</p>
+    <p>A última opção é armadilha dupla: os "dois, três ou quatro" são uma <em>observação</em> dele sobre o que já encontrou, não um limite — e o seis do nome, ele mesmo diz, é só espaço no desenho.</p>
+  </div>
+</div>
+
+<details class="recall">
+  <summary>Recall livre — a mais difícil: a regra dos dois adapters aprova o seam. Por que ela não basta?</summary>
+  <p>Porque ela responde <strong>se</strong>, e o preço está no <strong>onde</strong>. Produção mais teste já contam como dois, então praticamente toda dependência passa nessa regra — inclusive as que nenhum caller jamais vai escolher. Aprovar o seam é barato; colocá-lo na interface pública não é.</p>
+  <p>O que a lição 0003 mediu é o que fecha o argumento: parâmetro de construtor é <span class="en">required configuration</span>, e <span class="en">required configuration</span> é interface. Então cada dependência que sobe até o construtor público <strong>engorda o denominador da depth</strong> da lição 0002. Um seam interno é como você fica com a testabilidade sem pagar esse imposto.</p>
+  <p>E a pergunta operacional, de uma linha, para amanhã: <em>algum caller que não seja um teste já escolheu isto alguma vez?</em> Se a resposta é não, a dependência é real, o seam é real, e ele não pertence à assinatura pública.</p>
+</details>
+
+<h2>Para onde isso vai</h2>
+
+<ul>
+  <li><strong>0005 — O deletion test.</strong> Você viu um seam de um adapter só ser reprovado por contagem. A próxima lição transforma isso em varredura: dado um codebase inteiro, quais modules somem sem que nada apareça em outro lugar.</li>
+</ul>
+
+<div class="ask-teacher">
+  <p><strong>Eu sou seu professor aqui.</strong> Se alguma parte não fechou, isso é defeito da lição e não seu — me diga qual trecho e eu reescrevo. Perguntas boas para agora: <em>"em Spring, com tudo sendo bean, como faço um seam interno?"</em>, <em>"quando vale usar Testcontainers em vez do fake in-memory?"</em>, <em>"isso briga com injeção por construtor obrigatória?"</em>, ou <em>"olha as dependências de uma classe minha e diz quais são internas"</em>.</p>
+</div>
+
+<div class="sources">
+  <h4>Fontes desta lição</h4>
+  <ol>
+    <li><strong>Leia esta.</strong> Alistair Cockburn, <em>The Hexagonal (Ports &amp; Adapters) Architecture</em> — HaT Technical Report 2005.02, datado <strong>2005-09-04</strong>, v 0.9, em <a href="https://alistair.cockburn.us/hexagonal-architecture/">alistair.cockburn.us/hexagonal-architecture</a>. <span class="flag cited">página baixada e conferida</span> É curto, é o original, e o autor está vivo e ainda escrevendo sobre ele.</li>
+    <li>Matt Pocock, <a href="https://github.com/mattpocock/skills">mattpocock/skills</a> — <code>codebase-design/SKILL.md:18,24,62,65,71</code>; <code>codebase-design/DEEPENING.md:29,30</code>. E <a href="https://github.com/mattpocock/dictionary-of-ai-coding">dictionary-of-ai-coding</a>, <code>dictionary/Subagent.md</code>. <span class="flag cited">verbatim</span></li>
+    <li>Jeremy Hadfield, Barry Zhang, Kenneth Lien, Florian Scholz, Jeremy Fox, Daniel Ford, <a href="https://www.anthropic.com/engineering/multi-agent-research-system">"How we built our multi-agent research system"</a>, Anthropic Engineering, 13 jun 2025 — os 90,2%, os 15× e os cinquenta sub-agents. <span class="flag cited">verbatim</span></li>
+    <li>O dossiê, com a comparação completa entre ports-and-adapters e os seams do repositório: <code>docs/research/02-se-literature.md</code>. Os números de sub-agents e os modos de falha: <code>docs/research/03-agent-engineering.md</code> §9.</li>
+  </ol>
+</div>
+
+<div class="nav">
+  <a href="0003-interface.html">← 0003 · Interface</a>
+  <a href="../index.html">↑ Índice do curso</a>
+  <a href="../reference/0001-glossary.html#adapter">Glossário</a>
+  <a href="../code/0004-adapter/AdapterDemo.java">Código desta lição</a>
+</div>
+
+</div>
