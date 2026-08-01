@@ -1,0 +1,503 @@
+<title>0002 — Deep vs shallow module</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/mermaid.min.js" defer></script>
+<script src="../assets/lesson.js" defer></script>
+
+<div class="page">
+
+<p class="kicker">Lição 0002 · Trilha I — Estrutura</p>
+<h1>Deep vs shallow module</h1>
+<p class="lede">A lição 0001 te deu <em>onde</em> cortar. Esta dá <em>quanto</em> deve ficar atrás do corte. E a resposta não é sobre tamanho: é sobre quanto comportamento o caller ganha por unidade de interface que ele precisa aprender.</p>
+
+<p class="meta">
+Tempo: ~18 min · Código: <code>code/0002-deep-module/DepthDemo.java</code> (roda com <code>java DepthDemo.java</code>) ·
+Glossário: <a href="../reference/0001-glossary.html#depth">depth</a>, <a href="../reference/0001-glossary.html#module">module</a>, <a href="../reference/0001-glossary.html#interface">interface</a>, <a href="../reference/0001-glossary.html#deletion-test">deletion test</a>
+</p>
+
+<div class="quiz" data-answer="2">
+  <div class="quiz-head">Primeiro, de memória · lição 0001</div>
+  <p class="quiz-q">Onde está o <span class="en">enabling point</span> da chamada <code>gateway.send(t)</code> abaixo?</p>
+<pre><code><span class="k">class</span> <span class="t">TransferService</span> {
+    <span class="k">void</span> execute(<span class="t">Transfer</span> t) {
+        <span class="k">var</span> gateway = <span class="k">new</span> <span class="t">SwiftGateway</span>();
+        gateway.send(t);
+    }
+}</code></pre>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Na assinatura — o método recebe um Transfer pronto</button></li>
+    <li><button class="quiz-opt">No construtor — a classe guarda um campo final</button></li>
+    <li><button class="quiz-opt">Não existe — o gateway nasce dentro do método</button></li>
+    <li><button class="quiz-opt">Na interface — a classe SwiftGateway declara o send</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>Essa é literalmente a estrutura que Feathers analisa: <em>"Is the call to <code>Recalculate</code> an object seam? <strong>No. There is no enabling point.</strong> We can't change which <code>Recalculate</code> method is called because the choice depends on the class of the cell. The class of the cell is decided when the object is created, and we can't change it without modifying the method."</em> <span class="caption" style="border:0;padding:0;display:inline">— Feathers, Cap. 4, p. 41</span></p>
+    <p>Sem enabling point não há seam — há só uma chamada. Agora vamos para a pergunta seguinte: uma vez que o corte existe, <strong>quanto</strong> deve ficar de cada lado?</p>
+  </div>
+</div>
+
+<h2>1 · A intuição</h2>
+
+<p>Um caixa eletrônico tem uma interface minúscula: você enfia o cartão, digita a senha, escolhe um valor. Três gestos. Atrás deles: o cofre, a contadora de cédulas, o antifraude, o lançamento no <span class="en">ledger</span>, a rede interbancária, a conciliação do fim do dia. <strong>Você aprendeu três gestos e ganhou acesso a tudo isso.</strong></p>
+
+<p>Agora imagine o caixa eletrônico que sai de uma reunião apressada. Mesma máquina, mesmo cofre, mesma rede — mas o painel tem seis botões, e um aviso colado na tela:</p>
+
+<div class="split">
+  <div class="callout trap">
+    <span class="callout-title">Seis botões, e uma ordem</span>
+    <p><code>ABRIR&nbsp;SESSÃO</code> → <code>AUTENTICAR</code> → <code>SELECIONAR&nbsp;CONTA</code> → <code>RESERVAR&nbsp;VALOR</code> → <code>CONFERIR</code> → <code>CONFIRMAR</code></p>
+    <p>Faz exatamente a mesma coisa. Mas agora você aprende <strong>seis botões e uma ordem</strong>. E se apertar <code>CONFIRMAR</code> antes de <code>CONFERIR</code>, o dinheiro sai da conta e não sai da máquina.</p>
+  </div>
+  <div class="callout seam">
+    <span class="callout-title">Um cartão, três gestos</span>
+    <p>Cartão → senha → valor.</p>
+    <p>A sequência, a ordem e a conferência continuam existindo — <strong>só que do outro lado do painel</strong>. Você não precisa saber que elas existem para acertar. E não consegue errá-las nem querendo.</p>
+  </div>
+</div>
+
+<p>As duas máquinas entregam a mesma coisa. A diferença inteira está no <strong>preço de entrada</strong>: quanta coisa você tem que carregar na cabeça antes de conseguir usar. É esse preço que a palavra <span class="en">depth</span> mede.</p>
+
+<div class="callout child">
+  <span class="callout-title">Para uma criança de cinco anos</span>
+  <p>A torneira tem <strong>uma</strong> manopla. Você gira e vem água. Atrás dela existem a caixa d'água, o cano, o filtro e a pressão — e você não precisa saber de nenhum deles.</p>
+  <p>Se a torneira tivesse seis manoplas, e você tivesse que girar na ordem certa para não alagar a casa, ela seria uma torneira <em>pior</em> — fazendo exatamente a mesma coisa.</p>
+</div>
+
+<h2>2 · O mecanismo</h2>
+
+<p>A definição do repositório de skills:</p>
+
+<blockquote class="source">
+  <p><strong>Depth</strong> — leverage at the interface: the amount of behaviour a caller (or test) can exercise per unit of interface they have to learn. A module is <strong>deep</strong> when a large amount of behaviour sits behind a small interface, <strong>shallow</strong> when the interface is nearly as complex as the implementation.</p>
+  <cite><code>codebase-design/SKILL.md:20</code> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>E o princípio que é a dobradiça da lição inteira — leia duas vezes, porque quase todo mundo lê ao contrário:</p>
+
+<blockquote class="source">
+  <p>Depth is a property of the interface, not the implementation.</p>
+  <cite><code>codebase-design/SKILL.md:62</code> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>Ou seja: você não deixa um <span class="en">module</span> mais <span class="en">deep</span> escrevendo mais código dentro dele. Você deixa mais deep <strong>tirando coisa da cabeça de quem chama</strong>.</p>
+
+<h3>O original, do próprio Ousterhout</h3>
+
+<blockquote class="source">
+  <p>The best modules are deep: they have a lot of functionality hidden behind a simple interface. A deep module is a good abstraction because only a small fraction of its internal complexity is visible to its users.</p>
+  <cite>John Ousterhout, <em>A Philosophy of Software Design</em>, <strong>1ª ed. (2018)</strong>, §4.4 "Deep modules", ebook p. 34 <span class="flag cited">texto conferido</span></cite>
+</blockquote>
+
+<blockquote class="source">
+  <p>On the other hand, a shallow module is one whose interface is <strong>relatively complex in comparison to</strong> the functionality that it provides.</p>
+  <cite>Ousterhout, 1ª ed., §4.5 "Shallow modules", ebook p. 36 <span class="flag cited">texto conferido</span></cite>
+</blockquote>
+
+<p class="sidenote">Repare na palavra que carrega a definição — <em>relatively</em> — do mesmo jeito que era o <em>in that place</em> na lição 0001. <strong>Shallow não é "pequeno".</strong> É <em>caro em relação ao que entrega</em>. Um module de duas linhas pode ser shallow; um de mil, deep. Ele diz isso com todas as letras: <em>"Small modules tend to be shallow."</em> <span class="caption" style="border:0;padding:0;display:inline">— §4.5, ebook p. 37</span></p>
+
+<p>E a imagem que ele usa para tornar isso visível — a figura mais citada do livro:</p>
+
+<blockquote class="source">
+  <p>To visualize the notion of depth, imagine that each module is represented by a rectangle, as shown in Figure 4.1. <strong>The area of each rectangle is proportional to the functionality</strong> implemented by the module. <strong>The top edge of a rectangle represents the module's interface</strong>; the length of that edge indicates the complexity of the interface.</p>
+  <cite>Ousterhout, 1ª ed., §4.4, ebook p. 34 <span class="flag cited">texto conferido</span></cite>
+</blockquote>
+
+<figure class="figure">
+<svg viewBox="0 0 720 300" role="img" aria-label="Dois retângulos de mesma área: o deep é estreito e alto, o shallow é largo e baixo">
+  <g font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">
+
+    <text x="360" y="20" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.72" font-style="italic">Interface (cost: less is better) — a aresta de cima</text>
+    <text x="16" y="168" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.72" font-style="italic" transform="rotate(-90 16 168)">Functionality (benefit: more is better) — a área</text>
+
+    <line x1="52" y1="262" x2="668" y2="262" stroke="currentColor" stroke-width="1" opacity="0.22"/>
+
+    <!-- deep: estreito e alto -->
+    <rect x="70" y="92" width="100" height="170" fill="#1f6f6b" stroke="#0f4d4a" stroke-width="1.5"/>
+    <text x="120" y="182" text-anchor="middle" font-weight="700" font-size="12.5" fill="#ffffff">DeepLedger</text>
+    <line x1="70" y1="76" x2="170" y2="76" stroke="#1f6f6b" stroke-width="1.8"/>
+    <line x1="70" y1="70" x2="70" y2="82" stroke="#1f6f6b" stroke-width="1.8"/>
+    <line x1="170" y1="70" x2="170" y2="82" stroke="#1f6f6b" stroke-width="1.8"/>
+    <text x="120" y="60" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">2 métodos</text>
+
+    <!-- shallow: largo e baixo -->
+    <rect x="310" y="212" width="340" height="50" fill="#8a5a12" stroke="#5c3c0c" stroke-width="1.5"/>
+    <text x="480" y="243" text-anchor="middle" font-weight="700" font-size="12.5" fill="#ffffff">ShallowLedger</text>
+    <line x1="310" y1="196" x2="650" y2="196" stroke="#8a5a12" stroke-width="1.8"/>
+    <line x1="310" y1="190" x2="310" y2="202" stroke="#8a5a12" stroke-width="1.8"/>
+    <line x1="650" y1="190" x2="650" y2="202" stroke="#8a5a12" stroke-width="1.8"/>
+    <text x="480" y="180" text-anchor="middle" font-size="11.5" font-weight="600" fill="currentColor">6 métodos + 1 ordem + 1 invariante</text>
+
+    <text x="360" y="288" text-anchor="middle" font-size="11.5" fill="currentColor" opacity="0.72">mesmos corpos de método · mesmo comportamento · mesma área</text>
+  </g>
+</svg>
+<figcaption><b>O que notar.</b> Os dois retângulos têm <strong>exatamente a mesma área</strong> — e isso não é licença poética: no código da seção 3 os dois <span class="en">modules</span> têm os mesmos corpos de método, byte a byte. Só a aresta de cima mudou. Nenhum dos dois eixos desta figura é medido em linhas de código.</figcaption>
+</figure>
+
+<p>E a frase que resolve o que o retângulo <em>é</em>, logo abaixo da figura no livro:</p>
+
+<blockquote class="source">
+  <p><strong>Module depth is a way of thinking about cost versus benefit.</strong> The benefit provided by a module is its functionality. The cost of a module (in terms of system complexity) is its interface. […] The best modules are those with the greatest benefit and the least cost. Interfaces are good, but more, or larger, interfaces are not necessarily better!</p>
+  <cite>Ousterhout, 1ª ed., §4.4, ebook p. 35 <span class="flag cited">texto conferido</span></cite>
+</blockquote>
+
+<p><em>A way of thinking</em> — uma forma de pensar. Guarde essa expressão; a seção 4 vive dela.</p>
+
+<h2>3 · Em Java</h2>
+
+<p>A operação, no domínio bancário do curso: <strong>lançar uma transferência com taxa em um ledger de partidas dobradas</strong>. Saem três entradas — o pagador é debitado <code>valor + taxa</code>, o recebedor é creditado <code>valor</code>, a conta de receita do banco é creditada <code>taxa</code>. E existe uma invariante que não pode ser negociada: <strong>todo lançamento soma zero</strong>. Dinheiro não é criado nem destruído.</p>
+
+<div class="code-block bad">
+  <div class="code-label"><span>o caller do ShallowLedger</span><span class="verdict">6 métodos · 1 ordem · 1 invariante</span></div>
+<pre><code><span class="t">ShallowLedger</span> ledger = <span class="k">new</span> <span class="t">ShallowLedger</span>(clock);
+
+ledger.open();
+ledger.debit(t.from(), t.amount().add(t.fee()));
+ledger.credit(t.to(), t.amount());
+ledger.credit(FEES, t.fee());
+<span class="k">if</span> (!ledger.balanced()) <span class="k">throw</span> <span class="k">new</span> <span class="t">IllegalStateException</span>(<span class="s">"unbalanced"</span>);
+ledger.commit();</code></pre>
+</div>
+
+<div class="code-block good">
+  <div class="code-label"><span>o caller do DeepLedger</span><span class="verdict">1 método</span></div>
+<pre><code><span class="t">DeepLedger</span> ledger = <span class="k">new</span> <span class="t">DeepLedger</span>(clock);
+
+<span class="hl">ledger.post(t);</span></code></pre>
+</div>
+
+<h3>E aqui está a parte que costuma surpreender</h3>
+
+<p>Não foi escrita <em>nenhuma</em> linha nova de implementação. As cinco instruções que estavam no caller viraram o corpo de <code>post</code>, sem alterar uma vírgula:</p>
+
+<pre><code><span class="k">public final class</span> <span class="t">DeepLedger</span> {
+
+    <span class="k">public void</span> post(<span class="t">Transfer</span> t) {
+<span class="hl">        open();
+        debit(t.from(), t.amount().add(t.fee()));
+        credit(t.to(), t.amount());
+        credit(FEES, t.fee());
+        <span class="k">if</span> (!balanced()) <span class="k">throw</span> <span class="k">new</span> <span class="t">IllegalStateException</span>(...);
+        commit();</span>
+    }
+
+    <span class="k">private void</span>    open()     { ... }   <span class="c">// corpos byte-a-byte idênticos</span>
+    <span class="k">private void</span>    debit(…)   { ... }   <span class="c">// aos do ShallowLedger</span>
+    <span class="k">private void</span>    credit(…)  { ... }
+    <span class="k">private boolean</span> balanced() { ... }
+    <span class="k">private void</span>    commit()   { ... }
+}</code></pre>
+
+<p><strong>O diff entre os dois <span class="en">modules</span> é: cinco <code>private</code>, mais o método <code>post</code>.</strong> Nada foi reescrito, extraído, otimizado ou renomeado. Isso foi verificado mecanicamente, comparando assinatura + corpo de cada método dos dois:</p>
+
+<div class="callout evidence">
+  <span class="callout-title">A verificação, e não a promessa</span>
+<pre><code>methods in both ......... open debit credit balanced commit total entries
+<span class="hl">byte-identical body ..... open debit credit balanced commit total entries</span>
+differing ............... (none)
+only in DeepLedger ...... post</code></pre>
+</div>
+
+<p>Se a implementação é a mesma e o comportamento é o mesmo, <strong>tudo que mudou foi de que lado da interface a sequência mora</strong>. É exatamente a afirmação de <code>SKILL.md:62</code>, agora como fato observável e não como slogan.</p>
+
+<h3>O que isso compra — o output real</h3>
+
+<p>Este é o output capturado ao rodar <code>java DepthDemo.java</code>. Os quatro <em>callers</em> de A não são caricaturas: são os três erros que a interface do <code>ShallowLedger</code> permite, e que <strong>o compilador aceita sem reclamar</strong>.</p>
+
+<div class="callout evidence">
+  <span class="callout-title">Rode você mesmo — e o que sai</span>
+<pre><code>A. ShallowLedger — sequence and invariant are the caller's job
+   public methods to learn ............. 6
+   calls to post one transfer .......... 5, in a required order
+   ordering rules absent from types .... 1
+   invariants the caller maintains ..... 1
+
+   caller 1  everything right    total       0.00   OK
+   <span class="hl">caller 2  fee not debited     total      50.00   MONEY CREATED</span>
+   <span class="hl">caller 3  check after commit  total  50,100.00   MONEY CREATED</span>
+             balanced() said ........... true  (staging was emptied)
+   caller 4  open() forgotten    total       0.00   NO TIMESTAMP
+
+   wrong sequences that compile ........ 3 of 4
+
+B. DeepLedger — the same five statements, moved inside
+   public methods to learn ............. 2  (post, total)
+   calls to post one transfer .......... 1
+   ordering rules absent from types .... 0
+   invariants the caller maintains ..... 0  (enforced inside)
+   post(transfer)                total       0.00   OK
+   <span class="hl">wrong sequences that compile ........ 0 of 4  (five are private)</span></code></pre>
+</div>
+
+<p>O <strong>caller 3</strong> é o que dói. Ele <em>fez</em> a checagem da invariante — só que depois do <code>commit()</code>, que já esvaziou a área de staging. <code>balanced()</code> respondeu <code>true</code> sobre uma lista vazia. O programador conferiu, a conferência passou, e 50.100 reais apareceram do nada.</p>
+
+<p class="sidenote">Nenhuma assinatura Java expressa "chame <code>balanced()</code> <em>antes</em> de <code>commit()</code>". Essa regra existe, é obrigatória, e é invisível no tipo. Guarde isso: é o assunto inteiro da <strong>lição 0003</strong> — <span class="en">interface</span> é muito mais que a assinatura.</p>
+
+<div class="table-wrap">
+<table>
+  <thead><tr><th></th><th>ShallowLedger</th><th>DeepLedger</th></tr></thead>
+  <tbody>
+    <tr><td>Métodos públicos a aprender</td><td>6</td><td><strong>2</strong></td></tr>
+    <tr><td>Chamadas para lançar uma transferência</td><td>5, nesta ordem</td><td><strong>1</strong></td></tr>
+    <tr><td>Invariantes que o caller sustenta</td><td>1</td><td><strong>0</strong></td></tr>
+    <tr><td>Sequências erradas que compilam</td><td>3 de 4</td><td><strong>0 de 4</strong></td></tr>
+    <tr><td>Corpos de método</td><td colspan="2" style="text-align:center"><strong>byte a byte idênticos</strong></td></tr>
+  </tbody>
+</table>
+</div>
+
+<div class="callout seam">
+  <span class="callout-title">Deep não significa fechado — o seam da lição 0001 continua lá</span>
+  <p>Repare no construtor: <code>DeepLedger(Clock clock)</code>. O <a href="0001-seam.html">seam</a> da lição anterior não foi removido; ele continua sendo o <span class="en">enabling point</span> que deixa o teste fixar o tempo. Profundidade <strong>não</strong> quer dizer "esconder as dependências" — quer dizer <em>não obrigar o caller a orquestrá-las</em>.</p>
+  <p>É a mesma frase do repositório vista pelo outro lado: <em>"A deep module can be internally composed of small, mockable, swappable parts — they just aren't part of the interface."</em> <span class="caption" style="border:0;padding:0;display:inline">— <code>codebase-design/SKILL.md:62</code></span></p>
+</div>
+
+<details class="recall">
+  <summary>Antes de continuar — aplique o <span class="en">deletion test</span> ao <code>ShallowLedger</code>: apague ele. O que acontece?</summary>
+  <p>A regra é: <em>"Imagine deleting the module. If complexity vanishes, it was a pass-through. If complexity reappears across N callers, it was earning its keep."</em> <span class="caption" style="border:0;padding:0;display:inline">— <code>codebase-design/SKILL.md:63</code></span></p>
+  <p>Apagando o <code>ShallowLedger</code>, o caller passa a manipular a lista de entradas direto — e continua tendo que abrir, debitar, creditar, conferir e commitar, na mesma ordem. <strong>A complexidade não sumiu: ela nem chegou a se mover.</strong> O module era um <em>pass-through</em> com nomes.</p>
+  <p>Apagando o <code>DeepLedger</code>, aquelas cinco instruções e a invariante reaparecem em <em>cada</em> lugar que lança uma transferência. Ele estava pagando o próprio aluguel. Essa técnica vira ferramenta de varredura de codebase na <strong>lição 0005</strong>.</p>
+</details>
+
+<h2>4 · A fonte primária</h2>
+
+<p>O repositório mantém uma lista de <em>"Rejected framings"</em> — formulações que ele recusa de propósito. Uma delas é sobre depth:</p>
+
+<blockquote class="source">
+  <p><strong>Depth as ratio of implementation-lines to interface-lines</strong> <em>(Ousterhout)</em>: rewards padding the implementation. We use depth-as-leverage instead.</p>
+  <cite><code>codebase-design/SKILL.md:107</code> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p><strong>A rejeição está certa</strong> — e não é abstrata: é precisamente o erro que você comete se acredita que depth é propriedade da <em>implementação</em>. Dá para medir. O programa tem um terceiro ledger, o <code>PaddedLedger</code>, com a <em>mesma</em> interface pública do <code>DeepLedger</code> e o <em>mesmo</em> comportamento; a única diferença é que o corpo foi escrito da forma mais longa possível — variáveis intermediárias, um <code>while</code> no lugar de três chamadas, dois helpers que só delegam:</p>
+
+<div class="callout evidence">
+  <span class="callout-title">O que a métrica rejeitada pontuaria</span>
+<pre><code>C. What "impl-lines / interface-lines" would score
+   ShallowLedger .......................  5 impl / 6 public =  0.8
+   DeepLedger .......................... 13 impl / 2 public =  6.5
+   <span class="hl">PaddedLedger ........................ 32 impl / 2 public = 16.0</span>
+   <span class="hl">metric ranks Deep above Shallow ..... true   (it gets this right)</span>
+   <span class="hl">PaddedLedger scored ................. 2.5x deeper than Deep</span>
+   same public interface as Deep ....... true
+   same behaviour (totals equal) ....... true
+   behaviour gained by the padding ..... none</code></pre>
+</div>
+
+<p><strong>Repare na quarta linha, porque ela é o ponto — e é contra nós.</strong> A métrica rejeitada <em>acerta</em> o caso principal: ela põe o <code>DeepLedger</code> muito acima do <code>ShallowLedger</code> (6,5 contra 0,8), que é exatamente o veredito correto. É por isso que ela circula. Se errasse o caso fácil, ninguém a repetiria.</p>
+
+<p>O defeito não é estar errada — <strong>é ser de graça</strong>. Qualquer um a infla sem entregar nada: o <code>PaddedLedger</code> subiu 2,5× escrevendo o mesmo comportamento de forma mais longa. Uma métrica que se ganha digitando não mede design.</p>
+
+<figure class="figure">
+<svg viewBox="0 0 720 190" role="img" aria-label="Dois retângulos idênticos, DeepLedger e PaddedLedger, separados por um sinal de igual">
+  <g font-family="ui-sans-serif, system-ui, sans-serif" font-size="13">
+    <rect x="150" y="34" width="100" height="120" fill="#1f6f6b" stroke="#0f4d4a" stroke-width="1.5"/>
+    <text x="200" y="99" text-anchor="middle" font-weight="700" font-size="12.5" fill="#ffffff">DeepLedger</text>
+    <text x="200" y="174" text-anchor="middle" font-size="11.5" fill="currentColor" opacity="0.8">13 linhas de implementação</text>
+
+    <text x="360" y="102" text-anchor="middle" font-size="30" fill="currentColor" opacity="0.45">=</text>
+    <text x="360" y="140" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.7">a métrica diz</text>
+    <text x="360" y="155" text-anchor="middle" font-size="11" font-weight="600" fill="currentColor" opacity="0.9">"2,5× mais profundo"</text>
+
+    <rect x="470" y="34" width="100" height="120" fill="#1f6f6b" stroke="#0f4d4a" stroke-width="1.5"/>
+    <text x="520" y="99" text-anchor="middle" font-weight="700" font-size="12.5" fill="#ffffff">PaddedLedger</text>
+    <text x="520" y="174" text-anchor="middle" font-size="11.5" fill="currentColor" opacity="0.8">32 linhas de implementação</text>
+
+    <text x="360" y="20" text-anchor="middle" font-size="11" fill="currentColor" opacity="0.72" font-style="italic">mesma aresta de cima · mesma área · mesmo retângulo</text>
+  </g>
+</svg>
+<figcaption><b>O que notar.</b> A figura do Ousterhout <em>não consegue</em> distinguir os dois — e é por isso que ela está certa. Nem a aresta nem a área têm linha de código como unidade. Uma métrica que separa esses dois retângulos está medindo algo que não é depth.</figcaption>
+</figure>
+
+<h3>Mas a atribuição não sobrevive ao livro</h3>
+
+<p>O parêntese <em>"(Ousterhout)"</em> é o problema. O Capítulo 4 foi lido na íntegra, na 1ª edição, para esta lição. O que se encontra lá:</p>
+
+<div class="callout phd">
+  <span class="callout-title">Ausência confirmada — e como ela foi confirmada</span>
+  <ul>
+    <li>A palavra <code>ratio</code> aparece <strong>zero vez nas 188 páginas</strong> do livro. <span class="caption" style="border:0;padding:0;display:inline">(cuidado: uma busca por substring casa dentro de <em>ope<b>ratio</b>ns</em> — a forma com fronteira de palavra não retorna nada)</span></li>
+    <li><code>formula</code> aparece <strong>uma vez</strong>, na p. 39, e é referência cruzada à fórmula de <em>complexidade</em> do §2.1 — não de depth.</li>
+    <li><strong>Uma varredura de texto não teria bastado, e isso foi tratado.</strong> A única equação real do livro é uma <em>imagem raster</em> sem camada de texto — nenhuma regex a encontraria. Então foi feito um censo de imagens nas 188 páginas: o Capítulo 4 tem exatamente <strong>duas páginas com imagem</strong>. Uma são os ícones decorativos do <em>Red Flag</em>. A outra é a Figura 4.1, cujos únicos rótulos internos são <code>Interface (cost: less is better)</code>, <code>Functionality (benefit: more is better)</code>, <code>Deep Module</code> e <code>Shallow Module</code>. <strong>Sem números, sem eixos, sem equação.</strong></li>
+  </ul>
+</div>
+
+<p>E não é só ausência. Ele <strong>rejeita contagem de linhas explicitamente, duas vezes</strong>:</p>
+
+<blockquote class="source">
+  <p>System designers sometimes assume that complexity can be measured by lines of code. […] However, this view ignores the costs associated with cognitive load. <strong>Sometimes an approach that requires more lines of code is actually simpler</strong>, because it reduces cognitive load.</p>
+  <cite>Ousterhout, 1ª ed., §2.2, ebook p. 20 <span class="flag cited">texto conferido</span></cite>
+</blockquote>
+
+<blockquote class="source">
+  <p>Methods containing <strong>hundreds of lines of code are fine</strong> if they have a simple signature and are easy to read. These methods are deep (lots of functionality, simple interface), which is good.</p>
+  <cite>Ousterhout, 1ª ed., §9.8, ebook p. 80 <span class="flag cited">texto conferido</span></cite>
+</blockquote>
+
+<div class="callout evidence">
+  <span class="callout-title">O dado que corta para o outro lado — reportado primeiro, não escondido</span>
+  <p>Existe <em>uma</em> passagem no Capítulo 4 que alguém defendendo a leitura por linhas usaria, e ela é real: <em>"A modern implementation of the Unix I/O interface requires <strong>hundreds of thousands of lines of code</strong>"</em> <span class="caption" style="border:0;padding:0;display:inline">— §4.4, ebook p. 36</span>. É Ousterhout citando tamanho de implementação enquanto argumenta que Unix I/O é deep.</p>
+  <p>Sozinha, ela é compatível com "mais linhas = mais deep". Ela só não sobrevive ao resto do livro — as duas citações acima, e o fato de que a comparação que ele efetivamente faz é entre <em>complexidades</em>, não entre contagens: <em>"The best modules are those whose interfaces are much simpler than their implementations."</em> <span class="caption" style="border:0;padding:0;display:inline">— §4.1, ebook p. 32</span></p>
+  <p><strong>É assim que se relata evidência contrária:</strong> primeiro, inteira, sem suavizar. Depois se responde. Uma tese que precisa esconder um dado não estava pronta.</p>
+</div>
+
+<p>E existe uma falsificação direta. No Capítulo 6 ele afirma que interfaces de propósito geral são <em>simultaneamente</em> mais deep <strong>e</strong> resultam em <strong>menos</strong> código de implementação:</p>
+
+<blockquote class="source">
+  <p>The most important (and perhaps surprising) benefit of the general-purpose approach is that it results in <strong>simpler and deeper</strong> interfaces than a special-purpose approach. […] Furthermore, the general-purpose approach has <strong>less code overall</strong> than the specialized approach.</p>
+  <cite>Ousterhout, 1ª ed., §6.1 e §6.3, ebook pp. 51 e 53 <span class="flag cited">texto conferido</span></cite>
+</blockquote>
+
+<p>Sob uma razão <em>linhas-de-implementação ÷ linhas-de-interface</em>, menos implementação torna o module <strong>mais raso</strong>. Ousterhout diz que a mesma mudança o torna <strong>mais profundo</strong>. Não é ausência de evidência: é evidência contrária. E ela vale nas duas edições — a formulação de frase única da 2ª ed. está nas duas metades acima na 1ª.</p>
+
+<div class="callout phd">
+  <span class="callout-title">A qualificação honesta: ele <em>escreve</em> uma razão — só que outra</span>
+  <p>Suprimir isto seria fazer a mesma coisa que estamos criticando. Nas notas de aula dele, no servidor dele em Stanford:</p>
+  <blockquote class="source" style="margin:0.8rem 0">
+    <p>Goal for interface design: <strong>maximize functionality/(interface complexity)</strong> (a sweet interface or module)</p>
+    <p>However, size itself isn't the most important metric: it's functionality/(interface complexity)</p>
+    <cite>Ousterhout, CS 190 (Spring 2016), "Modular Design" <span class="flag cited">verbatim</span></cite>
+  </blockquote>
+  <p>Só que o numerador é <strong>functionality</strong> (o benefício), não linhas; o denominador é <strong>interface complexity</strong> (o custo), não linhas. E ele mesmo diz, no ar, que não sabe quantificar o numerador: <em>"Functionality is harder to define. That's just what it does. […] <strong>I don't have as good a definition.</strong>"</em> <span class="caption" style="border:0;padding:0;display:inline">— SE Radio 520, 00:34:57</span></p>
+  <p>Uma grandeza que o próprio autor diz não saber definir não é uma métrica. É o que o livro já dizia: <em>a way of thinking about cost versus benefit</em>.</p>
+</div>
+
+<div class="callout trap">
+  <span class="callout-title">A lição de verdade desta seção — e ela não é sobre depth</span>
+  <p>Junte as peças. O framing rejeitado <strong>é</strong> uma simplificação folclórica real, que circula em resumos de blog, e que <strong>de fato</strong> premia inchar a implementação — a seção C mediu isso. Mas o parêntese <em>"(Ousterhout)"</em> não tem base textual: o livro não a contém e a contradiz.</p>
+  <p>E a consequência que fecha o círculo: <strong><em>depth-as-leverage</em> não corrige Ousterhout — restata ele.</strong> "Comportamento que um caller exercita por unidade de interface que precisa aprender" é <em>"maximize functionality/(interface complexity)"</em> com outras palavras.</p>
+  <p>Então o que você acabou de ver não foi um repositório corrigindo um autor. Foi <strong>uma simplificação folclórica sendo atribuída de volta ao autor que ela distorce</strong> — e depois recusada em nome dele. Esse padrão é comum, é fácil de repetir de boa-fé, e é exatamente por isso que este curso exige a página junto com a citação.</p>
+</div>
+
+<div class="callout evidence">
+  <span class="callout-title">Leia isto a seguir</span>
+  <p><strong>John Ousterhout, <em>A Philosophy of Software Design</em>, Capítulo 4 — "Modules Should Be Deep".</strong> Nove páginas, e você já tem o PDF em <code>docs/books/</code>. É a fonte primária inteira desta lição. Se quiser algo curto e gratuito antes, as <a href="https://web.stanford.edu/~ouster/cgi-bin/cs190-winter18/lecture.php?topic=modularDesign">notas de aula de CS 190</a> no servidor dele cobrem o mesmo material em uma página.</p>
+</div>
+
+<h2>5 · O paralelo com agentes</h2>
+
+<p>Este é o paralelo mais forte do curso inteiro, e o motivo é literal, não poético: <strong>a interface de uma tool de agente é paga em tokens, em toda rodada de conversa.</strong> Um caller humano paga a interface uma vez, aprendendo. Um LLM paga toda vez que lê o contexto.</p>
+
+<p>A Anthropic descreve o anti-pattern sem usar a palavra <span class="en">shallow</span> — mas descrevendo exatamente ela:</p>
+
+<blockquote class="source">
+  <p>More tools don't always lead to better outcomes. A common error we've observed is <strong>tools that merely wrap existing software functionality</strong>.</p>
+  <p>Tools can <strong>consolidate functionality</strong>, handling potentially multiple discrete operations (or API calls) under the hood.</p>
+  <cite>Anthropic Engineering, <a href="https://www.anthropic.com/engineering/writing-tools-for-agents">"Writing effective tools for agents"</a>, 11 set 2025 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>O exemplo que eles dão é este: colapsar <code>list_users</code> + <code>list_events</code> + <code>create_event</code> em um único <code>schedule_event</code>. Compare com a seção 3 — três chamadas em ordem viram uma. <strong>É o mesmo movimento que <code>post(Transfer)</code>, no mesmo formato, por motivo diferente.</strong></p>
+
+<p>E o motivo diferente tem número:</p>
+
+<div class="callout evidence">
+  <span class="callout-title">O custo da interface, medido</span>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Carregar definições de tools</th><th>Tokens</th></tr></thead>
+    <tbody>
+      <tr><td>Todas, de antemão</td><td>150.000</td></tr>
+      <tr><td>Só as que a tarefa usa</td><td><strong>2.000</strong></td></tr>
+      <tr><td>Economia</td><td><strong>98,7%</strong></td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p><em>"This reduces the token usage from 150,000 tokens to 2,000 tokens—a time and cost saving of 98.7%."</em> <span class="caption" style="border:0;padding:0;display:inline">— Anthropic Engineering, <a href="https://www.anthropic.com/engineering/code-execution-with-mcp">"Code execution with MCP"</a>, 4 nov 2025 <span class="flag cited">verbatim</span></span></p>
+  <p>Traduzindo para o vocabulário desta lição: <strong>o custo da interface é literal</strong>. No Ousterhout ele é carga cognitiva, difícil de medir — foi por isso que ele parou no retângulo. Em um agente, ele é uma fatura em tokens.</p>
+</div>
+
+<div class="callout ai">
+  <span class="callout-title">Onde este paralelo é nosso, e onde não é</span>
+  <p><strong>Verificado:</strong> as três citações acima, verbatim, nas URLs dadas.</p>
+  <p><strong>Nossa <span class="flag ours">analogia</span>:</strong> o mapeamento <em>deep module ↔ deep tool</em>. Uma verificação de termos no texto completo de "Writing effective tools for agents" por <code>deep</code>, <code>shallow</code>, <code>module</code>, <code>information hiding</code>, <code>Ousterhout</code> e <code>Parnas</code> retornou <strong>nenhum presente</strong>. A Anthropic chega ao mesmo anti-pattern por conta própria; o enquadramento por <span class="en">depth</span> é nosso.</p>
+  <p><strong>E o contra-sinal, que não vamos esconder:</strong> a posição declarada deles é que ferramentas de agente exigem <em>repensar</em> a prática de API, não herdá-la — <em>"instead of writing tools and MCP servers the way we'd write functions and APIs for other developers or systems, we need to design them for agents"</em>. A analogia é uma lente útil. Não é uma afirmação deles.</p>
+</div>
+
+<p class="sidenote">Vale reparar em como a seção 4 e a seção 5 se espelham. Na 4, alguém atribuiu a um autor uma ideia que ele não escreveu. Na 5, nós estamos atribuindo a um autor uma ideia que ele não escreveu — <strong>e dizendo isso em voz alta, com a verificação de termos junto</strong>. A diferença entre as duas é a etiqueta.</p>
+
+<h2>6 · Retrieval</h2>
+
+<p>Não releia. Responda de memória — o erro aqui é o que faz a lição durar.</p>
+
+<div class="quiz" data-answer="3">
+  <div class="quiz-head">Pergunta 1 de 3</div>
+  <p class="quiz-q">O que torna um <span class="en">module</span> <span class="en">deep</span>?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Muita implementação escondida atrás de uma fachada bem nomeada</button></li>
+    <li><button class="quiz-opt">Muitas linhas de código por cada método público exposto</button></li>
+    <li><button class="quiz-opt">Muitos testes cobrindo cada caminho interno da sua implementação</button></li>
+    <li><button class="quiz-opt">Muito comportamento atrás de uma interface pequena de aprender</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p><strong>Comportamento por unidade de interface aprendida.</strong> As outras três medem coisas da <em>implementação</em> — e é exatamente esse o erro que <code>SKILL.md:62</code> corta pela raiz: <em>"Depth is a property of the interface, not the implementation."</em></p>
+    <p>A opção sobre fachada é a mais sedutora e continua errada: uma fachada que obriga você a chamar seis coisas na ordem certa é uma fachada shallow.</p>
+  </div>
+</div>
+
+<div class="quiz" data-answer="1">
+  <div class="quiz-head">Pergunta 2 de 3</div>
+  <p class="quiz-q">Qual é o defeito da métrica "linhas de implementação ÷ métodos públicos"?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Ignora o custo real de manter a implementação grande</button></li>
+    <li><button class="quiz-opt">Premia inchar a implementação sem dar nada ao caller</button></li>
+    <li><button class="quiz-opt">Confunde número de métodos com número de casos testáveis</button></li>
+    <li><button class="quiz-opt">Exige medir a interface antes de escrever qualquer teste</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>Medido, não argumentado: <code>PaddedLedger</code> tem a mesma interface pública e o mesmo comportamento do <code>DeepLedger</code>, e a métrica o pontua <strong>2,5× mais profundo</strong> só por escrever o mesmo corpo de forma mais longa.</p>
+    <p>E o detalhe que fecha a seção 4: essa métrica <strong>não é do Ousterhout</strong>. A palavra <code>ratio</code> não aparece nenhuma vez no livro, e ele rejeita contagem de linhas duas vezes.</p>
+  </div>
+</div>
+
+<div class="quiz" data-answer="2">
+  <div class="quiz-head">Pergunta 3 de 3</div>
+  <p class="quiz-q">Entre <code>ShallowLedger</code> e <code>DeepLedger</code>, o que mudou?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Como cada lançamento individual é gravado no ledger</button></li>
+    <li><button class="quiz-opt">Quantas entradas uma transferência com taxa realmente gera</button></li>
+    <li><button class="quiz-opt">De que lado da interface a sequência fica</button></li>
+    <li><button class="quiz-opt">Onde o Clock é criado dentro do module</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>Os seis corpos de método são <strong>byte a byte idênticos</strong> — isso foi verificado por comparação mecânica, não afirmado. O diff inteiro são cinco <code>private</code> e o método <code>post</code>.</p>
+    <p>A última opção é a armadilha: o <code>Clock</code> é <em>recebido</em> nos dois, e continua recebido. Deep não quer dizer esconder a dependência — o <a href="0001-seam.html">seam</a> da lição 0001 segue exatamente onde estava.</p>
+  </div>
+</div>
+
+<details class="recall">
+  <summary>Recall livre — a mais difícil: como a <em>mesma</em> implementação pode ser deep num caso e shallow no outro?</summary>
+  <p>Porque <strong>depth não é uma propriedade do código; é uma propriedade da fronteira</strong>. Ela mede o que o caller precisa carregar na cabeça, e o caller não vê a implementação — vê a interface. Mova a mesma sequência para dentro e o custo do caller cai a um; deixe-a fora e ele paga seis métodos, uma ordem e uma invariante para obter o mesmo resultado.</p>
+  <p>É por isso que a figura do Ousterhout tem dois eixos e nenhum deles é linha de código: a área é <em>o que você ganha</em>, a aresta de cima é <em>o que você paga</em>. Inchar a implementação não move nem um nem outro.</p>
+  <p>E o corolário operacional, que você usa amanhã: quando um module te obriga a lembrar de uma <em>ordem</em>, ele está te cobrando interface que não aparece em assinatura nenhuma. É quase sempre onde o próximo bug mora.</p>
+</details>
+
+<h2>Para onde isso vai</h2>
+
+<ul>
+  <li><strong>0003 — Interface é mais que a assinatura.</strong> O <code>caller 3</code> desta lição foi um trailer: a regra "confira antes do commit" é obrigatória, real e invisível no tipo. Invariantes, ordem, modos de erro e performance também são interface.</li>
+  <li><strong>0004 — Adapter, e seams internos vs externos.</strong> Como um deep module pode ser feito por dentro de partes trocáveis sem que elas virem interface.</li>
+  <li><strong>0005 — O deletion test como varredura.</strong> A técnica que você acabou de usar uma vez, aplicada a um codebase inteiro para achar <span class="en">deepening opportunities</span>.</li>
+</ul>
+
+<div class="ask-teacher">
+  <p><strong>Eu sou seu professor aqui.</strong> Se alguma parte não fechou, isso é defeito da lição e não seu — me diga qual trecho e eu reescrevo. Perguntas boas para agora: <em>"me mostra um deep module que ficou deep demais"</em>, <em>"como isso interage com camadas e DTOs em Spring?"</em>, <em>"o Ousterhout e o Clean Code discordam nisso — quem está certo?"</em>, ou <em>"aplica o deletion test num serviço do meu código"</em>.</p>
+</div>
+
+<div class="sources">
+  <h4>Fontes desta lição</h4>
+  <ol>
+    <li>John Ousterhout, <em>A Philosophy of Software Design</em>, <strong>1ª edição, abril de 2018</strong>, Yaknyam Press, Palo Alto, ISBN 978-1-7321022-0-0 — Cap. 4 "Modules Should Be Deep". Citações: §4.4 ebook pp. 34–35 (definição de deep, o retângulo, custo × benefício); §4.5 pp. 36–37 (shallow, "small modules tend to be shallow", Unix I/O); §4.1 p. 32; §2.2 p. 20; §9.8 p. 80; §6.1 e §6.3 pp. 51 e 53. Edição e ISBN lidos da página de copyright do próprio livro. <span class="flag cited">texto conferido</span> <span class="caption" style="border:0;padding:0;display:inline">Páginas de ebook não são páginas de impressão, e nunca se transferem entre edições.</span></li>
+    <li>John Ousterhout, <a href="https://web.stanford.edu/~ouster/cgi-bin/cs190-spring16/lecture.php?topic=modularDesign">CS 190, "Modular Design"</a> (Spring 2016) e <a href="https://web.stanford.edu/~ouster/cgi-bin/cs190-winter18/lecture.php?topic=modularDesign">Winter 2018</a>, servidor dele em Stanford — a razão <code>functionality/(interface complexity)</code>. <span class="flag cited">verbatim</span></li>
+    <li><a href="https://se-radio.net/2022/07/episode-520-john-ousterhout-on-a-philosophy-of-software-design/">Software Engineering Radio, ep. 520</a>, transcrição publicada, 00:27:48 e 00:34:57 — o retângulo em palavras dele, e o numerador que ele diz não saber definir. <span class="flag cited">verbatim</span></li>
+    <li>Matt Pocock, <a href="https://github.com/mattpocock/skills">mattpocock/skills</a> — <code>codebase-design/SKILL.md:20,62,63,107</code>; <code>README.md:166-168</code>. Docs publicados em <code>https://aihero.dev/skills-codebase-design</code>. <span class="flag cited">verbatim</span></li>
+    <li>Michael C. Feathers, <em>Working Effectively with Legacy Code</em>, Prentice Hall PTR, 2005, Cap. 4 p. 41 — citado na abertura. <span class="flag cited">texto conferido</span></li>
+    <li>Anthropic Engineering, <a href="https://www.anthropic.com/engineering/writing-tools-for-agents">"Writing effective tools for agents"</a> (11 set 2025) e <a href="https://www.anthropic.com/engineering/code-execution-with-mcp">"Code execution with MCP"</a> (4 nov 2025). <span class="flag cited">verbatim</span></li>
+    <li>O veredito completo, com os resultados negativos e o censo de imagens: <code>docs/research/05-ousterhout-depth.md</code>.</li>
+  </ol>
+</div>
+
+<div class="nav">
+  <a href="0001-seam.html">← 0001 · Seam</a>
+  <a href="../index.html">↑ Índice do curso</a>
+  <a href="../reference/0001-glossary.html#depth">Glossário</a>
+  <a href="../code/0002-deep-module/DepthDemo.java">Código desta lição</a>
+</div>
+
+</div>

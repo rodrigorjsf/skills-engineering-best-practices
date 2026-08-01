@@ -42,6 +42,12 @@
       <td>I — Estrutura</td>
       <td>Saber olhar uma classe Java e dizer onde o seam vai, e por quê.</td>
     </tr>
+    <tr>
+      <td><a href="lessons/0002-deep-module.html">0002</a></td>
+      <td><a href="lessons/0002-deep-module.html">Deep vs shallow module</a></td>
+      <td>I — Estrutura</td>
+      <td>Julgar quanto deve ficar atrás do corte — e por que linha de código não mede isso.</td>
+    </tr>
   </tbody>
 </table>
 </div>
@@ -55,6 +61,11 @@
   <li><a href="docs/research/02-se-literature.md">02 — Literatura de engenharia</a> — Feathers, Parnas, Ousterhout, Evans, Beck, Fowler, Nygard. Com o registro empírico reportado honestamente.</li>
   <li><a href="docs/research/03-agent-engineering.md">03 — Engenharia de agentes</a> — context rot, lost-in-the-middle, progressive disclosure, harness, tooling. Com números.</li>
   <li><a href="docs/research/04-matt-pocock-sources.md">04 — Fontes primárias do autor</a> — repositório, docs publicados, vídeos, e o ledger de cunhagens.</li>
+  <li><a href="docs/research/05-ousterhout-depth.md">05 — Ousterhout e a métrica de depth</a> — o Capítulo 4 lido na íntegra: <code>ratio</code> zero vez em 188 páginas, censo de imagens incluído.</li>
+  <li><a href="docs/research/06-walking-skeleton-and-harness-post.md">06 — Walking skeleton e o post de harness</a> — o texto primário do Cockburn, separado de <code>tracer bullet</code> e <code>vertical slice</code>.</li>
+  <li><a href="docs/research/07-communities.md">07 — Comunidades</a> — quatro lugares verificados onde testar isto com gente de verdade.</li>
+  <li><a href="docs/research/08-ddd-evans.md">08 — DDD, do Evans</a> — <em>ubiquitous language</em> e <em>bounded context</em> nas palavras dele, com os capítulos confirmados.</li>
+  <li><a href="docs/research/09-supplementary-sources.md">09 — Fontes suplementares</a> — o que sobreviveu à checagem de proveniência, e o que foi rebaixado.</li>
 </ul>
 
 <h2>Código</h2>
@@ -63,6 +74,7 @@
 
 <ul>
   <li><code>code/0001-seam/SeamDemo.java</code> — a mesma regra bancária com e sem seam. Rode com <code>java SeamDemo.java</code>.</li>
+  <li><code>code/0002-deep-module/DepthDemo.java</code> — o mesmo ledger com uma interface de seis métodos e com uma de um. Corpos de método byte-a-byte idênticos. Rode com <code>java DepthDemo.java</code>.</li>
 </ul>
 
 <div class="ask-teacher">

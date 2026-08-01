@@ -40,7 +40,7 @@ Three standing rules:
 - **No smoothing.** An unverified claim is never rewritten into confident prose.
 - **Coinages are labelled as coinages,** and attributed to whoever actually coined them.
 
-A fourth marker, `[our analogy]`, separates what a source says from what we are inferring by analogy. The research corpus currently carries **125 explicit `[unverified]` marks** — that count is a feature. It is the difference between a document that knows what it doesn't know and one that reads confidently everywhere.
+A fourth marker, `[our analogy]`, separates what a source says from what we are inferring by analogy. The research corpus currently carries **159 explicit `[unverified]` marks** across nine files — that count is a feature. It is the difference between a document that knows what it doesn't know and one that reads confidently everywhere.
 
 ### What that discipline has already caught
 
@@ -48,6 +48,7 @@ A fourth marker, `[our analogy]`, separates what a source says from what we are 
 - **"Dumb zone was coined by Dex Horthy"** does not hold up — the phrase does not appear in HumanLayer's own document. What *is* his: the 40–60% utilization target and *intentional compaction*.
 - **"Harness engineering"** traces to **Mitchell Hashimoto**, self-identified, not to Pocock.
 - The favourable **TDD** case study (Nagappan et al., "40–90% fewer defects") is four case studies, not experiments; its "15–35% slower" figure is explicitly *"subjectively estimated by management."* Fucci et al. (TSE 2017) found that **sequencing — test-first versus test-after — had no important influence**; granularity and uniformity carried the effect.
+- **"Depth as a ratio of implementation-lines to interface-lines (Ousterhout)"** — the rejection is sound, the attribution is not. Chapter 4 of *A Philosophy of Software Design* was read in full: the word `ratio` occurs **zero times in all 188 pages**, Figure 4.1 carries no numbers, axes or equation, and he rejects line count as a measure twice. The ratio he *does* write, in his lecture notes, is `functionality/(interface complexity)` — neither term a line count.
 
 ## What's inside
 
@@ -57,9 +58,9 @@ A fourth marker, `[our analogy]`, separates what a source says from what we are 
 | [`CLAUDE.md`](./CLAUDE.md) | Operating rules — the lesson contract, evidence tiers, markup contracts, delegation policy. |
 | [`RESOURCES.md`](./RESOURCES.md) | Curated, verified sources with annotations, plus an explicit `Gaps` section. |
 | [`docs/curriculum.md`](./docs/curriculum.md) | The full map: 4 tracks, 20 lessons, in order. |
-| `lessons/` | Self-contained HTML lessons. **1 of 20 built.** |
+| `lessons/` | Self-contained HTML lessons. **2 of 20 built.** |
 | `reference/` | Compressed documents built to be revisited and printed. The glossary is binding. |
-| `docs/research/` | The research corpus — ~6,500 lines, cited. |
+| `docs/research/` | The research corpus — 9 files, ~7,800 lines, cited. |
 | `code/` | Java examples that compile and run. |
 | `learning-records/` | What was actually learned, and what it changes. |
 
@@ -71,6 +72,11 @@ Produced by delegated agents, every claim cited:
 - **`02-se-literature.md`** — the software-engineering literature map, with the empirical record reported honestly including null and negative results.
 - **`03-agent-engineering.md`** — context rot, lost-in-the-middle, progressive disclosure, harness, tooling — with the measured numbers.
 - **`04-matt-pocock-sources.md`** — the author's own primary sources and a coinage ledger.
+- **`05-ousterhout-depth.md`** — settles whether Ousterhout defines depth as a ratio, from the book itself. He does not, and his own text falsifies the line-count reading.
+- **`06-walking-skeleton-and-harness-post.md`** — Cockburn's archived primary text, separated from `tracer bullet` and `vertical slice` in each author's own words.
+- **`07-communities.md`** — four verified venues for testing this work outside the learning environment.
+- **`08-ddd-evans.md`** — Evans on ubiquitous language and bounded context, chapters confirmed, including one hypothesis the agent disproved and reported.
+- **`09-supplementary-sources.md`** — provenance checks on two supplementary sources; one was promoted, one demoted to a finding aid.
 
 ### Curriculum
 
@@ -97,6 +103,7 @@ Java examples run without a compile step (Java 25, single-file source mode):
 
 ```bash
 cd code/0001-seam && java SeamDemo.java
+cd code/0002-deep-module && java DepthDemo.java
 ```
 
 ## Attribution and licensing

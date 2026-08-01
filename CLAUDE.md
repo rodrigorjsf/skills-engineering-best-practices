@@ -102,3 +102,6 @@ When something fails repeatedly, when User has to re-explain, or when a workarou
 - Copying a repo from Windows corrupts symlinks and line endings; clone instead.
 - Java 25 (Corretto, via mise) is on PATH; run examples with `java File.java`, no compile step.
 - `npm` here is broken (`npm-cli.js` missing); fetch bundles another way.
+- Screenshot lessons with `google-chrome --headless=new`; stub `matchMedia` to force dark.
+- PIL is not installed; crop and slice PNGs with PyMuPDF (`fitz`).
+- Keep captured program output under ~70 columns or it overflows the lesson measure.
