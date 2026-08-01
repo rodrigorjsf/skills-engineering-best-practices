@@ -7,7 +7,7 @@
 
 <p class="kicker">Lição 0006 · Trilha II — Processo</p>
 <h1>Dependency inversion: quem é dono da abstração</h1>
-<p class="lede">Injetar uma dependência e inverter uma dependência são coisas diferentes. O repositório do Matt ensina a primeira <strong>77 vezes</strong> e a segunda <strong>nenhuma</strong>. Esta lição mostra a diferença, e por que a ausência não é descuido.</p>
+<p class="lede">Injetar uma dependência e inverter uma dependência são coisas diferentes. Em 113 arquivos, o repositório do Matt nomeia a primeira <strong>uma vez</strong> e a segunda <strong>nenhuma</strong> — e gasta <strong>77</strong> ocorrências em <code>seam</code>. Esta lição mostra a diferença, e por que a ausência não é descuido.</p>
 
 <div class="quiz" data-answer="2">
   <div class="quiz-head">Antes de começar — lição 0004</div>
@@ -25,7 +25,7 @@
 
 <hr>
 
-<h2>1 · Intuição</h2>
+<h2>1 · A intuição</h2>
 
 <div class="callout child">
   <span class="callout-title">A tomada da parede</span>
@@ -40,7 +40,7 @@
 
 <hr>
 
-<h2>2 · Mecanismo</h2>
+<h2>2 · O mecanismo</h2>
 
 <p>O princípio tem duas partes, e a segunda é a que quase todo mundo perde ao recontar.</p>
 
@@ -139,9 +139,9 @@ function processPayment(order, paymentClient) {
 
 <hr>
 
-<h2>3 · Java</h2>
+<h2>3 · Em Java</h2>
 
-<p>O programa inteiro está em <code>code/0006-dependency-inversion/InversionDemo.java</code>. Rode com <code>java InversionDemo.java</code> — sem passo de compilação. <strong>Todo número abaixo é derivado do JVM por reflexão, ou rotulado <code>given</code>.</strong></p>
+<p>O programa inteiro está em <code>code/0006-dependency-inversion/InversionDemo.java</code>. Rode com <code>java InversionDemo.java</code> — sem passo de compilação. <strong>Todo número abaixo é derivado do JVM — por execução ou por reflexão — ou rotulado <code>given</code>.</strong></p>
 
 <h3>A · Os dois aceitam a dependência. Só um inverte.</h3>
 
@@ -239,7 +239,7 @@ function processPayment(order, paymentClient) {
 
 <hr>
 
-<h2>4 · Fonte primária</h2>
+<h2>4 · A fonte primária</h2>
 
 <p>O contra-dado primeiro, e ele é do próprio Martin. O artigo declara escopo ilimitado:</p>
 
@@ -283,7 +283,7 @@ function processPayment(order, paymentClient) {
 
 <hr>
 
-<h2>5 · Paralelo IA</h2>
+<h2>5 · O paralelo com IA</h2>
 
 <div class="callout trap">
   <span class="callout-title">O que este curso <em>não</em> vai afirmar</span>
@@ -300,7 +300,7 @@ function processPayment(order, paymentClient) {
 
 <p>Metade do orçamento vai embora <em>antes</em> da primeira edição. E o modo de falha dominante não é chegar longe do alvo — é errar entre vizinhos: <em>"67% of failures stem from picking the wrong file among nearby candidates rather than from failing to reach the right area."</em></p>
 
-<p class="sidenote">Ressalva de locator: essa segunda frase está no <strong>corpo</strong> do paper, não no abstract. O abstract foi verificado diretamente no arXiv nesta sessão — título, autores e data conferem. O número fino continua como reportado até alguém abrir o PDF.</p>
+<p class="sidenote">Ressalva de locator: essa segunda frase está no <strong>corpo</strong> do paper, não no abstract. O abstract foi conferido no arXiv, e o PDF de 26 páginas foi aberto depois — título, autores e o número fino conferem na própria fonte. Registro em <code>docs/research/16-gap-closures.md</code>.</p>
 
 <p>A Anthropic descreve o custo do salto de indireção com todas as letras, na própria documentação de custos:</p>
 
@@ -351,8 +351,21 @@ function processPayment(order, paymentClient) {
 <details class="recall">
   <summary>Recordação livre — escreva antes de abrir</summary>
   <p>Sem olhar para cima: <strong>enuncie a parte B do princípio</strong> e explique, com uma frase, por que uma interface que devolve <code>Stripe.Response</code> falha nela mesmo tendo um adapter e um teste.</p>
-  <p>Depois, o teste que vale levar para o trabalho: pegue o último pacote em que você mexeu e conte, para cada interface, quantas classes a implementam. <strong>Para cada uma que devolver 1, responda em voz alta: qual é o segundo adapter que eu esperava e nunca escrevi?</strong> Se não houver resposta, você tem indireção, não seam.</p>
+  <p>Depois, o teste que vale levar para o trabalho: pegue o último pacote em que você mexeu e conte, para cada interface, quantas classes a implementam. <strong>Para cada uma que devolver 1, responda em voz alta: qual é o segundo adapter que eu esperava e nunca escrevi?</strong> Se não houver resposta, você tem indireção, não <span class="en">seam</span>.</p>
 </details>
+
+<hr>
+
+<h2>Para onde isso vai</h2>
+
+<p>A Trilha I perguntava <em>onde cortar</em>. A Trilha II começa perguntando <strong>quem é dono do corte</strong> — e as duas próximas lições continuam pelo outro lado da mesma pergunta: <em>quando não cortar</em>, e quanto custa um corte feito cedo demais.</p>
+
+<ul>
+  <li><strong>0007 — YAGNI, DRY e a abstração errada</strong> <em>(a evidência está reunida; construir ou não é sua chamada)</em>. O contrapeso desta lição: quando um seam é dívida em vez de investimento. Fowler dá o critério com as próprias palavras, e o DRY chega com uma retratação assinada pelos próprios autores.</li>
+  <li><strong>0008 — <span class="en">vertical slice</span>, <span class="en">tracer bullet</span> e <span class="en">walking skeleton</span>.</strong> Três ideias que a internet trata como sinônimos, separadas por quem as escreveu. <code>vertical slice</code> segue <strong>sem cunhador localizado</strong> — e vai seguir até alguém achar um.</li>
+</ul>
+
+<p>Depois delas: red → green com o refactor <em>fora</em> do loop, <span class="en">pre-agreed seams</span>, os anti-patterns de teste, e o loop de diagnóstico.</p>
 
 <div class="ask-teacher">
   <p><strong>Me pergunte.</strong> Esta lição encosta em três coisas que ela deliberadamente não desenvolveu: YAGNI e DRY (que são a lição 0007, se você quiser), a leitura do Fowler de que um seam para teste está <em>fora</em> do escopo do YAGNI, e o argumento de <em>Mock Roles, not Objects</em> de que a interface deve ser <em>puxada</em> pela necessidade em vez de empurrada pela implementação. Puxe qualquer um dos três e eu abro.</p>
@@ -362,6 +375,7 @@ function processPayment(order, paymentClient) {
   <a href="0005-deletion-test.html">← 0005 — O deletion test</a>
   <a href="../reference/0001-glossary.html#dip">Glossário — DIP</a>
   <a href="../index.html">Índice do curso ↑</a>
+  <a href="../code/0006-dependency-inversion/InversionDemo.java">Código desta lição</a>
 </div>
 
 </div>
