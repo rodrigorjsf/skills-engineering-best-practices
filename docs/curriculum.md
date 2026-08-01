@@ -113,3 +113,5 @@ Persisted under `docs/research/`, produced by delegated agents:
 - `02-se-literature.md` — verified software-engineering literature map, including honest reporting of empirical evidence.
 - `03-agent-engineering.md` — verified AI/agent primary sources, with measured numbers.
 - `04-matt-pocock-sources.md` — the author's own primary sources and a coinage ledger.
+- `05-ousterhout-depth.md` — settles whether Ousterhout defines depth as a ratio. He does not define a *line-count* one.
+- `06-walking-skeleton-and-harness-post.md` — settles Cockburn's `walking skeleton` (archived primary text), separates it from `tracer bullet` and `vertical slice` in each author's own words, and recovers OpenAI's *Harness engineering* post from the Wayback Machine with all four figures quoted and qualified.

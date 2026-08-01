@@ -59,7 +59,7 @@ A fourth marker, `[our analogy]`, separates what a source says from what we are 
 | [`docs/curriculum.md`](./docs/curriculum.md) | The full map: 4 tracks, 20 lessons, in order. |
 | `lessons/` | Self-contained HTML lessons. **1 of 20 built.** |
 | `reference/` | Compressed documents built to be revisited and printed. The glossary is binding. |
-| `docs/research/` | The research corpus — ~5,500 lines, cited. |
+| `docs/research/` | The research corpus — ~6,500 lines, cited. |
 | `code/` | Java examples that compile and run. |
 | `learning-records/` | What was actually learned, and what it changes. |
 
