@@ -12,16 +12,18 @@ The reader is one person — Rodrigo — with four stated goals: apply these pra
 
 | Path | What it is |
 |---|---|
-| `/home/rodrigo/Workspace/skills-engineering-best-practices/` | Workspace root. Everything we author lives here. |
-| `./skills/` | **A Windows copy** of the upstream repo. Zone.Identifier junk, zero-byte `AGENTS.md`. Disposable. |
-| `/home/rodrigo/Workspace/skills/` | **The live upstream repo. Read from this one.** |
-| `./skills/docs/` | **Never write here.** Matt's own published docs pages. Ours go to `./docs/`. |
+| `/home/rodrigo/Workspace/skills-engineering-best-practices/` | Workspace root. Everything we author lives here, and this is its own git repo. |
+| `/home/rodrigo/Workspace/skills/` (i.e. `../skills`) | **The live upstream repo — the only source of truth. Read from this one.** |
+| `../skills/docs/` | **Never write here.** Matt's own published docs pages. Ours go to `./docs/`. |
 | `./docs/research/` | Our research corpus, written by delegated agents. |
 
-Two rules that follow:
+Three rules that follow:
 
-- **Read source material from `/home/rodrigo/Workspace/skills/`**, never from `./skills/`. The copy can be stale and its file metadata is wrong.
+- **Read source material from `../skills`.** A vendored Windows copy used to sit at `./skills/`; it was deleted on 2026-07-31 after being confirmed identical to upstream (`2ab9580`, no local commits, no stashes, no untracked work). Do not re-create it. If you need a pinned snapshot, check out a tag in `../skills` rather than copying the tree — the copy arrives with corrupted metadata (`AGENTS.md` symlink flattened to a zero-byte file, CRLF in `.sh`, hundreds of `Zone.Identifier` files).
+- **`.gitignore` still lists `skills/`** as a backstop, so a re-created copy can never be committed by accident. Leave that entry in place.
 - **Lesson and reference citations point at upstream URLs**, never at `/home/rodrigo/...` paths. A local path in a published lesson is a dead link within a month. Repo file references are fine as `path/to/file.md:LINE` *text* alongside the upstream URL, since line numbers are the evidence.
+
+Note that `docs/research/*.md` contains strings like `./skills/engineering/...` **inside quoted material** — those are verbatim excerpts of the upstream repo's own README links. They are quotes, not paths into this workspace. Never rewrite them.
 
 ## Language
 
@@ -189,6 +191,7 @@ The reader asked for investigative work to be delegated. Standing policy:
 
 When something fails repeatedly, when User has to re-explain, or when a workaround is found for a platform/tool limitation, add a one-line bullet here. Keep each bullet under 15 words. No explanations. Only add things that will save time in future sessions.
 
-- Read upstream repo at `../skills`, not the Zone.Identifier copy at `./skills`.
-- Never write research into `skills/docs/` — that's the author's published pages.
+- Read the upstream repo at `../skills`; never vendor a copy into this workspace.
+- Never write research into `../skills/docs/` — that's the author's published pages.
+- Copying a repo from Windows corrupts symlinks and line endings; clone instead.
 - Java 25 (Corretto, via mise) is on PATH; run examples with `java File.java`, no compile step.

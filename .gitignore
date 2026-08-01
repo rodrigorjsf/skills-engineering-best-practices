@@ -5,11 +5,14 @@
 # either someone else's repo or someone else's copyrighted book — neither
 # belongs here.
 
-# --- The vendored copy of the upstream skills repo -------------------------
-# `skills/` is a Windows copy of https://github.com/mattpocock/skills and
-# carries its own `.git`, so git would otherwise record it as an embedded
-# repository (a gitlink) and refuse to track its contents usefully.
-# It is disposable: read the live clone at ../skills instead. See CLAUDE.md.
+# --- Any vendored copy of the upstream skills repo -------------------------
+# The subject under study is https://github.com/mattpocock/skills. Read it from
+# a clone outside this workspace (../skills) — never vendor it in here.
+#
+# This entry is a backstop, kept deliberately even though no such directory
+# currently exists: a clone carries its own `.git`, so git would record it as
+# an embedded repository (a gitlink) that tracks no contents and emits the
+# "you've added another git repository" warning. See CLAUDE.md.
 skills/
 
 # --- Books and other copyrighted source material ---------------------------

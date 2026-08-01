@@ -14,8 +14,9 @@ Working notes and stated preferences. Not a journal — only things that change 
 ## Workspace layout decisions
 
 - Teaching workspace root is `/home/rodrigo/Workspace/skills-engineering-best-practices/`.
-- `skills/` inside this workspace is a **Windows copy** of the upstream repo (Zone.Identifier files, zero-byte `AGENTS.md`). The live repo is `/home/rodrigo/Workspace/skills/` — read from that one.
-- **Never write research into `skills/docs/`** — that path is Matt's own published docs pages. Our research goes to `<workspace-root>/docs/research/`.
+- **Source of truth is `../skills`** (`/home/rodrigo/Workspace/skills/`). A vendored Windows copy sat at `./skills/` until 2026-07-31; it was verified identical to upstream (`2ab9580`, no local commits/stashes/untracked work) and deleted. Don't re-create it — the copy arrived with `AGENTS.md` flattened from a symlink to a zero-byte file, CRLF in shell scripts, and 562 `Zone.Identifier` files.
+- **Never write research into `../skills/docs/`** — that path is Matt's own published docs pages. Our research goes to `<workspace-root>/docs/research/`.
+- This workspace is its own git repo, published at `github.com/rodrigorjsf/skills-engineering-best-practices` (public, MIT). The parent `/home/rodrigo/Workspace` is a separate, unrelated repo.
 - Lesson citations point at **upstream URLs**, never at local `/home/rodrigo/...` paths, which would be dead links in a month.
 
 ## Teaching approach
