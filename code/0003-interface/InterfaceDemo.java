@@ -1,5 +1,6 @@
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.lang.reflect.Modifier;
 import java.math.BigDecimal;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -261,25 +262,63 @@ public class InterfaceDemo {
 
     // ==================================================================
     // D. The audit. The repo's interface has six categories. Ask the JVM
-    //    how many of them survive into the type.
+    //    how many of them survive into the type — for both designs.
+    //
+    //    Three of the six are DERIVED here: ordering, error modes and
+    //    required configuration. The other three are GIVEN and labelled as
+    //    such, because Java offers no construct to reflect over: a type
+    //    signature always exists, and neither invariants nor performance
+    //    characteristics are expressible at all. Nothing in this block is
+    //    a number typed in by hand.
     // ==================================================================
-    static void auditCategories() throws Exception {
-        var post = StrictLedger.class.getDeclaredMethod("post", Transfer.class);
-        int ctorParams = StrictLedger.class.getDeclaredConstructors()[0].getParameterCount();
 
-        line("1 type signature", "in the type");
-        line("2 ordering constraints", "prose only");
-        line("3 error modes", post.getExceptionTypes().length == 0
-                ? "prose only" : "in the type");
-        line("4 required configuration", ctorParams > 0
-                ? "in the type" : "prose only");
-        line("5 invariants", "prose only");
-        line("6 performance characteristics", "prose only");
+    /** Ordering is in the type when the later phase's method is absent
+     *  from the earlier phase's type, and present on a type only the
+     *  earlier one can produce. */
+    static boolean orderingInType(Class<?> before, Class<?> after) {
+        return !hasMethod(before, "total") && hasMethod(after, "total");
+    }
+
+    static int declaredExceptions(Class<?> type) throws Exception {
+        return type.getDeclaredMethod("post", Transfer.class).getExceptionTypes().length;
+    }
+
+    static int ctorParams(Class<?> type) {
+        return Arrays.stream(type.getDeclaredConstructors())
+                .filter(c -> Modifier.isPublic(c.getModifiers()))
+                .mapToInt(java.lang.reflect.Constructor::getParameterCount)
+                .max().orElse(0);
+    }
+
+    static int score(Class<?> before, Class<?> after) throws Exception {
+        int n = 0;
+        n += 1;                                              // 1 signature — given
+        n += orderingInType(before, after) ? 1 : 0;          // 2 ordering  — derived
+        n += declaredExceptions(before) > 0 ? 1 : 0;         // 3 errors    — derived
+        n += ctorParams(before) > 0 ? 1 : 0;                 // 4 config    — derived
+        n += 0;                                              // 5 invariants — given
+        n += 0;                                              // 6 performance — given
+        return n;
+    }
+
+    static String yn(boolean b) { return b ? "yes" : "no"; }
+
+    static void auditCategories() throws Exception {
+        line("1 type signature", "given    " + yn(true));
+        line("3 error modes", "derived  " + yn(declaredExceptions(StrictLedger.class) > 0));
+        line("4 required configuration", "derived  " + yn(ctorParams(StrictLedger.class) > 0));
+        line("5 invariants", "given    " + yn(false));
+        line("6 performance characteristics", "given    " + yn(false));
         System.out.println();
-        line("checked exceptions on post", String.valueOf(post.getExceptionTypes().length));
-        line("constructor parameters required", String.valueOf(ctorParams));
+        line("2 ordering, StrictLedger", "derived  "
+                + yn(orderingInType(StrictLedger.class, StrictLedger.class)));
+        line("2 ordering, Open/SettledBooks", "derived  "
+                + yn(orderingInType(OpenBooks.class, SettledBooks.class)));
         System.out.println();
-        line("checked before section B", "2 of 6");
-        line("checked after section B", "3 of 6");
+        line("checked exceptions on post", String.valueOf(declaredExceptions(StrictLedger.class)));
+        line("public constructor parameters", String.valueOf(ctorParams(StrictLedger.class)));
+        System.out.println();
+        line("score before section B", score(StrictLedger.class, StrictLedger.class) + " of 6");
+        line("score after section B", score(OpenBooks.class, SettledBooks.class) + " of 6");
     }
 }

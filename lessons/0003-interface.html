@@ -227,23 +227,27 @@ flowchart LR
 
 <h3>Contando o que sobrou — e é aqui que a lição fica honesta</h3>
 
-<p>Tentação natural: concluir que "então basta colocar tudo no tipo". Não basta, e o próprio programa mede isso. Ele pergunta ao JVM, por reflexão, quantas exceções verificadas <code>post</code> declara e quantos parâmetros o construtor exige:</p>
+<p>Tentação natural: concluir que "então basta colocar tudo no tipo". Não basta — e antes de mostrar o placar, vale dizer <strong>como cada linha dele foi obtida</strong>, porque nem todas são medição.</p>
+
+<p><strong>Três são <span class="en">derived</span>:</strong> ordem, modos de erro e configuração exigida saem de perguntas ao JVM — respectivamente, se <code>total()</code> some do tipo anterior; quantas exceções verificadas <code>post</code> declara; quantos parâmetros o construtor público exige. <strong>Três são <span class="en">given</span>:</strong> assinatura de tipo sempre existe, e invariantes e performance não têm construção nenhuma em Java para se refletir sobre. O programa marca cada linha com qual das duas ela é, e o placar é a <em>soma</em> das seis — não um número digitado.</p>
 
 <pre><code>D. Which of the six categories does the type check?
-   1 type signature .................. in the type
-   2 ordering constraints ............ prose only
-   3 error modes ..................... prose only
-   4 required configuration .......... in the type
-   5 invariants ...................... prose only
-   6 performance characteristics ..... prose only
+   1 type signature .................. given    yes
+   3 error modes ..................... derived  no
+   4 required configuration .......... derived  yes
+   5 invariants ...................... given    no
+   6 performance characteristics ..... given    no
+
+   2 ordering, StrictLedger .......... derived  no
+   2 ordering, Open/SettledBooks ..... derived  yes
 
    checked exceptions on post ........ 0
-   constructor parameters required ... 1
+   public constructor parameters ..... 1
 
-   checked before section B .......... 2 of 6
-   checked after section B ........... 3 of 6</code></pre>
+   score before section B ............ 2 of 6
+   score after section B ............. 3 of 6</code></pre>
 
-<p><strong>Três de seis.</strong> Depois de uma refatoração que a lição está vendendo como uma vitória. As outras três continuam onde estavam — e a categoria 4 já estava no tipo desde a lição 0002, porque o <code>Clock</code> chega pelo construtor. Não foi mérito desta lição; foi mérito do <span class="en">seam</span> da lição 0001.</p>
+<p><strong>Três de seis.</strong> Depois de uma refatoração que a lição está vendendo como uma vitória. E repare que a linha da <em>ordem</em> aparece duas vezes, uma para cada desenho: <code>no</code> para o <code>StrictLedger</code>, <code>yes</code> para o par <code>OpenBooks</code>/<code>SettledBooks</code>. É essa única diferença que separa 2 de 3. As outras três continuam onde estavam — e a categoria 4 já estava no tipo desde a lição 0002, porque o <code>Clock</code> chega pelo construtor. Não foi mérito desta lição; foi mérito do <span class="en">seam</span> da lição 0001.</p>
 
 <div class="callout evidence">
   <span class="callout-title">O que fazer com as três que sobraram</span>
@@ -344,7 +348,7 @@ flowchart LR
     <li><button class="quiz-opt">Três, somando a ordem à assinatura e à configuração exigida</button></li>
   </ul>
   <div class="quiz-feedback">
-    <p>Medido pelo programa, não estimado: <code>checked after section B ... 3 of 6</code>. A configuração já estava no tipo desde a lição 0001, porque o <code>Clock</code> chega pelo construtor — mérito do <span class="en">seam</span>, não desta refatoração.</p>
+    <p>Somado pelo programa a partir de três perguntas ao JVM, não estimado: <code>score after section B ... 3 of 6</code>. A configuração já estava no tipo desde a lição 0001, porque o <code>Clock</code> chega pelo construtor — mérito do <span class="en">seam</span>, não desta refatoração.</p>
     <p>Modos de erro, invariantes e performance seguem em prosa. Uma lição que dissesse "seis" estaria vendendo o próprio truque melhor do que ele é.</p>
   </div>
 </div>

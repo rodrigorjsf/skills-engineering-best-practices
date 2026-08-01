@@ -161,6 +161,23 @@ public class AdapterDemo {
     }
 
     // ==================================================================
+    // DESIGN B. The same module with FeePolicy hoisted into the public
+    // constructor. It exists so section D can count its interface rather
+    // than describe it.
+    // ==================================================================
+    public static final class WideTransferService {
+        private final AccountRepository repo;
+        private final Clock clock;
+        private final FeePolicy fees;
+
+        public WideTransferService(AccountRepository repo, Clock clock, FeePolicy fees) {
+            this.repo = repo; this.clock = clock; this.fees = fees;
+        }
+
+        public BigDecimal execute(Transfer t) { return fees.feeFor(t); }
+    }
+
+    // ==================================================================
     // C. THE SINGLE-ADAPTER SEAM. One port, one adapter, no substitute.
     //    Kept here so its price can be counted rather than argued about.
     // ==================================================================
@@ -172,6 +189,21 @@ public class AdapterDemo {
     }
 
     // ------------------------------------------------------------------
+
+    /** Adapters = declared classes in this file that satisfy the port. */
+    static long adaptersOf(Class<?> port) {
+        return Arrays.stream(AdapterDemo.class.getDeclaredClasses())
+                .filter(port::isAssignableFrom)
+                .filter(c -> !c.equals(port))
+                .filter(c -> !c.isInterface())
+                .count();
+    }
+
+    static int maxPublicCtorParams(Class<?> type) {
+        return Arrays.stream(type.getDeclaredConstructors())
+                .filter(c -> Modifier.isPublic(c.getModifiers()))
+                .mapToInt(Constructor::getParameterCount).max().orElse(0);
+    }
 
     static void line(String label, String value) {
         System.out.printf("   %s %s %s%n", label, ".".repeat(Math.max(3, 34 - label.length())), value);
@@ -271,22 +303,29 @@ public class AdapterDemo {
         line("fee the test substituted", money(freeFee));
         line("callers who had to learn it", "0");
 
-        head("C. What a one-adapter seam costs, counted");
-        var direct = new ConsoleNotifications();
-        line("adapters that exist", "1  (ConsoleNotifications)");
-        line("adapters justified by variation", "0");
-        line("types the seam adds", "1  (NotificationPort)");
-        line("behaviour the seam adds", "none");
-        line("verdict per DEEPENING.md:29", "just indirection");
+        head("C. Adapters per port, counted from the class file");
+        line("AccountRepository adapters", String.valueOf(adaptersOf(AccountRepository.class)));
+        line("NotificationPort adapters", String.valueOf(adaptersOf(NotificationPort.class)));
+        line("NotificationPort methods", String.valueOf(NotificationPort.class.getDeclaredMethods().length));
+        line("seam justified per SKILL.md:65",
+                String.valueOf(adaptersOf(NotificationPort.class) >= 2));
         System.out.println();
+        var direct = new ConsoleNotifications();
         direct.notify("ACC-1", "debited");
         line("the port still works", "true");
         line("that was never the question", "true");
 
-        head("D. The audit, in lesson 0003's terms");
-        line("design A — caller must supply", "2  (repo, clock)");
-        line("design B — caller must supply", "3  (repo, clock, fees)");
-        line("production variation in fees", "none");
-        line("so the third fact buys", "nothing");
+        head("D. The two designs, interfaces counted");
+        line("design A — caller must supply", String.valueOf(publicParams));
+        line("design B — caller must supply",
+                String.valueOf(maxPublicCtorParams(WideTransferService.class)));
+        line("difference", String.valueOf(
+                maxPublicCtorParams(WideTransferService.class) - publicParams) + "  (FeePolicy)");
+        BigDecimal feeA = new TransferService(new InMemoryAccountRepository(), clock)
+                .execute(new Transfer("T5", "ACC-1", "ACC-2", new BigDecimal("100.00")));
+        BigDecimal feeB = new WideTransferService(new InMemoryAccountRepository(), clock, STANDARD)
+                .execute(new Transfer("T5", "ACC-1", "ACC-2", new BigDecimal("100.00")));
+        line("same fee out of both designs", String.valueOf(feeA.compareTo(feeB) == 0));
+        line("verdict", "more interface, same behaviour");
     }
 }

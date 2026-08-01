@@ -222,20 +222,22 @@ flowchart TB
 
 <p>E o caso que a regra da lição 0001 rejeita: um <code>NotificationPort</code> com exatamente um adapter e nenhum substituto.</p>
 
-<pre><code>C. What a one-adapter seam costs, counted
-   adapters that exist ............... 1  (ConsoleNotifications)
-   adapters justified by variation ... 0
-   types the seam adds ............... 1  (NotificationPort)
-   behaviour the seam adds ........... none
-   verdict per DEEPENING.md:29 ....... just indirection
+<pre><code>C. Adapters per port, counted from the class file
+   AccountRepository adapters ........ 2
+   NotificationPort adapters ......... 1
+   NotificationPort methods .......... 1
+   seam justified per SKILL.md:65 .... false
 
-D. The audit, in lesson 0003's terms
-   design A — caller must supply ..... 2  (repo, clock)
-   design B — caller must supply ..... 3  (repo, clock, fees)
-   production variation in fees ...... none
-   so the third fact buys ............ nothing</code></pre>
+D. The two designs, interfaces counted
+   design A — caller must supply ..... 2
+   design B — caller must supply ..... 3
+   difference ........................ 1  (FeePolicy)
+   same fee out of both designs ...... true
+   verdict ........................... more interface, same behaviour</code></pre>
 
-<p>O bloco D é a lição 0003 cobrando a fatura desta. Um parâmetro de construtor <strong>é</strong> interface — <span class="en">required configuration</span>, categoria 4, medida lá. O <em>design B</em> cobra três fatos de todo caller em vez de dois, e o terceiro não compra nada: em produção a política nunca varia. Isso não é estilo. É um item a mais na lista do que alguém precisa saber para usar o module sem errar.</p>
+<p>As duas contagens de C saem de reflexão sobre as classes do próprio arquivo: <code>AccountRepository</code> tem <strong>dois</strong> adapters declarados, <code>NotificationPort</code> tem <strong>um</strong> — e o veredito <code>false</code> é a regra da lição 0001 aplicada pelo programa, não por nós.</p>
+
+<p>O bloco D é a lição 0003 cobrando a fatura desta, e o <em>design B</em> existe de verdade no arquivo justamente para poder ser contado em vez de descrito. Um parâmetro de construtor <strong>é</strong> interface — <span class="en">required configuration</span>, categoria 4, medida lá. Design B cobra três fatos de todo caller em vez de dois; a última linha confere que a taxa que sai dos dois é a mesma. <strong>Mais interface, mesmo comportamento</strong> — que é a definição de shallow da lição 0002, cobrada em parâmetro de construtor.</p>
 
 <p class="sidenote">Vale notar o que <em>não</em> mudou: o comportamento. As duas versões cobram a mesma taxa, gravam as mesmas entradas e passam nos mesmos testes. É por isso que essa decisão passa despercebida em code review — ela não aparece em nenhum teste vermelho. Aparece dois anos depois, no tamanho do que um novato precisa ler antes de conseguir chamar a classe.</p>
 
