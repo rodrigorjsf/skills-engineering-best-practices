@@ -1052,7 +1052,12 @@ people skip — is what the repo's criterion 3 is really enforcing.
 > chapter." **It was downloaded and read, and it is a pre-publication draft.** Evidence, all observed
 > in the file itself (12 pages, internal pagination 83–94):
 >
-> - **17 smells, not 22.** In order: Duplicated code, Long method, Large Class, Long Parameter List,
+> - **16 smells, not 22.** Re-counted 2026-08-01 from the PDF's own section headings (every smell
+>   title is set at 13.9pt; exactly 16 spans carry that size). An earlier revision of this line said
+>   *17* while enumerating 16 — the enumeration was right and the count was wrong. Cross-checked the
+>   other way too: *Primitive Obsession*, *Message Chains*, *Inappropriate Intimacy*, *Incomplete
+>   Library Class*, *Data Class*, *Refused Bequest* and *Speculative Generality* occur **zero** times
+>   anywhere in the file, heading or body. In order: Duplicated code, Long method, Large Class, Long Parameter List,
 >   Divergent Change, Shotgun Surgery, Feature Envy, Data Clumps, Case Statements, Parallel
 >   Inheritance Hierarchies, Lazy Class, Similar subclasses, Temporary Field, Middle Man,
 >   Alternative classes with different interfaces, Comments.

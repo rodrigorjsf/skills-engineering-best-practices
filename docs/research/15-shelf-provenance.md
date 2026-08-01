@@ -78,7 +78,7 @@ Metadata matches the release note: `title: Refactoring.doc`, `author: Administra
 
 | Artifact | Failure |
 |---|---|
-| `laputan.org/…/smells.pdf` | **Wrong content** — a pre-publication draft: 17 smells, no *Speculative Generality*, "Extract Component" |
+| `laputan.org/…/smells.pdf` | **Wrong content** — a pre-publication draft: 16 smells, no *Speculative Generality*, "Extract Component" |
 | This file | **Right content, unverifiable fidelity** — a retype with no publisher chain, and **its own pagination**, which is not the book's |
 
 **The irony is the point:** this book was acquired to retire the laputan hazard, and citing it would replace one unverifiable artifact with another. It also carries a legal problem the course should not build its citation base on.

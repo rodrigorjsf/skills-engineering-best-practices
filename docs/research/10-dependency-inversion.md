@@ -902,7 +902,7 @@ Ten verbatim lines, each with a URL, ordered by usefulness.
 | Gap | Tier now | Cost to close |
 | --- | --- | --- |
 | Exact month of the *C++ Report* DIP column | `[unverified]` ("after March 1996" is Quoted) | High — needs a *C++ Report* index or masthead scan. Low value; the internal dating is already better evidence. |
-| Martin crediting Feathers with "SOLID" | `[unverified]` | Medium — *Clean Architecture* Part III intro, or a talk transcript. |
+| ~~Martin crediting Feathers with "SOLID"~~ | **CLOSED 2026-08-01** — Quoted | Was: *Clean Architecture* Part III intro. Settled in `14-martin-books-and-the-volatility-gate.md` §1 from the printed book, **p. 58**: Feathers supplied the **word**, not the principles. |
 | *Clean Architecture* Ch. 11 stable/volatile qualification | `[unverified]` (chapter + section title **located**) | Medium — needs the book or a legitimate excerpt of pp. 87–90. |
 | *Agile PPP* Ch. 11 body text | `[unverified]` (chapter **located**) | Medium — same. |
 | *Effective Java* item number + exact wording | `[unverified]` | Low–medium — a TOC that itemises Chapter 2. |

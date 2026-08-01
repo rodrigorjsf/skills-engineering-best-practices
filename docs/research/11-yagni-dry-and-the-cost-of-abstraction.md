@@ -330,7 +330,7 @@ as: "Three strikes and you refactor," attributed by Fowler to Don Roberts in
 verified until someone reads the book.**
 
 Standing constraint carried forward from this workspace: the free laputan.org
-*Refactoring* PDF is a **pre-publication draft** (17 smells, not 22), not the 1st
+*Refactoring* PDF is a **pre-publication draft** (16 smells, not 22), not the 1st
 edition. If it is ever used for the Rule of Three, it must be labelled
 *pre-publication draft* and no page number may be given. The chapter of it we
 hold locally is Chapter 3, "Bad Smells in Code"; the Rule of Three is not in it.
