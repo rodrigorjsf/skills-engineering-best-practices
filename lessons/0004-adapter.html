@@ -372,7 +372,15 @@ D. The two designs, interfaces counted
 
 <ul>
   <li><strong><a href="0005-deletion-test.html">0005 — O deletion test</a>.</strong> Você viu um seam de um adapter só ser reprovado por contagem. A próxima lição transforma isso em varredura: dado um codebase inteiro, quais modules somem sem que nada apareça em outro lugar.</li>
+  <li><strong><a href="0006-dependency-inversion.html">0006 — Dependency inversion</a>.</strong> O nome clássico do que a seção B fez, e a razão de <code>Clock</code> e <code>FeePolicy</code> terem empatado.</li>
 </ul>
+
+<div class="callout seam">
+  <span class="callout-title">Adendo — por que os dois passaram na regra</span>
+  <p>Esta lição achou empiricamente algo que só tem explicação na <a href="0006-dependency-inversion.html">lição 0006</a>: <code>Clock</code> e <code>FeePolicy</code> passaram <strong>as duas</strong> na regra dos dois adapters, e só uma pertencia ao construtor público.</p>
+  <p>A causa está no parêntese da própria regra — <em>"(typically production + test)"</em>, <code>DEEPENING.md:29</code>. Ele <strong>homologa um test double como o segundo adapter</strong>, então qualquer dependência para a qual você aceite escrever um fake passa. A regra não é o freio; a <a href="../reference/0001-glossary.html#dependency-categories">taxonomia de categorias de dependência</a> é.</p>
+  <p>E a distinção que faltava ao vocabulário aqui: aceitar a dependência é <a href="../reference/0001-glossary.html#dependency-injection">injeção</a>; decidir que a interface pertence a quem chama é <a href="../reference/0001-glossary.html#dip">inversão</a>. Esta lição fez a primeira o tempo todo e a segunda só no <code>AccountRepository</code>.</p>
+</div>
 
 <div class="ask-teacher">
   <p><strong>Eu sou seu professor aqui.</strong> Se alguma parte não fechou, isso é defeito da lição e não seu — me diga qual trecho e eu reescrevo. Perguntas boas para agora: <em>"em Spring, com tudo sendo bean, como faço um seam interno?"</em>, <em>"quando vale usar Testcontainers em vez do fake in-memory?"</em>, <em>"isso briga com injeção por construtor obrigatória?"</em>, ou <em>"olha as dependências de uma classe minha e diz quais são internas"</em>.</p>

@@ -1,0 +1,365 @@
+<title>0006 — Dependency inversion: quem é dono da abstração</title>
+<link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/mermaid.min.js" defer></script>
+<script src="../assets/lesson.js" defer></script>
+
+<div class="page">
+
+<p class="kicker">Lição 0006 · Trilha II — Processo</p>
+<h1>Dependency inversion: quem é dono da abstração</h1>
+<p class="lede">Injetar uma dependência e inverter uma dependência são coisas diferentes. O repositório do Matt ensina a primeira <strong>77 vezes</strong> e a segunda <strong>nenhuma</strong>. Esta lição mostra a diferença, e por que a ausência não é descuido.</p>
+
+<div class="quiz" data-answer="2">
+  <div class="quiz-head">Antes de começar — lição 0004</div>
+  <p class="quiz-q">Na lição 0004, <code>Clock</code> e <code>FeePolicy</code> passaram os dois na regra dos dois adapters. O que decidiu que só <code>Clock</code> entrava no construtor público?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">O <code>Clock</code> já chegava pronto na biblioteca padrão da linguagem</button></li>
+    <li><button class="quiz-opt">A <code>FeePolicy</code> tinha uma implementação grande demais para ser exposta</button></li>
+    <li><button class="quiz-opt">Nenhum chamador de produção jamais escolheu uma política de taxa</button></li>
+    <li><button class="quiz-opt">O teste conseguia substituir a taxa sem precisar declarar seam</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>O critério foi <strong>quem varia</strong>, não <strong>o que é substituível</strong>. Os dois eram substituíveis; só um variava para um chamador de produção. Guarde essa distinção — ela é o assunto inteiro de hoje, com outro nome.</p>
+  </div>
+</div>
+
+<hr>
+
+<h2>1 · Intuição</h2>
+
+<div class="callout child">
+  <span class="callout-title">A tomada da parede</span>
+  <p>Sua casa tem tomadas. Toda tomada no Brasil tem o mesmo formato, e quem definiu esse formato foi a <strong>casa</strong> — a norma da instalação elétrica — não os fabricantes de liquidificador.</p>
+  <p>Imagine o contrário. Cada fabricante define o próprio plugue, e a casa precisa ter um buraco diferente para cada aparelho que você possa vir a comprar. Trocar de liquidificador vira obra.</p>
+  <p><strong>Quem é estável declara o formato. Quem é trocável se conforma a ele.</strong> É só isso.</p>
+</div>
+
+<p>Repare no que <em>não</em> é a intuição. Não é "use uma interface". A casa poderia ter um buraco no formato exato do plugue da Arno, batizado de <code>PlugueInterface</code>, e nada teria sido invertido — a casa continuaria dependendo da Arno, agora com uma camada a mais. A pergunta não é <em>se existe uma abstração</em>. É <strong>de quem ela é</strong>.</p>
+
+<p class="sidenote">Essa é a razão de a lição vir agora e não antes. Você precisou de <a href="0001-seam.html">seam</a> para saber <em>onde</em> cortar e de <a href="0004-adapter.html">adapter</a> para saber <em>o que</em> encaixa no corte. Inversão é a terceira pergunta: <em>quem escreve o contrato do corte</em>.</p>
+
+<hr>
+
+<h2>2 · Mecanismo</h2>
+
+<p>O princípio tem duas partes, e a segunda é a que quase todo mundo perde ao recontar.</p>
+
+<blockquote class="source">
+  <p><strong>A.</strong> High level modules should not depend upon low level modules. Both should depend upon abstractions.</p>
+  <p><strong>B.</strong> Abstractions should not depend upon details. Details should depend upon abstractions.</p>
+  <cite>Robert C. Martin, <em>The Dependency Inversion Principle</em>, <em>The C++ Report</em>, p. 6 — <a href="https://web.archive.org/web/2015/http://www.objectmentor.com/resources/articles/dip.pdf">PDF arquivado</a> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>A parte A descreve um diagrama: nenhuma seta sai da política para o detalhe. A parte B decide <strong>quem escreve a interface</strong>. No exemplo <code>Button</code>/<code>Lamp</code> do próprio artigo, é o <code>Button</code> — a política — que declara <code>ButtonClient</code>, e a <code>Lamp</code> que o implementa. A interface mora do lado de quem chama, com nome de quem chama.</p>
+
+<figure class="figure wide">
+<pre class="mermaid">
+flowchart LR
+  subgraph SEM["sem inversão"]
+    direction TB
+    P1["`TransferService
+política de alto nível`"] --> D1["`StripeGateway
+detalhe de fornecedor`"]
+  end
+  subgraph COM["com inversão"]
+    direction TB
+    P2["`TransferService
+política de alto nível`"] --> A2["`PaymentPort
+declarado pela política`"]
+    D2["`StripeGateway
+detalhe de fornecedor`"] -.-> A2
+  end
+  SEM ~~~ COM
+  classDef stage    fill:#f2efe8,stroke:#57534a,stroke-width:1.5px,color:#26241f
+  classDef seam     fill:#1f6f6b,stroke:#0f4d4a,stroke-width:2px,color:#ffffff
+  classDef trap     fill:#8a5a12,stroke:#5c3c0c,stroke-width:2px,color:#ffffff
+  class P1,P2 stage
+  class D1 trap
+  class D2 stage
+  class A2 seam
+</pre>
+<figcaption><b>O que reparar.</b> A seta do <code>StripeGateway</code> <strong>mudou de sentido</strong>. Não foi adicionada uma camada — a dependência foi virada. É daí que vem a palavra "inversion", e é isso que uma interface a mais, sozinha, não faz.</figcaption>
+</figure>
+
+
+<div class="callout seam">
+  <span class="callout-title">DI não é DIP — e as duas são independentes nas duas direções</span>
+  <p><strong>Injeção</strong> é um mecanismo: entregar um colaborador em vez de construí-lo. <strong>Inversão</strong> é uma afirmação sobre posse: a abstração pertence à política.</p>
+  <p>Você pode injetar uma classe concreta e não ter invertido nada. E pode inverter sem injetar nada — a Listagem 4 do artigo do Martin faz exatamente isso, com <code>stdio.h</code>.</p>
+  <p>O dado que fecha a distinção: <strong>a expressão "dependency inversion" aparece zero vezes no artigo que deu nome à injeção de dependência</strong> — <a href="https://martinfowler.com/articles/injection.html"><code>injection.html</code></a>, Fowler, 2004. Verificado por <code>grep</code> sobre a página baixada. O índice do bliki e o índice de tags dele também foram baixados: não existe verbete DIP.</p>
+</div>
+
+<p>Fowler não usa "dependency inversion" porque não está falando disso. Ele está nomeando um mecanismo:</p>
+
+<blockquote class="source">
+  <p>Inversion of Control is too generic a term, and thus people find it confusing. As a result with a lot of discussion with various IoC advocates we settled on the name Dependency Injection.</p>
+  <cite><a href="https://martinfowler.com/articles/injection.html">Fowler, 2004</a> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p class="sidenote">Repare no cuidado dele: <em>"we settled on the name"</em>, não "eu cunhei". Isso está em <a href="../reference/0001-glossary.html#dependency-injection">§6 do glossário</a>, junto com a datação do artigo do Martin — que é <strong>posterior a março de 1996</strong> pelo texto do próprio artigo, e não "maio de 1996", uma data que circula muito e não aparece em artefato nenhum.</p>
+
+<h3>Onde o repositório fica nisso</h3>
+
+<div class="callout evidence">
+  <span class="callout-title">Contado sobre os 113 arquivos de <code>skills/</code>, 2026-08-01</span>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>Termo</th><th>Ocorrências</th></tr></thead>
+    <tbody>
+      <tr><td><code>dependency inversion</code></td><td><strong>0</strong></td></tr>
+      <tr><td><code>SOLID</code> (a sigla)</td><td><strong>0</strong></td></tr>
+      <tr><td><code>DRY</code> / <code>don't repeat yourself</code></td><td><strong>0</strong></td></tr>
+      <tr><td><code>dependency injection</code></td><td>1</td></tr>
+      <tr><td><code>YAGNI</code></td><td>1</td></tr>
+      <tr><td><code>seam</code></td><td>77</td></tr>
+      <tr><td><code>interface</code></td><td>160</td></tr>
+    </tbody>
+  </table>
+  </div>
+  <p>Os dois hits brutos de "solid" são a palavra inglesa comum. O repositório investe seu vocabulário em <strong>onde</strong> a interface fica — não em <strong>quem é dono</strong> dela.</p>
+</div>
+
+<p>E os dois exemplos de injeção que ele dá passam um colaborador <em>concreto</em>:</p>
+
+<div class="code-block bad">
+  <span class="code-label">Injeção, sem inversão — <code>codebase-design/SKILL.md:71</code> e <code>tdd/mocking.md:20</code></span>
+  <pre><code>function processOrder(order, paymentGateway) {}
+function processPayment(order, paymentClient) {
+  return paymentClient.charge(order.total);
+}</code></pre>
+</div>
+
+<p>Nenhuma abstração é declarada em lugar nenhum. O colaborador tem forma de Stripe. Compare com a assinatura do Martin, <code>void Copy(Reader&amp; r, Writer&amp; w)</code>, onde <code>Reader</code> e <code>Writer</code> são declarados pela política e existem <em>porque</em> a política precisa deles.</p>
+
+<p class="sidenote">Uma ressalva honesta: os exemplos do repositório são TypeScript, que é <strong>estruturalmente tipado</strong>. A pergunta "de quem é a interface" é genuinamente menos visível lá do que em Java, onde <code>implements</code> obriga alguém a apontar para alguém. Isso enfraquece a comparação, e por isso está escrito aqui em vez de escondido.</p>
+
+
+
+<hr>
+
+<h2>3 · Java</h2>
+
+<p>O programa inteiro está em <code>code/0006-dependency-inversion/InversionDemo.java</code>. Rode com <code>java InversionDemo.java</code> — sem passo de compilação. <strong>Todo número abaixo é derivado do JVM por reflexão, ou rotulado <code>given</code>.</strong></p>
+
+<h3>A · Os dois aceitam a dependência. Só um inverte.</h3>
+
+<div class="split">
+<div class="code-block bad">
+  <span class="code-label">injeção sem inversão</span>
+  <pre><code>public static final class NaiveTransferService {
+    private final StripeGateway gateway;
+    public NaiveTransferService(StripeGateway gateway) {
+        this.gateway = gateway;
+    }
+}</code></pre>
+</div>
+<div class="code-block good">
+  <span class="code-label">injeção com inversão</span>
+  <pre><code>public static final class TransferService {
+    private final PaymentPort gateway;
+    public TransferService(PaymentPort gateway) {
+        this.gateway = gateway;
+    }
+}</code></pre>
+</div>
+</div>
+
+<p>Os dois satisfazem "accept dependencies, don't create them". Os dois são testáveis. Os dois são mockáveis. E eles não são a mesma coisa:</p>
+
+<pre><code>A. Both accept the dependency. Only one inverts it.
+   naive result .......................... 100.00
+   inverted result ....................... 100.00
+   same behaviour ........................ true
+
+   NaiveTransferService takes ............ StripeGateway
+     ...and that is an abstraction ....... false
+   TransferService takes ................. PaymentPort
+     ...and that is an abstraction ....... true
+   swap the vendor without editing ....... TransferService</code></pre>
+
+<p>Mesmo comportamento, mesmo resultado, mesma testabilidade — e um dos dois precisa ser editado quando a Stripe vira Adyen.</p>
+
+<h3>B · A parte B, verificada</h3>
+
+<p>"Abstractions should not depend upon details" é falsificável. Um <code>detalhe</code> aqui é definido estruturalmente: um tipo cuja classe envolvente é o <em>namespace do fornecedor</em>, não o domínio. A reflexão então varre as assinaturas de cada port:</p>
+
+<pre><code>B. Part B: abstractions must not name details.
+   PaymentPort leaks ..................... nothing
+   LeakyPaymentPort leaks ................ Stripe.Response</code></pre>
+
+<p>O <code>LeakyPaymentPort</code> tem uma interface. Tem injeção. Tem um adapter. E é inútil: qualquer segundo fornecedor teria que devolver um <code>Stripe.Response</code>. <strong>A abstração vazou, então a inversão é decorativa.</strong> É esse o caso que "só use uma interface" não pega.</p>
+
+<h3>C · O detector de indireção</h3>
+
+<p>A frase mais afiada do repositório sobre a sua pergunta é esta, e é dele:</p>
+
+<blockquote class="source">
+  <p>Don't introduce a port unless at least two adapters are justified (typically production + test). <strong>A single-adapter seam is just indirection.</strong></p>
+  <cite><code>codebase-design/DEEPENING.md:29</code> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>Isso é contável. O programa conta os implementadores de cada interface declarada no arquivo:</p>
+
+<pre><code>C. The single-adapter detector.
+   FeeCalculator adapters ................ 1   just indirection
+   LeakyPaymentPort adapters ............. 1   just indirection
+   PaymentPort adapters .................. 2   real seam</code></pre>
+
+<p class="sidenote">Esse laço de sete linhas, apontado para um pacote Java de verdade, é um detector literal de <code>1 interface : 1 adapter</code>. Vale rodar no seu código antes de a próxima revisão de arquitetura rodar em você.</p>
+
+<h3>D · E aqui a regra falha</h3>
+
+<div class="callout trap">
+  <span class="callout-title">A regra dos dois adapters não é o freio que parece ser</span>
+  <p>Releia o parêntese: <em>"(typically production + test)"</em>. Ele <strong>homologa um test double como o segundo adapter</strong>. Então qualquer dependência para a qual você aceite escrever um fake passa na regra — que são quase todas.</p>
+  <p>A lição 0004 já tinha topado nisso empiricamente, sem saber o nome: <code>Clock</code> e <code>FeePolicy</code> passaram as duas.</p>
+</div>
+
+<p>O que segura de verdade está em outro arquivo, e nunca é chamado de DIP. <code>DEEPENING.md:5-25</code> classifica dependências em <a href="../reference/0001-glossary.html#dependency-categories">quatro categorias</a>, e só as duas últimas ganham um port na interface externa. Rode os dois portões lado a lado sobre as mesmas quatro dependências:</p>
+
+<pre><code>D. Two gates. They do not agree.
+   feeCalculator [in-process] ............ rule yes  gate no
+   ledgerStore [local-substitutable] ..... rule yes  gate no
+   notifier [remote-but-owned] ........... rule yes  gate yes
+   paymentGateway [true-external] ........ rule yes  gate yes
+   dependencies given .................... 4   given
+   pass the two-adapter rule ............. 4   derived
+   pass rule AND category gate ........... 2   derived
+   ports the rule alone invents .......... 2   derived</code></pre>
+
+<p><strong>Quatro passam na contagem. Duas passam na taxonomia. As outras duas são o seu "shadow codebase".</strong> A categoria é <code>given</code> — é uma classificação de projeto, não algo que a reflexão possa descobrir. Os vereditos são derivados dela.</p>
+
+<div class="callout seam">
+  <span class="callout-title">A composição é nossa <span class="flag ours">nossa analogia</span></span>
+  <p><code>tdd/mocking.md:3,10-14</code> desenha <strong>a mesma fronteira pelo lado do teste</strong>: <em>"Mock at system boundaries only"</em> … <em>"Don't mock: … Anything you control"</em>. Dois arquivos, dois portões independentes, mesma linha.</p>
+  <p><strong>Nenhum dos dois cita o outro, e nenhum dos dois usa a palavra "inversão".</strong> Compor os dois — a taxonomia decide quais dependências chegam à regra, a regra filtra as que chegaram — é inferência nossa, e vai marcada como tal.</p>
+</div>
+
+<hr>
+
+<h2>4 · Fonte primária</h2>
+
+<p>O contra-dado primeiro, e ele é do próprio Martin. O artigo declara escopo ilimitado:</p>
+
+<blockquote class="source">
+  <p>Dependency Inversion can be applied wherever one class sends a message to another.</p>
+  <cite>Martin, <em>The Dependency Inversion Principle</em>, p. 8 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>Lido ao pé da letra, isso autoriza uma interface por classe. Não é uma leitura maldosa — é a frase. E é exatamente essa frase que produziu o que Dan North descreve:</p>
+
+<blockquote class="source">
+  <p>In the wild, there are entire shadow codebases where each class is backed by exactly one interface, which only exists to satisfy a wiring framework or to inject a mock or stub for automated testing theatre.</p>
+  <cite>Dan North, <a href="https://dannorth.net/blog/cupid-the-back-story/">CUPID — the back story</a> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>E a cura, que North enuncia como princípio:</p>
+
+<blockquote class="source">
+  <p>Most dependencies don't need inverting, because most dependencies aren't options, they are just the way we are going to do it this time.</p>
+  <cite>ibid. <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<div class="callout phd">
+  <span class="callout-title">A convergência, e o que não podemos afirmar sobre ela</span>
+  <p>North <strong>diagnostica</strong> a patologia e enuncia a cura de forma abstrata — "a maioria das dependências não é uma opção". O repositório do Matt <strong>entrega a mesma cura como um limiar contável</strong> — "two adapters means a real one" — sem nunca nomear DIP, North, ou SOLID.</p>
+  <p>A convergência está documentada. <strong>Influência não está</strong> <span class="flag ours">nossa analogia</span>. Não há evidência de que um leu o outro, e este curso não vai inventar uma linhagem porque ela seria elegante.</p>
+</div>
+
+<p>Um terceiro freio, quase nunca citado junto do artigo que o contém — Fowler, no mesmo texto que deu nome à injeção de dependência:</p>
+
+<blockquote class="source">
+  <p>Inversion of control is a common feature of frameworks, but it's something that comes at a price. It tends to be hard to understand and leads to problems when you are trying to debug. So on the whole I prefer to avoid it unless I need it.</p>
+  <cite><a href="https://martinfowler.com/articles/injection.html">Fowler, 2004</a> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<div class="callout evidence">
+  <span class="callout-title">Leia esta, se for ler uma só</span>
+  <p><strong>Robert C. Martin, <em>The Dependency Inversion Principle</em></strong> — <a href="https://web.archive.org/web/2015/http://www.objectmentor.com/resources/articles/dip.pdf">objectmentor.com/resources/articles/dip.pdf</a>, via Wayback Machine. Doze páginas, os dois exemplos (<code>Copy</code>/<code>Reader</code>/<code>Writer</code> e <code>Button</code>/<code>Lamp</code>), e a definição em primeira mão. Ler o original custa vinte minutos e imuniza contra a metade das recontagens.</p>
+  <p>Depois: <a href="https://dannorth.net/blog/cupid-the-back-story/">CUPID — the back story</a>, do North, que é o melhor argumento publicado <em>contra</em> aplicar isso indiscriminadamente. <span class="flag unverified">nota</span> a objeção dele a DIP está em <em>the back story</em>, não em "CUPID — for joyful coding", que não menciona DIP.</p>
+</div>
+
+<hr>
+
+<h2>5 · Paralelo IA</h2>
+
+<div class="callout trap">
+  <span class="callout-title">O que este curso <em>não</em> vai afirmar</span>
+  <p>A frase que todo post de blog quer escrever é <em>"abstração demais atrapalha o agente de codificação"</em>. Ela é plausível. Ela é repetida. E <strong>não tem fonte primária</strong>: nenhum trabalho encontrado varia profundidade de indireção como variável independente contra sucesso do agente.</p>
+  <p>Nada mede contagem de arquivos, de módulos ou de saltos. Tudo que existe mede <strong>volume de tokens</strong> ou <strong>qualidade de recuperação</strong>. A pesquisa está em <code>docs/research/12-indirection-and-agents.md</code>, que termina com dezesseis proibições numeradas.</p>
+</div>
+
+<p>O que <em>é</em> medido é o vizinho estreito disso, e é caro:</p>
+
+<blockquote class="source">
+  <p>LLM agents solve repository-level coding tasks through multi-turn tool use, but utilize half their budget on locating faults before editing.</p>
+  <cite>Tamoyan et al., <a href="https://arxiv.org/abs/2606.24820">SHERLOC</a>, arXiv 2606.24820, 23 jun 2026 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<p>Metade do orçamento vai embora <em>antes</em> da primeira edição. E o modo de falha dominante não é chegar longe do alvo — é errar entre vizinhos: <em>"67% of failures stem from picking the wrong file among nearby candidates rather than from failing to reach the right area."</em></p>
+
+<p class="sidenote">Ressalva de locator: essa segunda frase está no <strong>corpo</strong> do paper, não no abstract. O abstract foi verificado diretamente no arXiv nesta sessão — título, autores e data conferem. O número fino continua como reportado até alguém abrir o PDF.</p>
+
+<p>A Anthropic descreve o custo do salto de indireção com todas as letras, na própria documentação de custos:</p>
+
+<blockquote class="source">
+  <p>A single "go to definition" call replaces what might otherwise be a grep followed by reading multiple candidate files.</p>
+  <cite><a href="https://code.claude.com/docs/en/costs.md">code.claude.com/docs/en/costs.md</a> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<div class="callout ai">
+  <span class="callout-title">A ponte, e o tamanho exato dela <span class="flag ours">nossa analogia</span></span>
+  <p>Uma interface com <strong>um</strong> implementador é o caso em que "go to definition" devolve a interface — e o agente precisa de uma segunda busca para achar o único lugar onde o comportamento existe. Uma interface com <strong>dois</strong> devolve uma escolha real, que é informação.</p>
+  <p><strong>Isto é inferência nossa.</strong> Ninguém mediu. O que está medido é que localização consome metade do orçamento e que 67% das falhas são de vizinhança. Ligar as duas pontas é o nosso passo, e ele fica visível.</p>
+  <p>A assimetria que torna a inferência plausível está documentada: o que é carregado <em>sempre</em> (<code>CLAUDE.md</code>, definições de ferramentas, a conversa inteira reenviada a cada requisição) tem curva de custo diferente do que é lido <em>sob demanda</em> (arquivos de código). Indireção mora no segundo balde. Por isso ela custa <em>busca</em>, não <em>contexto</em> — e é por isso que a analogia com o custo de um humano não transfere direto.</p>
+</div>
+
+<hr>
+
+<h2>6 · Retrieval</h2>
+
+<div class="quiz" data-answer="1">
+  <div class="quiz-head">Pergunta 1</div>
+  <p class="quiz-q">Qual destes é injeção de dependência <strong>sem</strong> inversão de dependência?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">O módulo declara ele mesmo a interface e aceita qualquer implementação</button></li>
+    <li><button class="quiz-opt">O módulo recebe pronta uma classe concreta no formato do fornecedor</button></li>
+    <li><button class="quiz-opt">O módulo constrói por dentro a própria conexão com serviço externo</button></li>
+    <li><button class="quiz-opt">O módulo expõe a interface do fornecedor direto no construtor público</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>A dependência foi entregue — logo houve injeção. Mas o tipo é concreto e pertence ao fornecedor, então nada foi invertido. É exatamente a forma dos dois exemplos do repositório. A opção 3 não é nem injeção.</p>
+  </div>
+</div>
+
+<div class="quiz" data-answer="3">
+  <div class="quiz-head">Pergunta 2</div>
+  <p class="quiz-q">O programa mediu quatro dependências contra dois portões. Por que os números discordaram?</p>
+  <ul class="quiz-options">
+    <li><button class="quiz-opt">Porque a taxonomia conta adapters e a regra conta só categorias</button></li>
+    <li><button class="quiz-opt">Porque duas das quatro dependências ali não tinham um test double</button></li>
+    <li><button class="quiz-opt">Porque a regra exige dois adapters e a taxonomia exige três</button></li>
+    <li><button class="quiz-opt">Porque a regra aceita um test double como o segundo adapter</button></li>
+  </ul>
+  <div class="quiz-feedback">
+    <p>Quatro de quatro passaram na regra, porque todas tinham um fake — e o parêntese do próprio repositório homologa isso: <em>"(typically production + test)"</em>. Só a categoria da dependência separou as duas que merecem um port das duas que só ganhariam indireção.</p>
+  </div>
+</div>
+
+<details class="recall">
+  <summary>Recordação livre — escreva antes de abrir</summary>
+  <p>Sem olhar para cima: <strong>enuncie a parte B do princípio</strong> e explique, com uma frase, por que uma interface que devolve <code>Stripe.Response</code> falha nela mesmo tendo um adapter e um teste.</p>
+  <p>Depois, o teste que vale levar para o trabalho: pegue o último pacote em que você mexeu e conte, para cada interface, quantas classes a implementam. <strong>Para cada uma que devolver 1, responda em voz alta: qual é o segundo adapter que eu esperava e nunca escrevi?</strong> Se não houver resposta, você tem indireção, não seam.</p>
+</details>
+
+<div class="ask-teacher">
+  <p><strong>Me pergunte.</strong> Esta lição encosta em três coisas que ela deliberadamente não desenvolveu: YAGNI e DRY (que são a lição 0007, se você quiser), a leitura do Fowler de que um seam para teste está <em>fora</em> do escopo do YAGNI, e o argumento de <em>Mock Roles, not Objects</em> de que a interface deve ser <em>puxada</em> pela necessidade em vez de empurrada pela implementação. Puxe qualquer um dos três e eu abro.</p>
+</div>
+
+<div class="nav">
+  <a href="0005-deletion-test.html">← 0005 — O deletion test</a>
+  <a href="../reference/0001-glossary.html#dip">Glossário — DIP</a>
+  <a href="../index.html">Índice do curso ↑</a>
+</div>
+
+</div>

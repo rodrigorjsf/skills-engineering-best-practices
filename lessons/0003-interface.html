@@ -383,6 +383,12 @@ flowchart LR
   <li><strong>0005 — O deletion test.</strong> A técnica de varredura: dado um codebase inteiro, onde a interface está cobrando mais do que entrega.</li>
 </ul>
 
+<div class="callout seam">
+  <span class="callout-title">Adendo — a sétima categoria, e ela é de outro autor</span>
+  <p>As seis categorias desta lição descrevem <strong>o que</strong> um chamador precisa saber. Robert C. Martin acrescenta uma restrição sobre <strong>o que a interface tem direito de mencionar</strong>: <em>"Abstractions should not depend upon details. Details should depend upon abstractions."</em></p>
+  <p>Uma interface que devolve <code>Stripe.Response</code> passa em todas as seis — assinatura, invariantes, ordem, erros, configuração, desempenho — e mesmo assim é inútil, porque qualquer segundo fornecedor teria que falar Stripe. A <a href="0006-dependency-inversion.html">lição 0006</a> verifica isso por reflexão, e a definição está em <a href="../reference/0001-glossary.html#dip">§6 do glossário</a>.</p>
+</div>
+
 <div class="ask-teacher">
   <p><strong>Eu sou seu professor aqui.</strong> Se alguma parte não fechou, isso é defeito da lição e não seu — me diga qual trecho e eu reescrevo. Perguntas boas para agora: <em>"o padrão OpenBooks/SettledBooks tem nome?"</em>, <em>"como faço isso em Spring, onde tudo é bean singleton?"</em>, <em>"quando o tipo extra custa mais do que a regra em prosa?"</em>, ou <em>"aplica as seis categorias numa classe do meu código"</em>.</p>
 </div>

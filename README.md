@@ -40,7 +40,7 @@ Three standing rules:
 - **No smoothing.** An unverified claim is never rewritten into confident prose.
 - **Coinages are labelled as coinages,** and attributed to whoever actually coined them.
 
-A fourth marker, `[our analogy]`, separates what a source says from what we are inferring by analogy. The research corpus currently carries **159 explicit `[unverified]` marks** across nine files — that count is a feature. It is the difference between a document that knows what it doesn't know and one that reads confidently everywhere.
+A fourth marker, `[our analogy]`, separates what a source says from what we are inferring by analogy. The research corpus currently carries **186 explicit `[unverified]` marks** across twelve files — that count is a feature. It is the difference between a document that knows what it doesn't know and one that reads confidently everywhere.
 
 ### What that discipline has already caught
 
@@ -60,9 +60,9 @@ A fourth marker, `[our analogy]`, separates what a source says from what we are 
 | [`CLAUDE.md`](./CLAUDE.md) | Operating rules — the lesson contract, evidence tiers, markup contracts, delegation policy. |
 | [`RESOURCES.md`](./RESOURCES.md) | Curated, verified sources with annotations, plus an explicit `Gaps` section. |
 | [`docs/curriculum.md`](./docs/curriculum.md) | The full map: 4 tracks, 20 lessons, in order. |
-| `lessons/` | Self-contained HTML lessons. **5 of 20 built.** |
+| `lessons/` | Self-contained HTML lessons. **6 of 22 built.** |
 | `reference/` | Compressed documents built to be revisited and printed. The glossary is binding. |
-| `docs/research/` | The research corpus — 9 files, ~7,900 lines, cited. |
+| `docs/research/` | The research corpus — 12 files, ~10,300 lines, cited. |
 | `code/` | Java examples that compile and run. |
 | `learning-records/` | What was actually learned, and what it changes. |
 
@@ -85,7 +85,7 @@ Produced by delegated agents, every claim cited:
 Four tracks, built one lesson at a time.
 
 - **I — Structure**: seam · deep vs shallow module · interface beyond the signature · adapters and internal seams · the deletion test
-- **II — Process**: vertical slices and tracer bullets · red-green · pre-agreed seams · test anti-patterns · diagnosis as a loop
+- **II — Process**: dependency inversion · YAGNI, DRY and the wrong abstraction · vertical slices and tracer bullets · red-green · pre-agreed seams · test anti-patterns · diagnosis as a loop
 - **III — Language**: ubiquitous language · bounded context · ADRs · grilling to shared understanding
 - **IV — The AI parallel**: context rot · progressive disclosure · durable state over long context · harness engineering · the stateful flow end to end · writing your own skill
 
@@ -109,6 +109,7 @@ cd code/0002-deep-module && java DepthDemo.java
 cd code/0003-interface && java InterfaceDemo.java
 cd code/0004-adapter && java AdapterDemo.java
 cd code/0005-deletion-test && java DeletionTestDemo.java
+cd code/0006-dependency-inversion && java InversionDemo.java
 ```
 
 ## Attribution and licensing

@@ -66,6 +66,12 @@
       <td>I — Estrutura</td>
       <td>Varrer código alheio e medir, apagando de verdade, o que cobra sem entregar.</td>
     </tr>
+    <tr>
+      <td><a href="lessons/0006-dependency-inversion.html">0006</a></td>
+      <td><a href="lessons/0006-dependency-inversion.html">Dependency inversion</a></td>
+      <td>II — Processo</td>
+      <td>Distinguir injetar de inverter, e contar quantos ports do seu código são só indireção.</td>
+    </tr>
   </tbody>
 </table>
 </div>
@@ -84,6 +90,9 @@
   <li><a href="docs/research/07-communities.md">07 — Comunidades</a> — quatro lugares verificados onde testar isto com gente de verdade.</li>
   <li><a href="docs/research/08-ddd-evans.md">08 — DDD, do Evans</a> — <em>ubiquitous language</em> e <em>bounded context</em> nas palavras dele, com os capítulos confirmados.</li>
   <li><a href="docs/research/09-supplementary-sources.md">09 — Fontes suplementares</a> — o que sobreviveu à checagem de proveniência, e o que foi rebaixado.</li>
+  <li><a href="docs/research/10-dependency-inversion.md">10 — Dependency inversion</a> — o artigo do Martin recuperado do arquivo, e a distinção DI × DIP × IoC fechada pelo texto de 2004 do Fowler.</li>
+  <li><a href="docs/research/11-yagni-dry-and-the-cost-of-abstraction.md">11 — YAGNI, DRY e o custo da abstração</a> — a isenção que o Fowler escreve para si mesmo, e a retratação assinada dos autores do DRY.</li>
+  <li><a href="docs/research/12-indirection-and-agents.md">12 — Indireção e agentes</a> — o que está medido sobre localização, e dezesseis afirmações que nenhuma fonte sustenta.</li>
 </ul>
 
 <h2>Código</h2>
@@ -96,6 +105,7 @@
   <li><code>code/0003-interface/InterfaceDemo.java</code> — dois ledgers com assinaturas idênticas, um deles destruindo dinheiro; e o <code>javac</code> chamado em tempo de execução para provar que a ordem errada não compila. Rode com <code>java InterfaceDemo.java</code>.</li>
   <li><code>code/0004-adapter/AdapterDemo.java</code> — um port com um adapter de disco e um de memória, e a JVM confirmando que a <code>FeePolicy</code> não subiu para a interface pública. Rode com <code>java AdapterDemo.java</code>.</li>
   <li><code>code/0005-deletion-test/DeletionTestDemo.java</code> — o deletion test executado, não imaginado: dois conjuntos de callers por caso, os dois rodando, e o programa lendo o próprio fonte para contar o que reapareceu. Rode com <code>java DeletionTestDemo.java</code>.</li>
+  <li><code>code/0006-dependency-inversion/InversionDemo.java</code> — injeção com e sem inversão lado a lado, um detector de <code>1 interface : 1 adapter</code> por reflexão, e os dois portões do repositório discordando sobre as mesmas quatro dependências. Rode com <code>java InversionDemo.java</code>.</li>
 </ul>
 
 <div class="ask-teacher">

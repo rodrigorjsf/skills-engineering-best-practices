@@ -406,6 +406,12 @@ ou onde o objeto é criado`"]
   <li><strong>0008 — Pre-agreed seams.</strong> A prática que transforma esta lição em protocolo de trabalho com agente.</li>
 </ul>
 
+<div class="callout seam">
+  <span class="callout-title">Adendo — o seam responde "onde", não "de quem"</span>
+  <p>A definição do Feathers que abre esta lição decide <strong>onde</strong> a interface fica. Ela não diz nada sobre <strong>quem a escreve</strong> — e essa é uma segunda decisão, com nome próprio na literatura clássica: <a href="../reference/0001-glossary.html#dip">dependency inversion</a>.</p>
+  <p>Você pode colocar um seam no lugar certo e ainda assim deixar o fornecedor declarar o contrato. O <code>TransferService</code> que <em>recebe</em> um <code>StripeGateway</code> pronto satisfaz "accept dependencies, don't create them" e não inverteu nada. A <a href="0006-dependency-inversion.html">lição 0006</a> separa as duas coisas e mostra o teste que distingue.</p>
+</div>
+
 <div class="ask-teacher">
   <p><strong>Eu sou seu professor aqui.</strong> Se alguma parte não fechou, isso é defeito da lição e não seu — me diga qual trecho e eu reescrevo. Perguntas boas para agora: <em>"me dá um exemplo de seam mal colocado em Java"</em>, <em>"como isso muda com Spring e injeção de dependência?"</em>, <em>"mostra um seam que NÃO vale a pena"</em>, ou <em>"o que Feathers diz sobre link seams e object seams?"</em>.</p>
 </div>

@@ -468,6 +468,105 @@ Citações no formato <code>arquivo:linha</code> apontam para o repo upstream
 
 <hr>
 
+<h2>6 · Vocabulário clássico que o repositório <em>não</em> usa</h2>
+<p class="caption" style="border:0;padding:0;margin:0 0 1.5rem">Dono: ninguém, no repositório. Esta seção existe porque a ausência é o dado.</p>
+
+<div class="callout evidence">
+  <span class="callout-title">Contagem sobre os 113 arquivos de <code>skills/</code></span>
+  <p><code>dependency inversion</code> <strong>0</strong> · <code>SOLID</code> (a sigla) <strong>0</strong> · <code>DRY</code> / <code>don't repeat yourself</code> <strong>0</strong> · <code>dependency injection</code> <strong>1</strong> · <code>YAGNI</code> <strong>1</strong> — contra <code>seam</code> <strong>77</strong>, <code>interface</code> <strong>160</strong>, <code>adapter</code> <strong>30</strong>.</p>
+  <p>Medido em 2026-08-01 com <code>grep -rioF</code> sobre <code>../skills/skills</code>. Os dois hits brutos de "solid" são a palavra inglesa comum, em <code>improve-codebase-architecture/HTML-REPORT.md:38</code> e <code>:84</code>. <strong>O repositório investe seu vocabulário em <em>onde</em> a interface fica, não em <em>quem é dono</em> dela.</strong></p>
+</div>
+
+<h3 id="dip">Dependency Inversion Principle (DIP) <span class="flag cited">Robert C. Martin</span> <span class="flag unverified">ausente do repositório</span></h3>
+<blockquote class="source">
+  <p><strong>A.</strong> High level modules should not depend upon low level modules. Both should depend upon abstractions. <strong>B.</strong> Abstractions should not depend upon details. Details should depend upon abstractions.</p>
+  <cite>Martin, <em>The Dependency Inversion Principle</em>, <em>The C++ Report</em>, p. 6 — <a href="https://web.archive.org/web/2015/http://www.objectmentor.com/resources/articles/dip.pdf">PDF arquivado</a> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p><strong>A parte B é a que carrega o princípio</strong>, e é a que as recontagens populares perdem. "High level não depende de low level" descreve um diagrama; "abstractions should not depend upon details" decide <em>quem declara a interface</em>. No exemplo <code>Button</code>/<code>Lamp</code> do próprio artigo, é o <code>Button</code> — a política de alto nível — que declara <code>ButtonClient</code>, e a <code>Lamp</code> que o implementa. <strong>A interface pertence a quem chama.</strong></p>
+<p class="sidenote">Datação: o artigo se identifica como "the third of my Engineering Notebook columns for The C++ Report" e diz "My last article (Mar, 96) talked about the Liskov Substitution Principle". Logo: posterior a março de 1996 <span class="flag cited">verbatim</span>. A data "maio de 1996" que circula <strong>não aparece em nenhum artefato</strong> e fica <span class="flag unverified">unverified</span>.</p>
+<p><strong>O escopo que Martin declara é ilimitado</strong> — e é exatamente essa frase que a crítica ataca:</p>
+<blockquote class="source">
+  <p>Dependency Inversion can be applied wherever one class sends a message to another.</p>
+  <cite>ibid., p. 8 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="dependency-injection">Dependency injection (DI) <span class="flag cited">Martin Fowler nomeou</span></h3>
+<blockquote class="source">
+  <p>Inversion of Control is too generic a term, and thus people find it confusing. As a result with a lot of discussion with various IoC advocates we settled on the name Dependency Injection.</p>
+  <cite>Fowler, <a href="https://martinfowler.com/articles/injection.html">Inversion of Control Containers and the Dependency Injection pattern</a>, 2004 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p><strong>DI não é DIP.</strong> Injeção é um <em>mecanismo</em> para entregar um colaborador a um objeto; inversão é uma <em>afirmação sobre a posse da abstração</em>. Você pode injetar uma classe concreta e não ter invertido nada. As duas são independentes <strong>nas duas direções</strong>: a Listagem 4 do artigo do Martin mostra inversão com zero injeção (<code>stdio.h</code>).</p>
+<p class="sidenote">O dado que fecha a distinção: <strong>a expressão "dependency inversion" aparece zero vezes em <code>injection.html</code></strong> — o artigo que deu nome à injeção de dependência. Verificado por <code>grep</code> sobre a página baixada. O índice do bliki e o índice de tags do Fowler também foram baixados: <strong>não existe verbete DIP</strong>.</p>
+<p>O freio do próprio Fowler, que quase nunca é citado junto:</p>
+<blockquote class="source">
+  <p>Inversion of control is a common feature of frameworks, but it's something that comes at a price. It tends to be hard to understand and leads to problems when you are trying to debug. So on the whole I prefer to avoid it unless I need it.</p>
+  <cite>ibid. <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p><strong>Onde o repositório fica:</strong> <code>codebase-design/SKILL.md:71</code> ("Accept dependencies, don't create them") e <code>tdd/mocking.md:20</code> ("Use dependency injection"). Os dois exemplos passam um colaborador <em>concreto</em>, com forma de Stripe. <strong>É injeção sem inversão</strong> — nenhuma abstração é declarada em lugar nenhum.</p>
+
+<h3 id="option-inversion">Option inversion <span class="flag cited">Dan North</span></h3>
+<blockquote class="source">
+  <p>Most dependencies don't need inverting, because most dependencies aren't options, they are just the way we are going to do it this time.</p>
+  <cite>North, <a href="https://dannorth.net/blog/cupid-the-back-story/">CUPID — the back story</a> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p>E o diagnóstico da patologia <code>1 interface : 1 adapter</code>, por uma fonte nomeada em vez de folclore:</p>
+<blockquote class="source">
+  <p>In the wild, there are entire shadow codebases where each class is backed by exactly one interface, which only exists to satisfy a wiring framework or to inject a mock or stub for automated testing theatre.</p>
+  <cite>ibid. <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p><strong>A convergência com o repositório é o achado.</strong> North diagnostica e nomeia a cura de forma abstrata; o repositório entrega a mesma cura como um limiar contável — <a href="#two-adapters">"two adapters means a real one"</a> — sem nunca nomear DIP. <span class="flag ours">nossa analogia</span> quanto a qualquer causalidade: a convergência está documentada, influência não está.</p>
+
+<h3 id="yagni">YAGNI <span class="flag cited">Kent Beck, via Chet Hendrickson</span></h3>
+<blockquote class="source">
+  <p>Yagni only applies to capabilities built into the software to support a presumptive feature, it does not apply to effort to make the software easier to modify.</p>
+  <cite>Fowler, <a href="https://martinfowler.com/bliki/Yagni.html">Yagni</a>, 26 mai 2015 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p><strong>Esta frase resolve a contradição aparente com uma disciplina orientada a seams.</strong> Fowler isenta explicitamente <code>SelfTestingCode</code> como "enabling practice for evolutionary design". Um seam introduzido para tornar um teste possível <em>está fora do escopo do YAGNI pelo texto dele</em>. O conflito é com o folk-YAGNI, não com o Fowler.</p>
+<p>Mas ele <em>estende</em> YAGNI a abstrações, e essa metade é a que morde:</p>
+<blockquote class="source">
+  <p>This doesn't mean to forego all abstractions, but it does mean any abstraction that makes it harder to understand the code for current requirements is presumed guilty.</p>
+  <cite>ibid. <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p><strong>Os quatro custos</strong>, verbatim do mesmo texto: <code>cost of build</code> · <code>cost of delay</code> · <code>cost of carry</code> · <code>cost of repair</code>.</p>
+<p><strong>Uso no repositório</strong> — a única ocorrência, e ela <em>não</em> é o sentido clássico: "<strong>Scope before you scan — YAGNI.</strong> Deepening a module pays off by making future changes to it easier, so put extra weight on the parts of the codebase that have recently changed" (<code>improve-codebase-architecture/SKILL.md:20</code>). É YAGNI como <strong>heurística de escopo para onde olhar</strong>, não como "não construa ainda". Há uma fricção real: a isenção do Fowler diz que YAGNI <em>não</em> se aplica a esforço de refatoração, e é exatamente aí que o repositório o aplica.</p>
+
+<h3 id="dry">DRY <span class="flag cited">Hunt &amp; Thomas</span></h3>
+<blockquote class="source">
+  <p>Every piece of knowledge must have a single, unambiguous, authoritative representation within a system.</p>
+  <cite>Thomas &amp; Hunt, <em>The Pragmatic Programmer, 20th Anniversary Edition</em>, Topic 9, Tip 15 — <a href="https://media.pragprog.com/titles/tpp20/dry.pdf">excerto gratuito</a> <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p class="sidenote">A palavra é <strong><code>knowledge</code></strong>, não <code>code</code> nem <code>text</code>. Ressalva de locator: esta frase foi lida na edição de <strong>2019/2020</strong>. A redação de 1999 nunca foi buscada — não escreva "Hunt &amp; Thomas, 1999" por cima dela.</p>
+<p><strong>Os autores se retratam da leitura popular, por escrito:</strong></p>
+<blockquote class="source">
+  <p>In the first edition of this book we did a poor job of explaining just what we meant by Don't Repeat Yourself. Many people took it to refer to code only: they thought that DRY means "don't copy-and-paste lines of source." That is part of DRY, but it's a tiny and fairly trivial part.</p>
+  <cite>ibid., seção "DRY is More Than Code" <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p>E a regra que decide o caso difícil, na seção intitulada <em>"Not All Code Duplication is Knowledge Duplication"</em>:</p>
+<blockquote class="source">
+  <p>They are wrong. The code is the same, but the knowledge they represent is different. The two functions validate two separate things that just happen to have the same rules. That's a coincidence, not a duplication.</p>
+  <cite>ibid. <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="wrong-abstraction">The wrong abstraction <span class="flag cited">Sandi Metz</span></h3>
+<blockquote class="source">
+  <p>duplication is far cheaper than the wrong abstraction</p>
+  <cite>Metz, <a href="https://sandimetz.com/blog/2016/1/20/the-wrong-abstraction">The Wrong Abstraction</a>, 20 jan 2016; afirmado primeiro em "All the Little Things", RailsConf 2014 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p>O teste falsificável dela vale mais que a tese, porque é aplicável a um arquivo aberto:</p>
+<blockquote class="source">
+  <p>If you find yourself passing parameters and adding conditional paths through shared code, the abstraction is incorrect. It may have been right to begin with, but that day has passed.</p>
+  <cite>ibid. <span class="flag cited">verbatim</span></cite>
+</blockquote>
+
+<h3 id="need-driven">Need-Driven Development <span class="flag cited">Freeman, Pryce, Mackinnon &amp; Walnes</span></h3>
+<blockquote class="source">
+  <p>TDD with Mock Objects guides interface design by the services that an object requires, not just those it provides. This process results in a system of narrow interfaces each of which defines a role in an interaction between objects, rather than wide interfaces that describe all the features provided by a class. We call this approach Need-Driven Development.</p>
+  <cite><a href="https://jmock.org/oopsla2004.pdf">Mock Roles, not Objects</a>, OOPSLA 2004, §2.1 <span class="flag cited">verbatim</span></cite>
+</blockquote>
+<p>É a resposta direta a "um seam só para testar não é violação de YAGNI?". A linha divisória que eles desenham é <strong>puxado pela demanda × empurrado pela implementação</strong>, não uma-implementação-versus-duas. A regra de escopo deles — <em>"Only Mock Types You Own"</em> — é a mesma fronteira que <code>tdd/mocking.md:14</code> desenha com "Don't mock: … Anything you control".</p>
+
+<hr>
+
 <div class="ask-teacher">
   <p><strong>Faltando um termo?</strong> Me pergunte e eu adiciono aqui com a definição verbatim e a citação. Se você encontrar uma definição minha que não bata com a fonte, isso é um defeito — me aponte e eu corrijo.</p>
 </div>

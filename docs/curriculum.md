@@ -40,57 +40,63 @@ The working technique from `improve-codebase-architecture`, and the one lesson w
 
 ## Track II — Process: how you move
 
-**0006 — Vertical slice, tracer bullet, walking skeleton**
+**0006 — Dependency inversion: who owns the abstraction** *(built)* — **opens Track II**
+The classical principle the repo never names, and the reason that is a choice rather than an oversight. Measured over the 113 files of `skills/`: `dependency inversion` **0**, `SOLID` (the acronym) **0**, `DRY` **0**, `dependency injection` **1**, `YAGNI` **1** — against `seam` **77** and `interface` **160**. The repo invests its vocabulary in *where* the interface lives, never in *who owns it*. Primary source: **Martin's own article, recovered from the Wayback capture of `objectmentor.com/resources/articles/dip.pdf` and read in full** — both halves quoted, and **part B is the one retellings drop**: *"Abstractions should not depend upon details."* The `Button`/`Lamp` example is the evidence: `Button`, the high-level policy, declares `ButtonClient`; `Lamp`, the detail, implements it. Dating comes from inside the artifact (*"the third of my Engineering Notebook columns"*, *"My last article (Mar, 96)"*) — the circulating "May 1996" is in **no** artifact and stays `[unverified]`. The load-bearing distinction is **DI ≠ DIP**, settled by a derived silence: *"dependency inversion"* occurs **zero times** in Fowler's `injection.html`, the article that named dependency injection, and his bliki has **no DIP entry** — both verified by grep over the downloaded pages. Java: `NaiveTransferService(StripeGateway)` and `TransferService(PaymentPort)` — same behaviour, same testability, one of them edited when Stripe becomes Adyen; then a reflection test of part B (a *detail* is derived structurally, as a type enclosed in a vendor namespace), a seven-line **`1 interface : 1 adapter` detector**, and the punchline: **four dependencies pass the two-adapter rule, two pass the category gate.** The rule's own gloss — *"(typically production + test)"*, `DEEPENING.md:29` — endorses a test double as the second adapter, so it restrains almost nothing; the **dependency-category taxonomy** (`DEEPENING.md:5-25`) is the actual brake, and `tdd/mocking.md:3,10-14` draws the same line from the test side. **Neither file cites the other; the composition is ours and is flagged as ours.** Counter-datum first, and it is Martin's own: *"Dependency Inversion can be applied wherever one class sends a message to another"* — the unconditional scope that produces what **Dan North** names, *"entire shadow codebases where each class is backed by exactly one interface… for automated testing theatre."* North diagnoses; the repo ships the same cure as a countable threshold, without naming DIP — convergence documented, **influence not**. AI parallel: the tempting claim *"over-abstraction hurts coding agents"* has **no primary source** and is refused in the visible text; what is measured is localization — SHERLOC's *"utilize half their budget on locating faults before editing"* and Anthropic's own go-to-definition line.
+
+**0007 — YAGNI, DRY, and the wrong abstraction** *(evidence gathered, not yet built — the reader's call)*
+The companion, and the resolution of the apparent contradiction between a seam-oriented discipline and "don't build it yet". Fowler scopes himself out of the conflict in his own words: *"Yagni only applies to capabilities built into the software to support a presumptive feature, it does not apply to effort to make the software easier to modify"* — and names `SelfTestingCode` as an exempt enabling practice, so a seam introduced to make a test possible is **outside YAGNI's scope on Fowler's own text**. The conflict is with folk-YAGNI. But he *does* extend it to abstractions: *"any abstraction that makes it harder to understand the code for current requirements is presumed guilty."* Four costs verified verbatim — build, delay, carry, repair. Origin is **Kent Beck**, prompted by Chet Hendrickson on C3, **not Ron Jeffries**. DRY carries a signed retraction: the freely-published 20th-anniversary excerpt has a section headed *"Not All Code Duplication is Knowledge Duplication"* and the authors' admission *"in the first edition of this book we did a poor job of explaining just what we meant"* — and its worked example is a **banking** one. Metz supplies the falsifiable test: *"If you find yourself passing parameters and adding conditional paths through shared code, the abstraction is incorrect."* Counter-voice: *Mock Roles, not Objects* (OOPSLA 2004), which grounds seams in Lean **pull** — the dividing line is pushed-vs-pulled, not one-implementation-vs-two. Evidence in `docs/research/11-yagni-dry-and-the-cost-of-abstraction.md`.
+
+**0008 — Vertical slice, tracer bullet, walking skeleton**
 Three related and frequently confused ideas, separated precisely — led by Cockburn's own sentence naming the neighbours and hedging them as *"similar sorts of ideas"*, and corroborated by a second, independent voice: **Clint Shank, axiom #60 of *97 Things Every Software Architect Should Know* (O'Reilly, 2009), "what Alistair Cockburn calls a Walking Skeleton"** — valuable precisely because it is not Cockburn talking about himself. `vertical slice` still has **no located coiner** and must not be assigned one. The repo's anti-pattern of **horizontal slicing** — "bulk tests verify *imagined* behavior" — and why writing all tests first is a distinct failure from writing no tests. Java: one slice of `transfer` end-to-end versus a shelf of speculative tests.
 
-**0007 — Red-green-refactor, and the rule that refactoring is not in the loop**
+**0009 — Red-green-refactor, and the rule that refactoring is not in the loop**
 Beck's loop, plus the repo's sharp deviation: *"Refactoring is not part of the loop. It belongs to the review stage."* Why that deviation exists in an agent context. The empirical record on TDD reported honestly — including the replications that found no effect.
 
-**0008 — Pre-agreed seams: the test-planning contract**
+**0010 — Pre-agreed seams: the test-planning contract**
 "No test is written at an unconfirmed seam." Why agreeing the seams up front is how effort lands on critical paths rather than on every edge case. This is the hinge between Track I and Track II, and the single most transferable practice for agentic work.
 
-**0009 — Test anti-patterns: implementation-coupled and tautological**
+**0011 — Test anti-patterns: implementation-coupled and tautological**
 The tell for each. The tautological test as a specifically LLM-shaped failure — an agent asked to write a test for code it just wrote will recompute the expected value the same way. Java: `assertEquals(a + b, add(a, b))`, and its subtler cousins. Mocking policy; Testcontainers versus mocks.
 
-**0010 — Diagnosis as a loop, not a guess**
+**0012 — Diagnosis as a loop, not a guess**
 `reproduce → minimise → hypothesise → instrument → fix → regression-test`. Delta debugging as the formal ancestor of "minimise". Why an agent that skips *reproduce* produces confident nonsense.
 
 ---
 
 ## Track III — Language: how you agree
 
-**0011 — Ubiquitous language and the glossary as an artifact**
+**0013 — Ubiquitous language and the glossary as an artifact**
 Evans' original claim. The repo's operational form: `CONTEXT.md`, "totally devoid of implementation details… a glossary and nothing else." **Do not teach this as a divergence from Evans** — it was checked and there isn't one. Evans insists on speech (his section is titled *Modeling Out Loud*: *"We naturally come to share the language that we speak in a way that never happens with diagrams and documents"*) but explicitly does not forbid documents (*"a group of any size will probably need the stability and sharability of some written documents"*), and his first liveness criterion — *"a document shouldn't try to do what the code already does well"* — is what the repo satisfies nearly word for word. The teachable point is **ours, and flagged as ours**: the repo swaps a self-correcting medium for one with no self-correction, which makes Evans' liveness test *more* load-bearing, not less. The `_Avoid_:` convention — recording rejected synonyms is as valuable as recording the chosen term. Java: renaming a class after a glossary fight, and what stopped being ambiguous.
 
-**0012 — Bounded context and context maps**
+**0014 — Bounded context and context maps**
 When one glossary is not enough. `CONTEXT-MAP.md` as the repo's form. Java: `Account` meaning two different things in ledger and in onboarding.
 
-**0013 — ADRs: the three-part test**
+**0015 — ADRs: the three-part test**
 The repo's unusually strict gate — hard to reverse **and** surprising without context **and** the result of a real trade-off. Nygard's original post. Why an ADR is durable state that survives a context window.
 
-**0014 — Grilling: reaching shared understanding**
+**0016 — Grilling: reaching shared understanding**
 The whole practice: one question at a time, look up facts but never decisions, recommend an answer with every question, and *do not act until shared understanding is confirmed*. Why this is the highest-leverage human-LLM protocol available, and what it borrows from Socratic method, design review, and Three Amigos. Includes an actual grilling transcript to analyse.
 
 ---
 
 ## Track IV — The AI parallel, made explicit
 
-**0015 — Context rot, with numbers**
+**0017 — Context rot, with numbers**
 What actually degrades and by how much. The Chroma report's experimental design; Liu et al.'s U-shaped curve. Not "long context is bad" — the specific, measured shape of the failure.
 
-**0016 — Progressive disclosure, both lineages**
+**0018 — Progressive disclosure, both lineages**
 Nielsen's HCI origin and its adoption in skill design: metadata first, body on demand, supporting files last. Why `codebase-design/SKILL.md` links out to `DEEPENING.md` instead of inlining it — the skill is itself a deep module.
 
-**0017 — Durable state beats a long context**
+**0019 — Durable state beats a long context**
 The core argument of the whole curriculum. `CONTEXT.md`, ADRs, issues, triage labels, handoff docs, wayfinder maps — each one a decision paid for once and reread cheaply forever. Map the full write/read matrix of the stateful chain.
 
-**0018 — Harness engineering**
+**0020 — Harness engineering**
 Tools, permissions, hooks, sub-agent isolation. Deep tools versus many shallow tools, argued from Track I. What the term is actually sourced to, and what is our own inference.
 
-**0019 — The stateful flow end to end**
+**0021 — The stateful flow end to end**
 The verified chain: `setup-matt-pocock-skills` (once) → `grill-with-docs → to-spec → to-tickets → implement → code-review`, where `implement` **nests** `tdd` per slice and **calls** `code-review`. Plus the on-ramps, which are where most people get the shape wrong: `triage → implement`; `wayfinder → to-spec` (**never** straight to `implement`); and `diagnosing-bugs → improve-codebase-architecture →` back to `grill-with-docs` — the only cycle in the graph. Walked once on a real banking feature, naming the artifact at every hop.
 
-**0020 — Writing your own skill**
+**0022 — Writing your own skill**
 The synthesis. Apply Tracks I–IV to authoring a skill: thin `SKILL.md` (small interface), supporting files (deep implementation), invocation policy (the seam), state externalised to files. The final win of the mission.
 
 ---
@@ -118,3 +124,6 @@ Persisted under `docs/research/`, produced by delegated agents:
 - `07-communities.md` — four verified venues for testing this work on real practitioners, plus what could not be verified from outside.
 - `08-ddd-evans.md` — Evans on `ubiquitous language` and `bounded context`, chapters confirmed, page numbers labelled *manuscript* because the local copy is the April 2003 final manuscript and not the printed book. Includes a hypothesis the agent set out to prove and then disproved.
 - `09-supplementary-sources.md` — provenance checks on the two supplementary sources: the IJSRP walking-skeleton paper (no DOI, no DOAJ, zero empirical data — kept only as a specimen of evidence drift) and *97 Things* (archive-confirmed as the unedited wiki contributions, so a finding aid and never the citation of record).
+- `10-dependency-inversion.md` — Martin's DIP article recovered from the Wayback capture and read in full; the DI/DIP/IoC distinction settled from Fowler's 2004 article, including the derived silence (*"dependency inversion"* zero times in it, no DIP entry in his bliki); North's published critique. Feathers-coined-`SOLID` stays `[unverified]` — Martin's own words were not found.
+- `11-yagni-dry-and-the-cost-of-abstraction.md` — Fowler's Yagni bliki with all four costs and the scoping sentence that dissolves the contradiction; the 20th-anniversary DRY excerpt with the authors' own retraction; Metz; *Mock Roles, not Objects*. The canonical DRY sentence was read from the **2019/2020** edition — do not date it 1999.
+- `12-indirection-and-agents.md` — the negative result first: nothing measures file, module, or hop count against agent success. What is measured is localization (SHERLOC, *Code Isn't Memory*, Agentless) plus Anthropic's own cost documentation. Ends with **16 numbered prohibitions**.

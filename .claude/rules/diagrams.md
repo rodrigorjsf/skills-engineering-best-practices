@@ -118,6 +118,12 @@ flowchart LR
 </figure>
 ```
 
+**The backticks go inside the quotes, wrapping the whole label — not at the
+line break.** `A["` + backtick + `line one⏎line two` + backtick + `"]` renders two
+lines; putting a backtick at the end of line one and the start of line two
+renders the backticks **literally**, as visible characters in the node. Lesson
+0006's first draft did exactly that and shipped `TransferService\`` on screen.
+
 **Never put an HTML tag inside the block — `<br>` included.** The browser parses
 it as a real element while building `<pre>`, so `textContent` drops it and the
 two lines arrive concatenated with no space (`código-fonteidêntico`). For a line

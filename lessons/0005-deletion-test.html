@@ -328,6 +328,12 @@ Glossário: <a href="../reference/0001-glossary.html#deletion-test">the deletion
   <li><strong>Trilha II — Processo: como você se move.</strong> Começa em <strong>0006</strong>, separando <span class="en">vertical slice</span>, <span class="en">tracer bullet</span> e <span class="en">walking skeleton</span> — três ideias que a internet trata como sinônimos e que têm autores e definições diferentes. Depois: red → green sem o refactor, <span class="en">pre-agreed seams</span>, anti-patterns de teste, e o loop de diagnóstico.</li>
 </ul>
 
+<div class="callout seam">
+  <span class="callout-title">Adendo — o seam de um adapter só é um pass-through</span>
+  <p>Aplique o deletion test a uma interface com <strong>um</strong> implementador. Apague a interface, aponte os chamadores direto para a classe: nada de complexidade reaparece em lugar nenhum, e o codebase encolhe. É o caso <strong>A</strong> desta lição — <code>TransferFacade</code>, −1 linha — com outra roupa.</p>
+  <p>É por isso que a frase do repositório é <em>"just indirection"</em> e não <em>"a wrong seam"</em>. Não é um seam mal colocado; é um module raso que passou pela porta com crachá de arquitetura. A <a href="0006-dependency-inversion.html">lição 0006</a> conta esses casos automaticamente.</p>
+</div>
+
 <div class="ask-teacher">
   <p><strong>Eu sou seu professor aqui.</strong> Se alguma parte não fechou, isso é defeito da lição e não seu — me diga qual trecho e eu reescrevo. Perguntas boas para agora: <em>"roda o deletion test num pacote do meu código"</em>, <em>"e quando a fachada existe por causa de uma fronteira de transação no Spring?"</em>, <em>"como isso muda quando o pass-through é uma interface e não uma classe?"</em>, ou <em>"me faz um quiz misturando as cinco lições"</em>.</p>
 </div>
@@ -346,6 +352,7 @@ Glossário: <a href="../reference/0001-glossary.html#deletion-test">the deletion
 
 <div class="nav">
   <a href="0004-adapter.html">← 0004 · Adapter</a>
+  <a href="0006-dependency-inversion.html">0006 · Dependency inversion →</a>
   <a href="../index.html">↑ Índice do curso</a>
   <a href="../reference/0001-glossary.html#deletion-test">Glossário</a>
   <a href="../code/0005-deletion-test/DeletionTestDemo.java">Código desta lição</a>
