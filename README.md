@@ -40,13 +40,13 @@ Three standing rules:
 - **No smoothing.** An unverified claim is never rewritten into confident prose.
 - **Coinages are labelled as coinages,** and attributed to whoever actually coined them.
 
-A fourth marker, `[our analogy]`, separates what a source says from what we are inferring by analogy. The research corpus currently carries **186 explicit `[unverified]` marks** across twelve files — that count is a feature. It is the difference between a document that knows what it doesn't know and one that reads confidently everywhere.
+A fourth marker, `[our analogy]`, separates what a source says from what we are inferring by analogy. The research corpus currently carries **212 explicit `[unverified]` marks** across fifteen files — that count is a feature. It is the difference between a document that knows what it doesn't know and one that reads confidently everywhere.
 
 ### What that discipline has already caught
 
 - The widely-circulated **"dumb zone begins at ~100K tokens / ~40% of the context window"** figure appears in no primary source. Matt Pocock's own written definition says *"around 125K-150K tokens — though this is debated"* and explicitly states the zones do **not** track a percentage of the window.
 - **"Dumb zone was coined by Dex Horthy"** does not hold up — the phrase does not appear in HumanLayer's own document. What *is* his: the 40–60% utilization target and *intentional compaction*.
-- **"Harness engineering"** traces to **Mitchell Hashimoto**, self-identified, not to Pocock.
+- **"Harness engineering" has no located coiner** — and this one caught *us*. It was recorded as *"traced: Hashimoto self-identifies as coining it"*, on a quote truncated one sentence early. The next sentence is *"I don't need to invent any new terms here; if another one exists, I'll jump on the bandwagon."* The compound is already in a talk published two months before his post, and two write-ups published two days apart name two different coiners. **Not Pocock's** was never what failed.
 - The favourable **TDD** case study (Nagappan et al., "40–90% fewer defects") is four case studies, not experiments; its "15–35% slower" figure is explicitly *"subjectively estimated by management."* Fucci et al. (TSE 2017) found that **sequencing — test-first versus test-after — had no important influence**; granularity and uniformity carried the effect.
 - **"Information hiding" is not coined in Parnas' famous 1972 paper.** He writes *The second decomposition was made using "information hiding" [4] as a criteria* — the quotation marks and the citation are his. Reference [4] is his own earlier CMU report, *"Information Distribution Aspects of Design Methodology"* (1971). The criterion is stated in the famous paper; the term arrives from a companion report.
 - **The free "Fowler smells chapter" everyone links is not the 1st edition.** The PDF at `laputan.org` was downloaded and read: it carries **17 smells, not 22**, has no *Speculative Generality*, names the refactorings **Extract Component / Inline Component** (the published names are *Extract Class* / *Inline Class*, which appear zero times), and calls one smell *Case Statements*. It is a **pre-publication draft**. Our own corpus described it as the 1st-edition chapter, and that has been corrected in place.
@@ -63,7 +63,7 @@ A fourth marker, `[our analogy]`, separates what a source says from what we are 
 | `lessons/` | Self-contained HTML lessons. **6 of 22 built.** |
 | `checkpoints/` | One per closed track. Measures what landed; teaches nothing. **1 built** (Track I). |
 | `reference/` | Compressed documents built to be revisited and printed. **3 built** — the glossary is binding, plus the stateful flow and the Java patterns. |
-| `docs/research/` | The research corpus — 14 files, ~11,100 lines, cited. |
+| `docs/research/` | The research corpus — 15 files, ~11,400 lines, cited. |
 | `code/` | Java examples that compile and run. |
 | `learning-records/` | What was actually learned, and what it changes. |
 
@@ -84,7 +84,8 @@ Produced by delegated agents, every claim cited:
 - **`11-yagni-dry-and-the-cost-of-abstraction.md`** — the exemption Fowler writes for himself, and the signed retraction in the DRY authors' 20th-anniversary text.
 - **`12-indirection-and-agents.md`** — what is actually measured about fault localization, and sixteen numbered claims no source supports.
 - **`13-library-sweep.md`** — all 61 URLs the finding-aid library references, tiered; then the gap-touching ones fetched. Resolves the origin of the "40%" figure and demotes the `harness engineering` coinage to no located coiner.
-- **`14-martin-books-and-the-volatility-gate.md`** — Martin's own books read from the reader's copies. Closes who coined `SOLID` and whether he qualifies DIP; rejects two PDFs on provenance grounds.
+- **`14-martin-books-and-the-volatility-gate.md`** — Martin's own books read from the reader's copies. Closes who coined `SOLID` and whether he qualifies DIP, and dates the volatility gate to 2003 rather than 2018.
+- **`15-shelf-provenance.md`** — every book on the shelf triaged before use. Two method corrections, one unauthorised retype refused, and what each book actually unlocks, by lesson.
 
 ### Curriculum
 

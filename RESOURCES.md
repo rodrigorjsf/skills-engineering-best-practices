@@ -121,7 +121,7 @@ This is the single most important section for the "teach and evangelise" goal, b
 - [**Anthropic, "Demystifying evals for AI agents"**](https://www.anthropic.com/engineering/demystifying-evals-for-ai-agents) (9 Jan 2026)
   The canonical definition of `harness`. Also: grade the outcome, not the transcript; *"20-50 simple tasks drawn from real failures is a great start."*
 - [**Mitchell Hashimoto, "My AI Adoption Journey"**](https://mitchellh.com/writing/my-ai-adoption-journey) (5 Feb 2026)
-  Where `harness engineering` is coined, self-identified: *"I don't know if there is a broad industry-accepted term for this yet, but I've grown to calling this 'harness engineering.'"*
+  The fullest statement of `harness engineering` — but **not its coinage**, and the full quote is why: *"I don't know if there is a broad industry-accepted term for this yet, but I've grown to calling this 'harness engineering.' … **I don't need to invent any new terms here; if another one exists, I'll jump on the bandwagon.**"* Adoption, then an explicit disclaimer. See the demotion in `Gaps` below.
 - **Shi et al., "Large Language Models Can Be Easily Distracted by Irrelevant Context"** — ICML 2023
   GSM-IC. *"performance is dramatically decreased when irrelevant information is included."* Use for: the evidence behind "less context, better output."
 - [**Nielsen Norman Group, progressive disclosure**](https://www.nngroup.com/articles/progressive-disclosure/)

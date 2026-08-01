@@ -409,12 +409,18 @@ an independent vendor:
 
 ### Coinage ledger note — sequence, not causation
 
-`RESOURCES.md` records **Mitchell Hashimoto** self-identifying with
-`harness engineering` on **5 Feb 2026**. This OpenAI post is dated
+> **⚠️ CORRECTED 2026-08-01.** This note read *"`RESOURCES.md` records Mitchell Hashimoto **self-identifying with** `harness engineering` on 5 Feb 2026."* **He does not self-identify as coining it** — the recorded quote was truncated one sentence early, and the next sentence is *"I don't need to invent any new terms here; if another one exists, I'll jump on the bandwagon."* The term now has **no located coiner**. See `13-library-sweep.md` and `03-agent-engineering.md` §7.2.
+
+**Mitchell Hashimoto** publishes the fullest statement of `harness engineering`
+on **5 Feb 2026**, adopting rather than coining it. This OpenAI post is dated
 **11 Feb 2026** — **six days later**. Record the **sequence** as a fact; any
 claim of influence in either direction is **`[unverified]`** and must not be
 asserted. The post itself does not claim to coin the phrase and does not cite
 Hashimoto. It remains true that the term is **not Pocock's**.
+
+The sequence is also **longer than these two dates suggest**: the compound
+already appears in Horthy's talk published **2 Dec 2025**, two months before
+Hashimoto. Do not present 5 Feb 2026 as an origin point.
 
 ---
 
