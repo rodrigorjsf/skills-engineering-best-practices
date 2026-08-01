@@ -166,7 +166,7 @@ ledger.commit();</code></pre>
 
 <h3>E aqui está a parte que costuma surpreender</h3>
 
-<p>Não foi escrita <em>nenhuma</em> linha nova de implementação. As cinco instruções que estavam no caller viraram o corpo de <code>post</code>, sem alterar uma vírgula:</p>
+<p>Não foi escrita <em>nenhuma</em> linha nova de implementação. As cinco chamadas e a checagem da invariante que estavam no caller viraram o corpo de <code>post</code>, sem alterar uma vírgula:</p>
 
 <pre><code><span class="k">public final class</span> <span class="t">DeepLedger</span> {
 
@@ -464,7 +464,7 @@ B. DeepLedger — the same five statements, moved inside
 <details class="recall">
   <summary>Recall livre — a mais difícil: como a <em>mesma</em> implementação pode ser deep num caso e shallow no outro?</summary>
   <p>Porque <strong>depth não é uma propriedade do código; é uma propriedade da fronteira</strong>. Ela mede o que o caller precisa carregar na cabeça, e o caller não vê a implementação — vê a interface. Mova a mesma sequência para dentro e o custo do caller cai a um; deixe-a fora e ele paga seis métodos, uma ordem e uma invariante para obter o mesmo resultado.</p>
-  <p>É por isso que a figura do Ousterhout tem dois eixos e nenhum deles é linha de código: a área é <em>o que você ganha</em>, a aresta de cima é <em>o que você paga</em>. Inchar a implementação não move nem um nem outro.</p>
+  <p>É por isso que a figura do Ousterhout mede duas grandezas e nenhuma delas é linha de código: a área é <em>o que você ganha</em>, a aresta de cima é <em>o que você paga</em>. Inchar a implementação não move nem um nem outro.</p>
   <p>E o corolário operacional, que você usa amanhã: quando um module te obriga a lembrar de uma <em>ordem</em>, ele está te cobrando interface que não aparece em assinatura nenhuma. É quase sempre onde o próximo bug mora.</p>
 </details>
 
@@ -478,7 +478,7 @@ B. DeepLedger — the same five statements, moved inside
 
 <div class="callout seam">
   <span class="callout-title">Adendo — indireção não é profundidade</span>
-  <p>Depth é <strong>comportamento por unidade de interface aprendida</strong>. Uma interface com um único implementador acrescenta interface e <strong>zero</strong> comportamento — é o caso mais puro de módulo raso que existe, e ele costuma ser criado em nome de boas intenções.</p>
+  <p>Depth é <strong>comportamento por unidade de interface aprendida</strong>. Uma interface com um único implementador acrescenta interface e <strong>zero</strong> comportamento — é o caso mais puro de <span class="en">shallow module</span> que existe, e ele costuma ser criado em nome de boas intenções.</p>
   <p>O repositório tem uma frase exata para isso, em <code>DEEPENING.md:29</code>: <em>"A single-adapter seam is just indirection."</em> A <a href="0006-dependency-inversion.html">lição 0006</a> transforma essa frase num detector de sete linhas que você pode apontar para um pacote Java de verdade.</p>
 </div>
 
@@ -489,7 +489,7 @@ B. DeepLedger — the same five statements, moved inside
 <div class="sources">
   <h4>Fontes desta lição</h4>
   <ol>
-    <li>John Ousterhout, <em>A Philosophy of Software Design</em>, <strong>1ª edição, abril de 2018</strong>, Yaknyam Press, Palo Alto, ISBN 978-1-7321022-0-0 — Cap. 4 "Modules Should Be Deep". Citações: §4.4 ebook pp. 34–35 (definição de deep, o retângulo, custo × benefício); §4.5 pp. 36–37 (shallow, "small modules tend to be shallow", Unix I/O); §4.1 p. 32; §2.2 p. 20; §9.8 p. 80; §6.1 e §6.3 pp. 51 e 53. Edição e ISBN lidos da página de copyright do próprio livro. <span class="flag cited">texto conferido</span> <span class="caption" style="border:0;padding:0;display:inline">Páginas de ebook não são páginas de impressão, e nunca se transferem entre edições.</span></li>
+    <li>John Ousterhout, <em>A Philosophy of Software Design</em>, <strong>1ª edição, abril de 2018</strong>, Yaknyam Press, Palo Alto, ISBN 978-1-7321022-0-0 — Cap. 4 "Modules Should Be Deep". Citações: §4.4 ebook pp. 34–36 (definição de deep, o retângulo, custo × benefício, Unix I/O); §4.5 pp. 36–37 (shallow, "small modules tend to be shallow"); §4.1 p. 32; §2.2 p. 20; §9.8 p. 80; §6.1 e §6.3 pp. 51 e 53. Edição e ISBN lidos da página de copyright do próprio livro. <span class="flag cited">texto conferido</span> <span class="caption" style="border:0;padding:0;display:inline">Páginas de ebook não são páginas de impressão, e nunca se transferem entre edições.</span></li>
     <li>John Ousterhout, <a href="https://web.stanford.edu/~ouster/cgi-bin/cs190-spring16/lecture.php?topic=modularDesign">CS 190, "Modular Design"</a> (Spring 2016) e <a href="https://web.stanford.edu/~ouster/cgi-bin/cs190-winter18/lecture.php?topic=modularDesign">Winter 2018</a>, servidor dele em Stanford — a razão <code>functionality/(interface complexity)</code>. <span class="flag cited">verbatim</span></li>
     <li><a href="https://se-radio.net/2022/07/episode-520-john-ousterhout-on-a-philosophy-of-software-design/">Software Engineering Radio, ep. 520</a>, transcrição publicada, 00:27:48 e 00:34:57 — o retângulo em palavras dele, e o numerador que ele diz não saber definir. <span class="flag cited">verbatim</span></li>
     <li>Matt Pocock, <a href="https://github.com/mattpocock/skills">mattpocock/skills</a> — <code>codebase-design/SKILL.md:20,62,63,107</code>; <code>README.md:166-168</code>. Docs publicados em <code>https://aihero.dev/skills-codebase-design</code>. <span class="flag cited">verbatim</span></li>
