@@ -60,7 +60,7 @@ The tell for each. The tautological test as a specifically LLM-shaped failure �
 ## Track III — Language: how you agree
 
 **0011 — Ubiquitous language and the glossary as an artifact**
-Evans' original claim. The repo's operational form: `CONTEXT.md`, "totally devoid of implementation details… a glossary and nothing else." The `_Avoid_:` convention — recording rejected synonyms is as valuable as recording the chosen term. Java: renaming a class after a glossary fight, and what stopped being ambiguous.
+Evans' original claim. The repo's operational form: `CONTEXT.md`, "totally devoid of implementation details… a glossary and nothing else." **Do not teach this as a divergence from Evans** — it was checked and there isn't one. Evans insists on speech (his section is titled *Modeling Out Loud*: *"We naturally come to share the language that we speak in a way that never happens with diagrams and documents"*) but explicitly does not forbid documents (*"a group of any size will probably need the stability and sharability of some written documents"*), and his first liveness criterion — *"a document shouldn't try to do what the code already does well"* — is what the repo satisfies nearly word for word. The teachable point is **ours, and flagged as ours**: the repo swaps a self-correcting medium for one with no self-correction, which makes Evans' liveness test *more* load-bearing, not less. The `_Avoid_:` convention — recording rejected synonyms is as valuable as recording the chosen term. Java: renaming a class after a glossary fight, and what stopped being ambiguous.
 
 **0012 — Bounded context and context maps**
 When one glossary is not enough. `CONTEXT-MAP.md` as the repo's form. Java: `Account` meaning two different things in ledger and in onboarding.
