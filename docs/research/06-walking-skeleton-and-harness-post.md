@@ -1,5 +1,8 @@
 # 06 — Walking skeleton, tracer bullet, vertical slice · and OpenAI's "Harness engineering" post
 
+> **Renumbering note, 2026-08-01.** References to "lesson 0006" below mean the **vertical slice / tracer bullet / walking skeleton** lesson, which became **0008** when DIP took 0006 and YAGNI/DRY took 0007. Numbers updated in place; this note records why.
+
+
 Both items were carried in `RESOURCES.md` `## Gaps`. **Both are now settled.**
 Every claim below carries a tier: **Quoted** · **Metadata verified** ·
 **Chapter located** · **`[unverified]`**.
@@ -72,7 +75,7 @@ text from *Crystal Clear* (2004):
 > the rest of the project, despite the Incremental Rearchitecture that is quite
 > likely to occur.
 
-**The load-bearing sentence for lesson 0006 — Cockburn himself naming the
+**The load-bearing sentence for lesson 0008 — Cockburn himself naming the
 neighbours, verbatim (Quoted):**
 
 > Other authors have other names for similar sorts of ideas. The Poppendiecks
@@ -204,7 +207,7 @@ Do not cite it as `Quoted` in a lesson. What was tried: `archive.org`
 full-text API (timed out / no result), and `pragprog.com` for a free sample
 chapter (only the tips list is public). The *content* of that sentence is
 independently supported at **Quoted** tier by the Artima interview above and by
-Cockburn's skeleton-vs-spike passage, so lesson 0006 loses nothing by dropping
+Cockburn's skeleton-vs-spike passage, so lesson 0008 loses nothing by dropping
 it.
 
 ---
@@ -216,7 +219,7 @@ it.
 **`[unverified]`.** Unlike the other two, "vertical slice" as a *work-slicing*
 term has **no located coiner**. It circulates through agile story-splitting
 practice with no attributable first use found in this pass. **Do not assign it
-a coiner in lesson 0006.**
+a coiner in lesson 0008.**
 
 **A homonym trap worth recording.** "Vertical Slice Architecture" — a *code
 organisation* pattern, popularised by Jimmy Bogard around 2018 — is a
@@ -300,7 +303,7 @@ confused.
 
 **And Cockburn's own verdict on the relationship, quoted above, is the
 strongest available evidence:** he calls tracer bullets *"other names for
-similar sorts of ideas"* — kinship, explicitly not identity. Lead lesson 0006
+similar sorts of ideas"* — kinship, explicitly not identity. Lead lesson 0008
 with that sentence; it is a primary source stating the very relationship the
 lesson has to teach.
 

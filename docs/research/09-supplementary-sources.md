@@ -1,5 +1,8 @@
 # 09 — Two supplementary sources in `docs/books/`: provenance before content
 
+> **Renumbering note, 2026-08-01.** References to "lesson 0006" below mean the **vertical slice / tracer bullet / walking skeleton** lesson, which became **0008** when DIP took 0006 and YAGNI/DRY took 0007. Numbers updated in place; this note records why.
+
+
 Two files the reader added to `docs/books/` on 2026-08-01. Neither is a book by
 the standard the rest of `docs/books/` meets. This pass is about **provenance**;
 content is secondary and, for one of the two, largely irrelevant.
@@ -471,7 +474,7 @@ caveats in bold). **Recommendation only — this pass does not edit the file.**
 
 ```markdown
 - **Richard Monson-Haefel (ed.), _97 Things Every Software Architect Should Know_** — O'Reilly Media, **2009**, ISBN `9780596522698` (print) / `9780596800611` (ebook)
-  97 one-page axioms, each signed by a named architect. Use for: **#60 "Start with a Walking Skeleton" (Clint Shank)**, which attributes the term to Cockburn in a second, independent voice — good corroboration for lesson 0006.
+  97 one-page axioms, each signed by a named architect. Use for: **#60 "Start with a Walking Skeleton" (Clint Shank)**, which attributes the term to Cockburn in a second, independent voice — good corroboration for lesson 0008.
   **ISBN source is OpenLibrary, a catalogue — the O'Reilly page returns 403 to automated fetch.** Name the format when citing.
   **The copy in `docs/books/` is NOT this edition and must never be the citation.** It is a 119-page Word-2007 PDF compiled 2009-11-05 by "Manohar S" from the O'Reilly-run wiki `97-things.near-time.net`, containing by its own front matter *"the original, unedited contributions for the book"* — the pre-edit submissions, not the printed text. It is complete (97 of 97 items) and 96 of 97 keep their author byline — the one lost is #47 "Welcome to the Real World", which the wiki credits to Gregor Hohpe — so it is a fine **finding aid**; it carries no ISBN, no copyright page, and its *"Creative Commons Attribution 3"* line is the compiler's claim, **unconfirmed** on any archived source page. Quote from the book, or from the archived wiki page ([capture 2009-10-26](https://web.archive.org/web/20091026154341/http://97-things.near-time.net/wiki/97-things-every-software-architect-should-know-the-book)) cited *as a wiki contribution*. See `docs/research/09-supplementary-sources.md`.
 - **Kousar, H. & Kumar, K., "Walking Skeleton Strategy in a Test Driven Development"** — *International Journal of Scientific and Research Publications* **4(4), April 2014**, ISSN `2250-3153`, 6 pp., **no DOI** (IJSRP states it has issued DOIs only *"since March 2018"*). <https://www.ijsrp.org/research-paper-0414/ijsrp-p2821.pdf>

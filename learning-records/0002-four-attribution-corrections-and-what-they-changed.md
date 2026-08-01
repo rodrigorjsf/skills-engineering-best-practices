@@ -47,4 +47,4 @@ first pass and its own on the second.
 ## Open, and deliberately so
 
 `vertical slice` still has **no located coiner** and must not be assigned one in
-lesson 0006. See `docs/research/06-walking-skeleton-and-harness-post.md`.
+lesson 0008 (renumbered from 0006 on 2026-08-01; see record 0003). See `docs/research/06-walking-skeleton-and-harness-post.md`.
