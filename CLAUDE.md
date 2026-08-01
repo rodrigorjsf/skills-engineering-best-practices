@@ -109,3 +109,5 @@ When something fails repeatedly, when User has to re-explain, or when a workarou
 - Force dark for a screenshot by stubbing `matchMedia`; `data-theme` alone is overwritten.
 - A `.figure.wide` collides with a sidenote beside it; move the sidenote up a paragraph.
 - `--virtual-time-budget` freezes CSS transitions mid-flight; set `data-theme` pre-paint.
+- Scanned PDF: `tesseract` locates the page, then read the 300dpi image to quote.
+- A book's CIP block predates its copyright line by a year; cite the copyright line.

@@ -13,7 +13,7 @@
 | File | Pages | Text layer | Producer / metadata | Verdict |
 |---|---|---|---|---|
 | `Clean Architecture…pdf` | 444 | **yes**, 524,181 chars | calibre 3.7.0; `author: Robert C. Martin`; title matches | **Quotable.** Publisher front matter present |
-| `Agile Software Development.pdf` | 557 | **none** — 0 chars over a 40-page sample, 1 image per page | **empty metadata**: no title, author, producer or creator | **Not quotable.** Image-only scan; identity unconfirmed |
+| `Agile Software Development.pdf` | 557 | **none** — 0 chars over a 40-page sample, 1 image per page | **empty metadata**: no title, author, producer or creator | **Quotable via OCR + visual verification — see §3.** Identity and © 2003 confirmed from the copyright page |
 | `System Design Interview_ Grokking the educative.pdf` | 179 | yes | `producer: Skia/PDF m76` — Chrome print-to-PDF | **Not a book.** A web capture of educative.io |
 | `2018-John Ousterhout…`, `97-things…`, `DDD - Eric Evans`, `Walking_Skeleton…`, `Working Effectively with Legacy Code` | — | — | — | Already triaged in earlier passes; unchanged |
 
@@ -82,6 +82,8 @@ Every one of the four coding practices that follows carries the qualifier <span>
 > - Don't override concrete functions.
 > - Never mention the name of anything concrete and **volatile**. This is really just a restatement of the principle itself.
 
+> **⚠️ Dating retracted by §3.** The paragraphs below originally read the volatility gate as a **2018** self-correction, twenty-one years after the 1996 line. **It is already in Agile PPP, 2003, p. 129.** The convergence claim survives; the chronology does not. Read §3 before using any of this.
+
 ### Why this changes a shipped lesson
 
 `lessons/0006-dependency-inversion.html` §4 opens with a counter-datum, and it is Martin's 1996 line:
@@ -122,18 +124,73 @@ Lesson 0006 already makes the point that **part B is the half retellings drop**,
 
 ---
 
-## 3 · NOT CLOSED — *Agile PPP*, and why
+## 3 · *Agile PPP* — READ AFTER ALL, and it corrects §2
 
-`RESOURCES.md` wanted *Agile PPP* Ch. 11, *"DIP: The Dependency-Inversion Principle"* — **TOC confirmed, body not read**.
+> **⚠️ This section replaces a wrong recommendation.** It first read *"do not OCR it, and do not cite it"*, on the grounds that OCR is not verbatim text and the book's identity was unconfirmed. **The reader pushed back and was right.** Both objections dissolved on contact with the evidence, and the chapter turns out to contain the one thing the 2018 book does not. Recorded rather than quietly rewritten.
 
-**The body still has not been read, and this PDF cannot read it.** 557 pages, one image per page, **zero extractable characters**, and no metadata of any kind — no title, no author, no producer. Two independent problems:
+### Method, and why the resulting quotes are not second-class
 
-1. **It cannot be quoted** without an OCR pass, and OCR output is not verbatim text — it is a transcription with an error rate, and would need its own evidence sub-tier.
-2. **Its identity is unconfirmed.** Nothing inside it has been read that says it is Martin's *Agile Software Development: Principles, Patterns, and Practices*. The filename is not evidence.
+`tesseract 5.5.3` with `eng` is installed. Pages were rendered from the scan at **300 dpi** with PyMuPDF and OCR'd. Quality on body text is high; only display type on the cover garbles.
 
-**Recommendation: do not OCR it, and do not cite it.** *Clean Architecture* Ch. 11 already supplies the qualification that was wanted, from the same author, verbatim, with publisher front matter and index-derived locators. *Agile PPP* would be corroboration of a point already made — the weakest possible return for the most expensive possible extraction. The gap note should be rewritten to say the question is **answered from the 2018 book**, with *Agile PPP* left explicitly unread rather than pending.
+**But the quotes below are not trusted to OCR.** OCR was used only to *locate* the chapter — a cheap scan of the top 28% of 75 pages, matching a heading. Every sentence quoted here was then **read directly off the rendered page image** before being written down. The evidence tier is therefore **Quoted**, not a lesser sub-tier: the page was read, exactly as a page of a text-layer PDF is read.
 
-The **© 2003 (not 2002)** correction for *Agile PPP* was already verified against Pearson's own pages and is unaffected.
+Locators are solid. A page footer gives `130 Chapter 11 · DIP: The Dependency-Inversion Principle` at PDF page 154, fixing the offset at **printed = PDF − 24**.
+
+### Identity and date, confirmed from inside the artifact
+
+The Library of Congress page and the copyright line, read at 300 dpi:
+
+> Martin, Robert C. **Agile software development: principles, patterns, and practices** / Robert Martin. … **ISBN 0-13-597444-5** … QA76.76.D47 M362 2002 … 005.1—dc21 2002070056
+>
+> **Prentice © 2003 by Pearson Education, Inc.**
+
+**Metadata verified**, from the book rather than from a publisher's web page. This **independently confirms the © 2003 (not 2002)** correction already carried in `RESOURCES.md` — and shows where the wrong year comes from: the **CIP data is stamped 2002**, a year before publication. Anyone reading the catalogue block instead of the copyright line gets 2002.
+
+### Finding 1 — the volatility gate is **not** a 2018 self-correction
+
+This is the correction to §2 of this file. Printed **p. 129**, section *Depend On Abstractions* <span>QUOTED — read from the page image</span>:
+
+> A somewhat more **naive**, yet still very powerful, interpretation of the DIP is the simple heuristic: "Depend on abstractions." Simply stated, this heuristic recommends that you should not depend on a concrete class—that all relationships in a program should terminate on an abstract class or an interface.
+>
+> Certainly this heuristic **is usually violated at least once in every program**. Somebody has to create the instances of the concrete classes, and whatever module does that will depend on them. Moreover, **there seems no reason to follow this heuristic for classes that are concrete but nonvolatile. If a concrete class is not going to change very much, and no other similar derivatives are going to be created, then it does very little harm to depend on it.**
+
+**The exception is already there in 2003.** §2 of this file framed the volatility gate as Martin correcting his own 1996 unconditional scope twenty-one years later. That framing is wrong and is retracted. The actual arc:
+
+| Year | What he writes | The gate |
+|---|---|---|
+| 1996, *The C++ Report* | *"can be applied wherever one class sends a message to another"* | none stated |
+| **2003, Agile PPP p. 129** | *"no reason to follow this heuristic for classes that are concrete but nonvolatile"* | **present, as an exception** |
+| 2018, *Clean Architecture* Ch. 11 | *"treating this idea as a rule is unrealistic"*; all four practices say **volatile** | promoted to the organizing idea |
+
+So the gate was **seven years** behind the unconditional line, not twenty-one, and 2018 promotes an existing exception rather than inventing a qualification. The convergence claim in §2 survives intact — three independent statements of the same gate — but its **dating and its character were wrong**.
+
+### Finding 2 — Martin calls the folk version "naive" himself
+
+Lesson 0006's whole first move is that *"use an interface"* is not inversion. **Martin says so in his own voice**, and the word he uses is *naive* — twice on facing pages. Printed p. 128, of the layering diagram: *"A naive interpretation of this statement might lead a designer to produce a structure similar to Figure 11-1."* Then p. 129, of the heuristic itself, quoted above.
+
+This is a **primary source for a claim the lesson currently argues on its own**. It is also the sharper counter-datum: the lesson uses the 1996 unconditional line, and Dan North diagnosing the resulting shadow codebases. Martin naming the naive reading himself is stronger and more generous than both.
+
+### Finding 3 — both parts are present in 2003, which brackets the 2018 silence
+
+Printed **p. 127**, verbatim, <span>QUOTED — read from the page image</span>:
+
+> **DIP: The Dependency-Inversion Principle**
+> **a.** High-level modules should not depend on low-level modules. Both should depend on abstractions.
+> **b.** Abstractions should not depend on details. Details should depend on abstractions.
+
+Note the **hyphen** — *Dependency-Inversion* in 2003, unhyphenated in the 1996 article and in 2018.
+
+§2 recorded that the two-part wording has **0 hits** in *Clean Architecture*. That observation now has a bracket rather than being a lone silence: **present 1996 → present 2003 → wording absent 2018.** The §2 restraint still applies in full — this dates a disappearance, it does **not** license saying he abandoned part B.
+
+### Finding 4 — why the word "inversion", in his own words
+
+Printed **p. 127** <span>QUOTED — read from the page image</span>:
+
+> Over the years, many have questioned why I use the word "inversion" in the name of this principle. It is because more traditional software development methods, such as Structured Analysis and Design, tend to create software structures in which high-level modules depend on low-level modules, and in which policy depends on detail.
+
+Lesson 0006's figure caption asserts *"É daí que vem a palavra 'inversion'"* and reasons it out from the diagram. **Martin explains it directly.** Cite him instead of reasoning it out.
+
+Also on p. 129, the *Hollywood principle* — *"Don't call us, we'll call you"* — named as another framing of the same inversion of ownership.
 
 ## 4 · NOT A SOURCE — *System Design Interview*
 
@@ -149,7 +206,7 @@ Chrome print-to-PDF (`Skia/PDF m76`) of educative.io course pages. Measured over
 |---|---|
 | `SOLID` — who coined the acronym? | **RESOLVED** — Martin's own words, printed p. 58, quoted |
 | `Clean Architecture`'s stable/volatile qualification | **RESOLVED** — Ch. 11 + *Stable Abstractions*, quoted |
-| *Agile PPP* Ch. 11 body | **Closed as won't-do**, with reason. Not pending |
+| *Agile PPP* Ch. 11 body | **RESOLVED** — read via OCR + visual verification. Four findings, one of which **retracts §2's dating** |
 | Two arXiv paper bodies | untouched |
 | `vertical slice` has no located coiner | untouched |
 | Rule of Three attribution | untouched |
@@ -158,4 +215,7 @@ Chrome print-to-PDF (`Skia/PDF m76`) of educative.io course pages. Measured over
 **Two new items for `RESOURCES.md`:**
 
 - **`Clean Architecture` is now a first-class primary source**, not a chapter-located one: text layer verified, publisher front matter present, index usable for locators.
+- **`Agile PPP` is too**, by a different route — see §3 for the method.
 - **New hazard:** a calibre-converted ebook carries **no page labels**, so PDF page numbers are not printed page numbers and the offset drifts. **Use the book's own back-of-book index to resolve a printed page.** Do not compute one from an offset.
+- **New method, and the standing rule that comes with it.** *"No text layer"* is **not** the same as *"not readable"*. `tesseract` is installed; render at 300 dpi and OCR. **But never quote OCR output.** Use OCR to *locate* — cheaply, by cropping page headers — then **read the rendered page image directly** before writing a quote down. That keeps the evidence tier at **Quoted**, because the page really was read. A scanned page footer also fixes the printed-page offset exactly, which a reflowed ebook cannot do.
+- **Watch the CIP trap.** A Library of Congress cataloguing block is stamped up to a year **before** publication — *Agile PPP* reads `2002` in the CIP block and **`© 2003`** on the copyright line four lines below. That is the likely source of the wrong year in circulation. **Read the copyright line, not the catalogue block.**
