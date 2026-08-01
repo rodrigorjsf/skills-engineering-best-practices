@@ -1,5 +1,6 @@
 <title>0001 — Seam</title>
 <link rel="stylesheet" href="../assets/style.css">
+<script src="../assets/mermaid.min.js" defer></script>
 <script src="../assets/lesson.js" defer></script>
 
 <div class="page">
@@ -273,6 +274,29 @@ Rule verified end to end: YES
   </tbody>
 </table>
 </div>
+
+<figure class="figure">
+<pre class="mermaid">
+flowchart LR
+  SRC["`código-fonte
+idêntico em prod e teste`"] --> PRE["pré-processador"] --> COMP["compilador"] --> LINK["linker"] --> RUN["runtime"]
+
+  PRE -.-> E1["`**preprocessing seam**
+enabling point: diretiva define`"]
+  LINK -.-> E2["`**link seam**
+enabling point: makefile ou IDE
+fora do texto do programa`"]
+  RUN -.-> E3["`**object seam**
+enabling point: lista de argumentos
+ou construtor`"]
+
+  classDef stage fill:none,stroke:#8a8a80,color:#8a8a80
+  classDef seam fill:#dcecea,stroke:#1f6f6b,color:#14302f,stroke-width:2px
+  class SRC,PRE,COMP,LINK,RUN stage
+  class E1,E2,E3 seam
+</pre>
+<figcaption><b>O que notar.</b> Os seams não são inventados — eles <em>caem</em> das etapas que já existem entre o seu texto e o programa rodando. Repare que o enabling point vai ficando mais perto do código conforme você desce o pipeline: no <code>link seam</code> ele está fora do texto do programa (por isso Feathers avisa que é <em>"hard to notice"</em>); no <code>object seam</code> ele é uma lista de argumentos que você lê na própria assinatura. É por isso que object seam é o mais explícito — e o recomendado em Java.</figcaption>
+</figure>
 
 <p>E o veredito dele, que vale para Java:</p>
 
