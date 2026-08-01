@@ -383,13 +383,20 @@ Citações no formato <code>arquivo:linha</code> apontam para o repo upstream
 </blockquote>
 <p>E a consequência diagnóstica: <em>"When behaviour differs between two products, or between yesterday and today, the model is often not the variable — the harness is."</em></p>
 
-<h3 id="harness-engineering">Harness engineering <span class="flag coinage">cunhagem rastreada</span></h3>
-<p>Fonte primária: Mitchell Hashimoto, <a href="https://mitchellh.com/writing/my-ai-adoption-journey">"My AI Adoption Journey"</a>, 5 fev 2026. Ele <strong>se identifica como quem cunhou</strong>:</p>
+<h3 id="harness-engineering">Harness engineering <span class="flag unverified">sem cunhador localizado</span></h3>
+<p>A prática é clara e bem documentada: sempre que o agente erra, faça uma correção <em>permanente</em> no ambiente dele — documentação melhor, uma ferramenta nova, um check — de modo que ele não possa cometer aquele erro de novo. <strong>Quem batizou isso, não se sabe.</strong></p>
+<p>A citação mais completa é de Mitchell Hashimoto, <a href="https://mitchellh.com/writing/my-ai-adoption-journey">"My AI Adoption Journey"</a>, 5 fev 2026 — e ela <strong>recusa</strong> a cunhagem, na mesma frase em que adota o termo:</p>
 <blockquote class="source">
-  <p>I don't know if there is a broad industry-accepted term for this yet, but I've grown to calling this "harness engineering."</p>
+  <p>I don't know if there is a broad industry-accepted term for this yet, but I've grown to calling this "harness engineering." … <strong>I don't need to invent any new terms here; if another one exists, I'll jump on the bandwagon.</strong></p>
   <cite>Hashimoto, 5 fev 2026 <span class="flag cited">verbatim</span></cite>
 </blockquote>
-<p>A prática: sempre que o agente erra, faça uma correção <em>permanente</em> no ambiente dele — documentação melhor, uma ferramenta nova, um check — de modo que ele não possa cometer aquele erro de novo.</p>
+<p class="sidenote">Correção registrada em 2026-08-01. Esta entrada dizia <em>"ele se identifica como quem cunhou"</em> — e a citação logo abaixo já dizia o contrário. <em>"I've grown to calling this"</em> é adoção, não invenção. O curso trata cunhagem mal atribuída como o defeito mais grave disponível aqui, e este era um caso dele, na nossa própria prateleira.</p>
+<div class="callout evidence">
+  <span class="callout-title">Três candidatos, nenhum sustentado</span>
+  <p>O composto <strong>já circulava antes</strong> do post do Hashimoto: Dex Horthy o usa em <em>No Vibes Allowed</em> (publicado em 2 dez 2025) chamando-o de <em>"a hypy word"</em> — o que pressupõe circulação anterior. <span class="flag unverified">transcrição ASR; a data de <em>entrega</em> da palestra não está verificada</span></p>
+  <p>E duas retrospectivas de março de 2026, publicadas com <strong>dois dias de diferença</strong>, apontam <strong>cunhadores diferentes</strong> — uma diz Hashimoto, outra diz Vivek Trivedy. A segunda não se sustenta: o post do Trivedy de 23 set 2025 cunha <em>"Harness as a Service (HaaS)"</em>, e o composto <em>harness engineering</em> não aparece nele nenhuma vez.</p>
+  <p><strong>Vereditos que continuam de pé:</strong> não é do Matt Pocock — ele define <code>harness</code>, que também não cunhou. Evidência completa em <code>docs/research/13-library-sweep.md</code>.</p>
+</div>
 <p><strong>Relação com "test harness":</strong> <span class="flag ours">nossa analogia</span>. Nenhuma fonte primária afirma que o uso em IA é um empréstimo deliberado do termo de engenharia de software. O que é verificável é que os dois convergem estruturalmente: ambos são o andaime não-produto que torna um artefato inerte executável e observável.</p>
 
 <h3 id="deep-tools">Deep tools <span class="flag ours">nossa analogia</span></h3>

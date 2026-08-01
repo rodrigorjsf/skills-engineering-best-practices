@@ -327,13 +327,23 @@ And the diagnostic consequence, verbatim:
 
 > "the harness is where most of your configuration lives: AGENTS.md files, permission settings, and hooks are all instructions to the harness, not the model."
 
-### 7.2 "Harness engineering" — `[PRACTITIONER — coinage traced to a primary source]`
+### 7.2 "Harness engineering" — `[PRACTITIONER — no located coiner]`
 
-**Verdict: traced. Mitchell Hashimoto self-identifies as coining it, and explicitly says no industry term existed yet.**
+> **⚠️ CORRECTED 2026-08-01.** This section previously read *"Verdict: traced. Mitchell Hashimoto self-identifies as coining it."* **That verdict does not survive its own quote.** The correction and its evidence are in `docs/research/13-library-sweep.md`; the reader-facing entry in `reference/0001-glossary.html#harness-engineering` was corrected in the same commit.
 
-**Primary source.** Mitchell Hashimoto, **"My AI Adoption Journey"**, **5 February 2026**. <https://mitchellh.com/writing/my-ai-adoption-journey>
+**Verdict: the practice is well documented; the coinage is not located.** Treat it like `vertical slice` — a real term of art with no attributable origin. **Do not assign it a coiner.**
 
-> "I don't know if there is a broad industry-accepted term for this yet, but I've grown to calling this 'harness engineering.'"
+**Fullest primary statement.** Mitchell Hashimoto, **"My AI Adoption Journey"**, **5 February 2026**. <https://mitchellh.com/writing/my-ai-adoption-journey>
+
+> "I don't know if there is a broad industry-accepted term for this yet, but I've grown to calling this 'harness engineering.' … **I don't need to invent any new terms here; if another one exists, I'll jump on the bandwagon.**"
+
+**Why the old verdict failed.** The quote was truncated one sentence too early. *"I've grown to calling this"* is adoption, not invention, and the sentence that follows disclaims invention outright. Nothing about the demotion rests on the ASR transcript below — Hashimoto's own written text is sufficient on its own.
+
+**Three further data points, all in `13-library-sweep.md`:**
+
+1. The compound is already in **Dex Horthy**'s *No Vibes Allowed* (upload date **2 Dec 2025**, before Hashimoto's post), where he calls it *"a hypy word"* — presupposing prior circulation. `[QUOTED — ASR]`; the talk's *delivery* date is `[unverified]`.
+2. Two March-2026 write-ups published **two days apart** name **two different coiners** (Hashimoto; Trivedy).
+3. The Trivedy attribution **fails on fetch**: his 2025-09-23 post coins *"Harness as a Service (HaaS)"*, and `harness engineering` occurs **zero times** in it.
 
 The practice he describes: whenever an agent makes a mistake, engineer a permanent fix into the agent's environment — better documentation, a new tool, a check — so it cannot make that mistake again, *"usually paired with an AGENTS.md change to let it know about this existing."*
 
